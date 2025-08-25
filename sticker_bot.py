@@ -5,8 +5,7 @@ from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
 
 # ✅ Get token from environment variable
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-
+BOT_TOKEN = "8278841870:AAFG2D9dBcU6QXR6lctmnfeNRvJnrzXh-WA"
 # ✅ Replace these with your actual chat IDs
 ALLOWED_CHAT_IDS = {
     -1003013260570,  # Deku(testing channel)
