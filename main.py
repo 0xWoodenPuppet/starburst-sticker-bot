@@ -23,8 +23,9 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # 2. ADMIN USER ID
 # To find your ID, message @userinfobot on Telegram.
-BOT_ADMIN_ID = 1463187459 #the wooden puppet
-BOT_ADMIN_ID = 7441793409 #non
+BOT_ADMIN_ID = { 1463187459, #the wooden
+                7441793409, # non
+                }
 
 # 3. ALLOWED CHAT IDs
 ALLOWED_CHAT_IDS = {
