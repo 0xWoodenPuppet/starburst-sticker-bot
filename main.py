@@ -31,7 +31,7 @@ ALLOWED_CHAT_IDS = {
     -1002511165129,  #notebookofdeku
     -1002606388153, #academically cooked weapons chat
     -1002873451604, # harsh, non channel
-    -1421907917, # non group
+    -1002360379386, # non group
 }
 
 # 4. COOLDOWN PERIOD
