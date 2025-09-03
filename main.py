@@ -4,7 +4,6 @@ import time
 import threading
 import csv
 import sys
-import random
 
 from flask import Flask
 from telegram import Update
@@ -19,23 +18,26 @@ from telegram.ext import (
 
 # --- ⚙️ START OF CONFIGURATION ---
 
+# 1. BOT TOKEN
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-BOT_ADMIN_ID = 7441793409  # the wooden puppet
+# 2. ADMIN USER ID
+BOT_ADMIN_ID = 7441793409 #the wooden puppet
 
+# 3. ALLOWED CHAT IDs
 ALLOWED_CHAT_IDS = {
-    -1002872422543,  # Deku
-    -1002511165129,  # notebookofdeku
-    -1002606388153,  # academically cooked weapons chat
-    -1002873451604,  # harsh, non channel
-    -1002360379386,  # non group
-    -4903717147, # deku group
+    -1002872422543,  #Deku
+    -1002511165129,  #notebookofdeku
+    -1002606388153,  #academically cooked weapons chat
+    -1002873451604,  #harsh, non channel
+    -1002360379386,  #non group
 }
 
-COOLDOWN = 5  # Sticker cooldown
-NUDGE_COOLDOWN = 120  # seconds between nudges
+# 4. COOLDOWN PERIOD
+COOLDOWN = 5
 
 # --- END OF CONFIGURATION ---
+
 
 # 📂 Load triggers
 all_triggers = []
@@ -50,51 +52,57 @@ except FileNotFoundError:
     sys.exit(1)
 
 all_triggers.sort(key=lambda item: len(item[0]), reverse=True)
+
 TRIGGERS = {trigger: sticker_id for trigger, sticker_id in all_triggers}
 TRIGGER_PATTERNS = {
     trigger: re.compile(rf"(?<!\S){re.escape(trigger)}(?!\S)", re.IGNORECASE)
     for trigger in TRIGGERS
 }
+
+# ⏳ Cooldown system
 last_trigger_time = {}
 
-# --- 🛠️ Nudge Feature ---
-nudges = {}        # {user_id: end_time}
-last_nudge = {}    # {user_id: last_nudge_time}
-NUDGES = [
-    "Focus! 🔪",
-]
+# --- NUDGE FEATURE ---
+nudges = {}  # user_id -> end_time
+
 
 async def nudge(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Start nudging a user for given minutes."""
     user_id = update.effective_user.id
     if not context.args:
-        await update.message.reply_text("Usage: /nudge <minutes>")
+        await update.message.set_reaction("❌")
         return
 
     try:
         minutes = int(context.args[0])
     except ValueError:
-        await update.message.reply_text("Please enter a valid number of minutes.")
+        await update.message.set_reaction("⚠️")
         return
 
     end_time = time.time() + minutes * 60
     nudges[user_id] = end_time
-    await update.message.reply_text(f"✅ Okay, I'll nudge you for {minutes} minutes!")
+    await update.message.set_reaction("✅")
+
 
 async def stop_nudge(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Stop nudging the user."""
     user_id = update.effective_user.id
     if user_id in nudges:
         del nudges[user_id]
-        await update.message.reply_text("🛑 Nudging stopped.")
+        await update.message.set_reaction("🛑")
     else:
-        await update.message.reply_text("You don't have an active nudge.")
+        await update.message.set_reaction("❌")
+
 
 # --- Sticker Response Logic ---
+
 async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Checks messages for triggers or nudges and replies with stickers."""
     chat = update.effective_chat
     if not chat or chat.id not in ALLOWED_CHAT_IDS:
         return
 
-    # Handle group messages
+    # Group messages
     if update.message and update.message.text:
         if update.message.forward_origin or update.message.sender_chat:
             return
@@ -103,25 +111,22 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         key = (chat.id, user.id)
         now = time.time()
 
-        # ✅ Sticker logic
-        if now - last_trigger_time.get(key, 0) >= COOLDOWN:
-            text = update.message.text
-            for trigger, pattern in TRIGGER_PATTERNS.items():
-                if pattern.search(text):
-                    await update.message.reply_sticker(sticker=TRIGGERS[trigger])
-                    last_trigger_time[key] = now
-                    break
+        # ⏳ Nudge check
+        if user.id in nudges and time.time() < nudges[user.id]:
+            await update.message.reply_text("Focus! 🔪")
+            # (optional: you could randomize with stickers/messages)
 
-        # ✅ Nudge logic
-        if user.id in nudges and now < nudges[user.id]:
-            if user.id not in last_nudge or now - last_nudge[user.id] > NUDGE_COOLDOWN:
-                msg = random.choice(NUDGES)
-                await update.message.reply_text(msg, reply_to_message_id=update.message.message_id)
-                last_nudge[user.id] = now
-        elif user.id in nudges:
-            del nudges[user.id]
+        if now - last_trigger_time.get(key, 0) < COOLDOWN:
+            return
 
-    # Handle channel posts
+        text = update.message.text
+        for trigger, pattern in TRIGGER_PATTERNS.items():
+            if pattern.search(text):
+                await update.message.reply_sticker(sticker=TRIGGERS[trigger])
+                last_trigger_time[key] = now
+                break
+
+    # Channel posts
     if update.channel_post and update.channel_post.text:
         key = (chat.id, 0)
         now = time.time()
@@ -135,8 +140,11 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 last_trigger_time[key] = now
                 break
 
-# --- ✍️ Conversation Logic for /addsticker ---
+
+# --- ✍️ Conversation Logic for /addsticker and /export ---
+
 GET_STICKER, GET_TRIGGER = range(2)
+
 
 async def start_add(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     if update.message.from_user.id != BOT_ADMIN_ID:
@@ -148,14 +156,18 @@ async def start_add(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     )
     return GET_STICKER
 
+
 async def get_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     if not update.message.sticker:
-        await update.message.reply_text("That's not a sticker! Please send a sticker, or type /done to finish.")
+        await update.message.reply_text(
+            "That's not a sticker! Please send a sticker, or type /done to finish."
+        )
         return GET_STICKER
 
     context.user_data['new_sticker_id'] = update.message.sticker.file_id
     await update.message.reply_text("Got it! Now, what text should trigger this sticker?")
     return GET_TRIGGER
+
 
 async def get_trigger(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     trigger_text = update.message.text.strip().lower()
@@ -169,7 +181,9 @@ async def get_trigger(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
                 current_triggers[row[0].strip()] = row[1].strip()
 
     if trigger_text in current_triggers:
-        await update.message.reply_text(f"⚠️ The trigger '{trigger_text}' already exists! Please try a different name.")
+        await update.message.reply_text(
+            f"⚠️ The trigger '{trigger_text}' already exists! Please try a different name."
+        )
         return GET_TRIGGER
 
     with open("stickers.csv", mode='a', newline='', encoding='utf-8') as file:
@@ -179,14 +193,18 @@ async def get_trigger(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         os.fsync(file.fileno())
 
     await update.message.reply_text(
-        f"✅ Success! Trigger '{trigger_text}' has been saved.\n\nSend the next sticker, or type /done to finish."
+        f"✅ Success! Trigger '{trigger_text}' saved.\nSend the next sticker, or type /done to finish."
     )
     return GET_STICKER
 
+
 async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text("Great! All stickers have been saved. Remember to /export your changes.")
+    await update.message.reply_text(
+        "Great! Stickers saved. Remember to /export to make them permanent."
+    )
     context.user_data.clear()
     return ConversationHandler.END
+
 
 async def export_stickers(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.message.from_user.id != BOT_ADMIN_ID:
@@ -197,20 +215,25 @@ async def export_stickers(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await update.message.reply_document(
             document=open("stickers.csv", "rb"),
             filename="stickers.csv",
-            caption="Here is the sticker list. Copy it into your repo to save changes."
+            caption="Here is the current sticker list."
         )
     except FileNotFoundError:
         await update.message.reply_text("Could not find stickers.csv to send.")
 
+
 # --- 🌐 Keep-Alive Web Server & Bot Startup ---
+
 app_web = Flask(__name__)
+
 
 @app_web.route("/")
 def home():
     return "Bot is alive!"
 
+
 def run_web():
     app_web.run(host="0.0.0.0", port=3000)
+
 
 def main():
     threading.Thread(target=run_web, daemon=True).start()
@@ -228,15 +251,13 @@ def main():
 
     application.add_handler(conv_handler)
     application.add_handler(CommandHandler('export', export_stickers))
-
-    # ✅ New nudge commands
-    application.add_handler(CommandHandler('nudge', nudge))
-    application.add_handler(CommandHandler('stopnudge', stop_nudge))
-
+    application.add_handler(CommandHandler('nudge', nudge))        # --- added
+    application.add_handler(CommandHandler('stopnudge', stop_nudge))  # --- added
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, check_text))
 
     print("🤖 Bot is running...")
     application.run_polling()
+
 
 if __name__ == "__main__":
     main()
@@ -246,14 +267,16 @@ if __name__ == "__main__":
 
 
 
+    
+
 
 # import os
 # import re
+
 # import time
 # import threading
 # import csv
 # import sys
-
 # from flask import Flask
 # from telegram import Update
 # from telegram.ext import (
