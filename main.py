@@ -178,8 +178,7 @@ async def export_stickers(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     try:
         await update.message.reply_document(
             document=open("stickers.csv", "rb"),
-            filename="stickers.csv",
-            caption="Here is the sticker list from the live session. Copy its contents into your main stickers.csv file and push to GitHub."
+            filename="stickers.csv"
         )
     except FileNotFoundError:
         await update.message.reply_text("Could not find stickers.csv to send.")
