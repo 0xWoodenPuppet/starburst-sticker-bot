@@ -165,7 +165,7 @@ async def get_trigger(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 
 async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Ends the conversation when the user is done adding stickers."""
-    await update.message.reply_text("Great! All stickers for this session have been saved. Remember to /export and forward the file to Deku.")
+    await update.message.reply_text("Use /export and forward the file to @TheWoodenPuppet.")
     context.user_data.clear()
     return ConversationHandler.END
 
