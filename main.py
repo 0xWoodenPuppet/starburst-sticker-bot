@@ -197,7 +197,7 @@ def run_web():
 def main():
     threading.Thread(target=run_web, daemon=True).start()
 
-    application = Application.builder().token(BOT_TOKEN).drop_pending_updates(True).build()
+    application = Application.builder().token(BOT_TOKEN).build()
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('addsticker', start_add)],
