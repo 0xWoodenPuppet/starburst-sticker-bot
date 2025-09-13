@@ -84,7 +84,7 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = update.message.text
         for trigger, pattern in TRIGGER_PATTERNS.items():
             if pattern.search(text):
-                await update.message.reply_sticker(sticker=TRIGGERS[trigger])
+                await update.message.reply_sticker(sticker=TRIGGERS[trigger], disable_notification=True)
                 last_trigger_time[key] = now
                 break
 
@@ -98,7 +98,7 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = update.channel_post.text
         for trigger, pattern in TRIGGER_PATTERNS.items():
             if pattern.search(text):
-                await update.channel_post.reply_sticker(sticker=TRIGGERS[trigger])
+                await update.channel_post.reply_sticker(sticker=TRIGGERS[trigger], disable_notification=True)
                 last_trigger_time[key] = now
                 break
 
