@@ -1,3 +1,5 @@
+# replace the content of stickers.csv from the classic.csv or winter.csv
+
 import os
 import re
 import pytz
@@ -37,6 +39,8 @@ SCHEDULED_MESSAGES = [
     (0, 0, "CAACAgQAAxkBAAEP91dpOAaVJfFYm08cmUv54NwwuHLfFAAC7hoAAk3CGVPqbt18v28DSjYE", -1002606388153), # bed'o clock
     (6, 0, "CAACAgQAAxkBAAEP919pOAc4T31gnr7DAAFUibPEXJNWzIgAAvQbAAKV4plRF2GQOU_Hds42BA", -1002606388153), # good day
     (18, 0, "CAACAgUAAxkBAAEP90FpN_F_7xQo73ADVrgXCeJlyk0HXAACwhYAAtGE6Va9bStizg302zYE", -1002606388153), # remember to drink water
+    (21, 0, "CAACAgUAAxkBAAEQJqZpVoPjCkQOTh6k9LkSbS6udVU4HwACIhsAAtJXsFbqqO1RhqLLszgE", -1002606388153), # remember to wash hands
+    (9, 0, "CAACAgUAAxkBAAEQJqhpVoP-fWrfRrX8WXwibZoaUIbREAAC8BkAAj2MsVZqH_YwW4qjbDgE", -1002606388153), # trust the process
 ]
 
 # Set Timezone to Mumbai (IST)
