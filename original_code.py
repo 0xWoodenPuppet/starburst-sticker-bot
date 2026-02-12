@@ -1,6 +1,6 @@
 import os
 import re
-import pytz
+
 import time
 import threading
 import csv
@@ -15,7 +15,7 @@ from telegram.ext import (
     CommandHandler,
     ConversationHandler,
 )
-from datetime import datetime, timezone, timedelta, time as dt_time
+from datetime import datetime, timezone, timedelta
 
 # --- ⚙️ START OF CONFIGURATION ---
 
@@ -31,23 +31,10 @@ BOT_ADMIN_IDS = {
 # 3. COOLDOWN PERIOD
 COOLDOWN = 5
 
-# 4. ⏰ SCHEDULED STICKERS CONFIGURATION
-SCHEDULED_MESSAGES = [
-    # Example: 4:00 PM (16:00)
-    (0, 0, "CAACAgQAAxkBAAEP91dpOAaVJfFYm08cmUv54NwwuHLfFAAC7hoAAk3CGVPqbt18v28DSjYE", -1002606388153), # bed'o clock
-    (6, 0, "CAACAgQAAxkBAAEP919pOAc4T31gnr7DAAFUibPEXJNWzIgAAvQbAAKV4plRF2GQOU_Hds42BA", -1002606388153), # good day
-    (18, 0, "CAACAgUAAxkBAAEP90FpN_F_7xQo73ADVrgXCeJlyk0HXAACwhYAAtGE6Va9bStizg302zYE", -1002606388153), # remember to drink water
-    (21, 0, "CAACAgUAAxkBAAEQJqZpVoPjCkQOTh6k9LkSbS6udVU4HwACIhsAAtJXsFbqqO1RhqLLszgE", -1002606388153), # remember to wash hands
-    (9, 0, "CAACAgUAAxkBAAEQJqhpVoP-fWrfRrX8WXwibZoaUIbREAAC8BkAAj2MsVZqH_YwW4qjbDgE", -1002606388153), # trust the process
-]
-
-# Set Timezone to Mumbai (IST)
-TIMEZONE = pytz.timezone("Asia/Kolkata")
-
 # --- END OF CONFIGURATION ---
 
 
-# 📂 Load triggers
+# 📂 Load triggers and sort them to prioritize longer, more specific phrases.
 all_triggers = []
 try:
     with open("stickers.csv", mode="r", encoding="utf-8") as file:
@@ -59,6 +46,7 @@ except FileNotFoundError:
     print("❌ Error: stickers.csv not found! Please create it before running.")
     sys.exit(1)
 
+# Sort the list by the length of the trigger text, in descending order (longest first).
 all_triggers.sort(key=lambda item: len(item[0]), reverse=True)
 
 TRIGGERS = {trigger: sticker_id for trigger, sticker_id in all_triggers}
@@ -75,15 +63,19 @@ last_trigger_time = {}
 async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Checks messages for triggers and sends a corresponding sticker only if the special link is present."""
 
+    # --- NEW FEATURE: Ignore messages older than 3 minutes ---
     message = update.effective_message
     if not message:
         return
 
-    # Ignore messages older than 3 minutes
+    # Calculate how old the message is
     message_age = datetime.now(timezone.utc) - message.date
-    if message_age > timedelta(seconds=15):
+    
+    # If the message is older than 3 minutes, do nothing
+    if message_age > timedelta(minutes=3):
         return
- 
+    # end 
+
     chat = update.effective_chat
     if not chat:
         return
@@ -102,12 +94,7 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         for trigger, pattern in TRIGGER_PATTERNS.items():
             if pattern.search(text):
-                await context.bot.send_sticker(
-                    chat_id=chat.id,        
-                    sticker=TRIGGERS[trigger],
-                    disable_notification=True,
-        reply_to_message_id=msg.message_id
-                )
+                await msg.reply_sticker(sticker=TRIGGERS[trigger], disable_notification=True)
                 last_trigger_time[key] = now
                 break
 
@@ -120,21 +107,6 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Handle channel posts
     if update.channel_post and update.channel_post.text:
         await process_message(update.channel_post)
-
-
-# --- ⏰ Scheduled Job Callback (MOVED OUTSIDE) ---
-
-async def send_scheduled_sticker(context: ContextTypes.DEFAULT_TYPE):
-    """Sends the sticker at the scheduled time."""
-    job_data = context.job.data
-    sticker_id = job_data.get("sticker_id")
-    chat_id = job_data.get("chat_id")
-
-    try:
-        await context.bot.send_sticker(chat_id=chat_id, sticker=sticker_id)
-        print(f"✅ Sent scheduled sticker to {chat_id}")
-    except Exception as e:
-        print(f"❌ Failed to send scheduled sticker: {e}")
 
 
 # --- ✍️ Conversation Logic for /addsticker and /export commands ---
@@ -226,22 +198,6 @@ def main():
 
     application = Application.builder().token(BOT_TOKEN).build()
 
-    # --- ⏰ INITIALIZE SCHEDULER ---
-    job_queue = application.job_queue
-
-    for h, m, sticker, chat_id in SCHEDULED_MESSAGES:
-        # Create a time object with timezone info
-        target_time = dt_time(hour=h, minute=m, tzinfo=TIMEZONE)
-        
-        job_queue.run_daily(
-            send_scheduled_sticker,
-            target_time,
-            data={"sticker_id": sticker, "chat_id": chat_id},
-            name=f"sticker_{h}_{m}"
-        )
-        print(f"📅 Scheduled sticker for {h}:{m:02d} in chat {chat_id}")
-    # -------------------------------
-
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('addsticker', start_add)],
         states={
@@ -260,3 +216,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
