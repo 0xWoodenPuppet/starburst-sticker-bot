@@ -102,12 +102,7 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         for trigger, pattern in TRIGGER_PATTERNS.items():
             if pattern.search(text):
-                await context.bot.send_sticker(
-                    chat_id=chat.id,        
-                    sticker=TRIGGERS[trigger],
-                    disable_notification=True,
-        reply_to_message_id=msg.message_id
-                )
+                await msg.reply_sticker(sticker=TRIGGERS[trigger], disable_notification=True)
                 last_trigger_time[key] = now
                 break
 
