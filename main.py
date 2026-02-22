@@ -89,23 +89,54 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # Helper to test and reply for a given message
-    async def process_message(msg):
-        key = (chat.id, msg.from_user.id if msg.from_user else 0)
-        now = time.time()
-        if now - last_trigger_time.get(key, 0) < COOLDOWN:
-            return
+    # async def process_message(msg):
+    #     key = (chat.id, msg.from_user.id if msg.from_user else 0)
+    #     now = time.time()
+    #     if now - last_trigger_time.get(key, 0) < COOLDOWN:
+    #         return
 
-        text = msg.text
-        # ✅ NEW CONDITION: trigger must match AND link must be present
-        if "forestapp.cc/join-room?token=" not in text:
-            return
+    #     text = msg.text
+    #     # ✅ NEW CONDITION: trigger must match AND link must be present
+    #     if "forestapp.cc/join-room?token=" not in text:
+    #         return
 
-        for trigger, pattern in TRIGGER_PATTERNS.items():
-            if pattern.search(text):
-                await msg.reply_sticker(sticker=TRIGGERS[trigger], disable_notification=True)
-                last_trigger_time[key] = now
-                break
+    #     for trigger, pattern in TRIGGER_PATTERNS.items():
+    #         if pattern.search(text):
+    #             await msg.reply_sticker(sticker=TRIGGERS[trigger], disable_notification=True)
+    #             last_trigger_time[key] = now
+    #             break
 
+# new logic for summoning toothless
+# Helper to test and reply for a given message
+async def process_message(msg):
+    key = (chat.id, msg.from_user.id if msg.from_user else 0)
+    now = time.time()
+    
+    text = msg.text
+    if not text:
+        return
+
+    # --- TOOTHLESS SUMMON LOGIC ---
+    if text.strip().lower() == "toothless summon":
+        if msg.from_user and msg.from_user.id == 1463187459:
+            await msg.reply_sticker(sticker="CAACAgUAAxkBAAEQltNpmw5kqKv9baAMFMokLyTVh3JRzgACtRcAAv9CaFUNsD_q9snTDjoE", disable_notification=True)
+        return
+    # ------------------------------
+
+    # Cooldown check for normal triggers
+    if now - last_trigger_time.get(key, 0) < COOLDOWN:
+        return
+
+    # ✅ NEW CONDITION: trigger must match AND link must be present
+    if "forestapp.cc/join-room?token=" not in text:
+        return
+
+    for trigger, pattern in TRIGGER_PATTERNS.items():
+        if pattern.search(text):
+            await msg.reply_sticker(sticker=TRIGGERS[trigger], disable_notification=True)
+            last_trigger_time[key] = now
+            break
+# new logic end
     # Handle group/private messages
     if update.message and update.message.text:
         if update.message.forward_origin or update.message.sender_chat:
