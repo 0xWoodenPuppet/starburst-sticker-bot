@@ -21,7 +21,7 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, check_text))
 
     async def delete_pin_service_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        msg = update.message
+        msg = update.message or update.channel_post
         if msg:
             await msg.delete()
 
