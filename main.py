@@ -22,11 +22,7 @@ def main():
 
     async def delete_pin_service_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg = update.message
-        if not msg:
-            return
-        # In groups: only delete if the bot pinned it
-        # In channels: no from_user, so delete unconditionally
-        if msg.from_user is None or msg.from_user.id == context.bot.id:
+        if msg:
             await msg.delete()
 
     application.add_handler(MessageHandler(
