@@ -15,8 +15,7 @@ TIMEZONE = pytz.timezone("Asia/Kolkata")
 
 # DAILY MESSAGES
 DAILY_CHAT_IDS = [
-    # -1002606388153,  # cooked chat
-    -1003644441864, # deku and tootless
+    -1002511165129, # Notebook of Deku
 ]
 
 
