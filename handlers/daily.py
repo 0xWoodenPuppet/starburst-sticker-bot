@@ -1,11 +1,11 @@
-from datetime import date
+from datetime import date, datetime
 from telegram.ext import ContextTypes
-from config import DAILY_CHAT_IDS
+from config import DAILY_CHAT_IDS, TIMEZONE
 
 
 async def send_todo(context: ContextTypes.DEFAULT_TYPE):
     """Sends the daily todo list message at 5:00 AM IST and pins it."""
-    today = date.today().strftime("%d/%m/%Y")
+    today = datetime.now(TIMEZONE).strftime("%d/%m/%Y")
     text = f"📋 {today} — Todo List"
 
     for chat_id in DAILY_CHAT_IDS:
