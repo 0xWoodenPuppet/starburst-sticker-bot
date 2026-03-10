@@ -14,19 +14,23 @@ from triggers import TRIGGERS, TRIGGER_PATTERNS
 GMT3 = pytz.timezone("Etc/GMT-3")
 WAITING_MINUTES = 1
 
+def _get_sticker(text: str) -> str | None:
+    """Returns the sticker ID matching the tree name in the text, or None."""
+    for trigger, pattern in TRIGGER_PATTERNS.items():
+        if pattern.search(text):
+            return TRIGGERS[trigger]
+    return None
+
 
 def _format_text(text: str) -> str:
     """Bolds everything, monospaces only standalone room codes, leaves URLs untouched."""
-    # Pull out URLs and replace with placeholders
     urls = re.findall(r'https?://\S+', text)
     for i, url in enumerate(urls):
         text = text.replace(url, f"__URL{i}__")
 
-    # Bold everything, monospace standalone room codes
     text = re.sub(r'([A-Z0-9]{8,})', r'</b><code>\1</code><b>', text)
     text = f"<b>{text}</b>"
 
-    # Restore URLs
     for i, url in enumerate(urls):
         text = text.replace(f"__URL{i}__", url)
 
@@ -48,7 +52,6 @@ async def countdown_tick(context: ContextTypes.DEFAULT_TYPE):
     message_id = data["message_id"]
     link = data["link"]
     start_time_str = data["start_time_str"]
-    dm_chat_id = data["dm_chat_id"]
     remaining = data["remaining"] - 1
     data["remaining"] = remaining
 
@@ -96,10 +99,23 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     start_time = datetime.now(timezone.utc) + timedelta(minutes=minutes)
     start_time_str = start_time.astimezone(GMT3).strftime("%H:%M")
 
+    sticker_id = _get_sticker(link)
+    reply_to = None
+
+    if sticker_id:
+        sticker_msg = await context.bot.send_sticker(
+            chat_id=SESSION_CHAT_ID,
+            sticker=sticker_id,
+            disable_notification=True,
+        )
+        reply_to = sticker_msg.message_id
+
     msg = await context.bot.send_message(
         chat_id=SESSION_CHAT_ID,
         text=_build_message(link, start_time_str, f"starting in {minutes} minute{'s' if minutes != 1 else ''}..."),
         parse_mode="HTML",
+        reply_to_message_id=reply_to,
+        disable_notification=True,
     )
 
     context.application.job_queue.run_repeating(
@@ -116,17 +132,6 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         },
         name=f"countdown_{msg.message_id}",
     )
-
-    # Reply with matching sticker if trigger found
-    for trigger, pattern in TRIGGER_PATTERNS.items():
-        if pattern.search(link):
-            await context.bot.send_sticker(
-                chat_id=SESSION_CHAT_ID,
-                sticker=TRIGGERS[trigger],
-                reply_to_message_id=msg.message_id,
-                disable_notification=True,
-            )
-            break
 
     await update.message.reply_text(f"✅ Posted! Countdown started for {minutes} minute{'s' if minutes != 1 else ''}.")
     context.user_data.clear()

@@ -15,7 +15,8 @@ TIMEZONE = pytz.timezone("Asia/Kolkata")
 
 # DAILY MESSAGES
 DAILY_CHAT_IDS = [
-    -1002511165129, # Notebook of Deku
+    # -1002511165129, # Notebook of Deku
+    -1002911938910, # disappearing notes
 ]
 
 # FOREST SESSION
