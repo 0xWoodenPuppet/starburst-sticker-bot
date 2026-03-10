@@ -18,6 +18,8 @@ DAILY_CHAT_IDS = [
     -1002511165129, # Notebook of Deku
 ]
 
-
+# FOREST SESSION
+SESSION_CHAT_ID = -1002911938910 # Disappearing Notes
+SESSION_USER_ID = 1463187459 # Deku
 
 

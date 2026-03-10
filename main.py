@@ -5,6 +5,7 @@ from telegram.ext import Application, MessageHandler, filters, ContextTypes
 from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS
 from handlers.messages import check_text
 from handlers.daily import send_todo, send_forest
+from handlers.session import session_handler
 from server import run_web
 
 
@@ -18,6 +19,7 @@ def main():
     job_queue.run_daily(send_todo,   dt_time(hour=5,  minute=0,  tzinfo=TIMEZONE), name="daily_todo")
     job_queue.run_daily(send_forest, dt_time(hour=22, minute=30, tzinfo=TIMEZONE), name="daily_forest")
 
+    application.add_handler(session_handler)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, check_text))
 
     async def delete_pin_service_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
