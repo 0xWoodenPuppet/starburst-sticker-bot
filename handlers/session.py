@@ -15,12 +15,13 @@ WAITING_MINUTES = 1
 
 
 def _format_text(text: str) -> str:
-    """Wraps the room code token in monospace."""
-    return re.sub(
-        r"([A-Z0-9]{8,})",  # matches room codes like 5CPMWAXSG
-        r"<code>\1</code>",
+    """Bolds everything, wraps standalone room code in monospace."""
+    formatted = re.sub(
+        r"(?<!token=)(?<!/)([A-Z0-9]{8,})(?![\w/])",
+        r"</b><code>\1</code><b>",
         text,
     )
+    return f"<b>{formatted}</b>"
 
 
 def _build_message(text: str, start_time_str: str, status: str) -> str:
@@ -46,7 +47,7 @@ async def countdown_tick(context: ContextTypes.DEFAULT_TYPE):
         await context.bot.edit_message_text(
             chat_id=chat_id,
             message_id=message_id,
-            text=_build_message(link, start_time_str, "started, good luck! 🌿"),
+            text=_build_message(link, start_time_str, "started, good luck!"),
             parse_mode="HTML",
         )
         context.job.schedule_removal()
