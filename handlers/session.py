@@ -15,19 +15,27 @@ WAITING_MINUTES = 1
 
 
 def _format_text(text: str) -> str:
-    """Bolds everything, wraps standalone room code in monospace."""
-    formatted = re.sub(
-        r"(?<!token=)(?<!/)([A-Z0-9]{8,})(?![\w/])",
-        r"</b><code>\1</code><b>",
-        text,
-    )
-    return f"<b>{formatted}</b>"
+    """Bolds everything, monospaces only standalone room codes, leaves URLs untouched."""
+    # Pull out URLs and replace with placeholders
+    urls = re.findall(r'https?://\S+', text)
+    for i, url in enumerate(urls):
+        text = text.replace(url, f"__URL{i}__")
+
+    # Bold everything, monospace standalone room codes
+    text = re.sub(r'([A-Z0-9]{8,})', r'</b><code>\1</code><b>', text)
+    text = f"<b>{text}</b>"
+
+    # Restore URLs
+    for i, url in enumerate(urls):
+        text = text.replace(f"__URL{i}__", url)
+
+    return text
 
 
 def _build_message(text: str, start_time_str: str, status: str) -> str:
     return (
         f"{_format_text(text)}\n\n"
-        f"<blockquote><code>starts at {start_time_str} (GMT+3)</code></blockquote>\n\n"
+        f"<blockquote>starts at {start_time_str} (GMT+3)</blockquote>\n\n"
         f"{status}"
     )
 
