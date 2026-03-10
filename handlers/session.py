@@ -9,6 +9,7 @@ from telegram.ext import (
     filters,
 )
 from config import SESSION_CHAT_ID, SESSION_USER_ID
+from triggers import TRIGGERS, TRIGGER_PATTERNS
 
 GMT3 = pytz.timezone("Etc/GMT-3")
 WAITING_MINUTES = 1
@@ -115,6 +116,17 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         },
         name=f"countdown_{msg.message_id}",
     )
+
+    # Reply with matching sticker if trigger found
+    for trigger, pattern in TRIGGER_PATTERNS.items():
+        if pattern.search(link):
+            await context.bot.send_sticker(
+                chat_id=SESSION_CHAT_ID,
+                sticker=TRIGGERS[trigger],
+                reply_to_message_id=msg.message_id,
+                disable_notification=True,
+            )
+            break
 
     await update.message.reply_text(f"✅ Posted! Countdown started for {minutes} minute{'s' if minutes != 1 else ''}.")
     context.user_data.clear()
