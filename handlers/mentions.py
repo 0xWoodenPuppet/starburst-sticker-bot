@@ -24,7 +24,7 @@ async def add_mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     mentions.append(username)
-    await update.message.reply_text(f"Added to mention list.")
+    await update.message.reply_text(f"✅ @{username} added to mention list.")
 
 
 async def remove_mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -82,11 +82,8 @@ async def watch_forestapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if "forestapp.cc" not in msg.text:
         return
 
-    # Only trigger for posts forwarded from the source channel
-    origin = msg.forward_origin
-    if not origin or not hasattr(origin, "chat"):
-        return
-    if origin.chat.id != MENTION_SOURCE_CHANNEL_ID:
+    # Only trigger for posts from the source channel (auto-forwarded to linked group)
+    if not msg.sender_chat or msg.sender_chat.id != MENTION_SOURCE_CHANNEL_ID:
         return
 
     mentions = context.bot_data.get("mention_list", [])
