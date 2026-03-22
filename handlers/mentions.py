@@ -82,6 +82,10 @@ async def watch_forestapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if "forestapp.cc" not in msg.text:
         return
 
+    # Ignore edited messages
+    if getattr(update, "edited_message", None) or getattr(update, "edited_channel_post", None):
+        return
+
     # Only trigger for posts from the source channel (auto-forwarded to linked group)
     if not msg.sender_chat or msg.sender_chat.id != MENTION_SOURCE_CHANNEL_ID:
         return
