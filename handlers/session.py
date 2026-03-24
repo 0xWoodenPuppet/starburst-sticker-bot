@@ -62,6 +62,23 @@ async def countdown_tick(context: ContextTypes.DEFAULT_TYPE):
             text=_build_message(link, start_time_str, "started, good luck!"),
             parse_mode="HTML",
         )
+        
+        # Schedule the coach DM for the end of the session
+        from handlers.coach import send_coach_message
+        match = re.search(r"(\d+)-minute", link)
+        duration_mins = int(match.group(1)) if match else 25 # fallback
+        
+        context.job_queue.run_once(
+            send_coach_message,
+            when=duration_mins * 60,
+            data={
+                "user_id": data["user_id"],
+                "dm_chat_id": data["dm_chat_id"],
+                "duration": duration_mins
+            },
+            name=f"coach_session_{message_id}"
+        )
+        
         context.job.schedule_removal()
         return
 
@@ -80,6 +97,9 @@ async def receive_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
     link = update.message.text.strip()
     context.user_data["session_link"] = link
+    
+    # Disable active DM coaching so Gemini doesn't reply to setup messages
+    context.bot_data[f"coach_dm_active_{update.effective_user.id}"] = False
 
     await update.message.reply_text("In how many minutes will you start?")
     return WAITING_MINUTES
@@ -129,6 +149,7 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             "start_time_str": start_time_str,
             "remaining": minutes,
             "dm_chat_id": update.effective_chat.id,
+            "user_id": update.effective_user.id,
         },
         name=f"countdown_{msg.message_id}",
     )

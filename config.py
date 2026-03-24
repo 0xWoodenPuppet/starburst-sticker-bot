@@ -7,6 +7,9 @@ load_dotenv()
 # BOT TOKEN
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
+# GEMINI API KEY
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
 # ADMIN USER IDs
 BOT_ADMIN_IDS = {
     1463187459,  # deku

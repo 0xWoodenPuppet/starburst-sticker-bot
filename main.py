@@ -7,6 +7,7 @@ from handlers.messages import check_text
 from handlers.daily import send_todo, send_forest
 from handlers.session import session_handler
 from handlers.mentions import add_mention, remove_mention, remove_all_mentions, watch_forestapp
+from handlers.coach import handle_dm_reply
 from server import run_web
 
 
@@ -26,6 +27,7 @@ def main():
     application.add_handler(CommandHandler("removeallmentions", remove_all_mentions))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, watch_forestapp), group=1)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.ChatType.PRIVATE, check_text), group=2)
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, handle_dm_reply), group=3)
 
     async def delete_pin_service_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg = update.message or update.channel_post
