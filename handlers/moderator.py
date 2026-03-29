@@ -4,7 +4,7 @@ import json
 from datetime import timedelta
 from telegram import Update, ChatPermissions
 from telegram.ext import ContextTypes
-from config import GEMINI_API_KEY, MOD_LOG_CHAT_ID, GROUP_RULES
+from config import GEMINI_API_KEY, MOD_LOG_CHAT_ID, GROUP_RULES, EXPERIMENTAL_CHAT_ID
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +58,10 @@ async def moderate_with_gemini(message_text: str) -> dict | None:
 
 async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handles the /report command when replied to a message."""
+    if update.effective_chat.id != EXPERIMENTAL_CHAT_ID:
+        await update.message.reply_text("⚠️ The AI Moderator is currently experimental and not active in this chat.")
+        return
+
     if not update.message or not update.message.reply_to_message:
         await update.message.reply_text("Please reply to the specific message you want to report with /report.")
         return

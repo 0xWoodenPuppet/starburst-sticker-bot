@@ -1,10 +1,14 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from config import MENTION_CHAT_ID, MENTION_SOURCE_CHANNEL_ID, BOT_ADMIN_IDS
+from config import EXPERIMENTAL_CHAT_ID, MENTION_SOURCE_CHANNEL_ID, BOT_ADMIN_IDS
 
 
 async def add_mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Adds a user to the mention list. Usage: /addmention @username or reply to a user."""
+    if update.effective_chat.id != EXPERIMENTAL_CHAT_ID:
+        await update.message.reply_text("⚠️ Mentions are currently experimental and restricted to the testing group.")
+        return
+
     if context.args:
         username = context.args[0].lstrip("@").lower()
     elif update.message.reply_to_message and update.message.reply_to_message.from_user:
@@ -29,6 +33,10 @@ async def add_mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def remove_mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Removes a user from the mention list. Admins can remove anyone, users can only remove themselves."""
+    if update.effective_chat.id != EXPERIMENTAL_CHAT_ID:
+        await update.message.reply_text("⚠️ Mentions are currently experimental and restricted to the testing group.")
+        return
+
     if context.args:
         username = context.args[0].lstrip("@").lower()
     elif update.message.reply_to_message and update.message.reply_to_message.from_user:
@@ -62,6 +70,10 @@ async def remove_mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def remove_all_mentions(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Clears the entire mention list. Admins only."""
+    if update.effective_chat.id != EXPERIMENTAL_CHAT_ID:
+        await update.message.reply_text("⚠️ Mentions are currently experimental and restricted to the testing group.")
+        return
+
     if update.effective_user.id not in BOT_ADMIN_IDS:
         await update.message.reply_text("⛔ Admins only.")
         return
@@ -76,7 +88,7 @@ async def watch_forestapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not msg or not msg.text:
         return
 
-    if update.effective_chat.id != MENTION_CHAT_ID:
+    if update.effective_chat.id != EXPERIMENTAL_CHAT_ID:
         return
 
     if "forestapp.cc" not in msg.text:
