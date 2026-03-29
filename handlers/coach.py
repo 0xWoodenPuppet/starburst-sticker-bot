@@ -26,22 +26,37 @@ async def call_gemini(conversation_history: list[dict]) -> str | None:
         "contents": conversation_history
     }
 
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=payload, timeout=30.0)
-            response.raise_for_status()
-            
-            data = response.json()
-            if "candidates" in data and len(data["candidates"]) > 0:
-                parts = data["candidates"][0].get("content", {}).get("parts", [])
-                if parts:
-                    return parts[0].get("text", "")
-            
-            logger.error(f"Unexpected Gemini API response format: {data}")
+    import asyncio
+    max_retries = 3
+    
+    for attempt in range(max_retries):
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(url, json=payload, timeout=30.0)
+                
+                # If we get a 503 or 529 server error, wait and retry
+                if response.status_code in [500, 503, 529] and attempt < max_retries - 1:
+                    logger.warning(f"Gemini API {response.status_code} error. Retrying {attempt+1}/{max_retries}...")
+                    await asyncio.sleep(2)
+                    continue
+                    
+                response.raise_for_status()
+                
+                data = response.json()
+                if "candidates" in data and len(data["candidates"]) > 0:
+                    parts = data["candidates"][0].get("content", {}).get("parts", [])
+                    if parts:
+                        return parts[0].get("text", "")
+                
+                logger.error(f"Unexpected Gemini API response format: {data}")
+                return None
+        except Exception as e:
+            if attempt < max_retries - 1 and "503" in str(e):
+                await asyncio.sleep(2)
+                continue
+            logger.error(f"Error calling Gemini API: {e}")
             return None
-    except Exception as e:
-        logger.error(f"Error calling Gemini API: {e}")
-        return None
+    return None
 
 async def send_coach_message(context: ContextTypes.DEFAULT_TYPE):
     """

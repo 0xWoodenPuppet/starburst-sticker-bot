@@ -33,6 +33,16 @@ SESSION_USER_ID = 1463187459 # Deku
 
 # MENTIONS
 # MENTION_CHAT_ID = -1003644441864 # Deku and Tooothless
+
+# AI MODERATOR
+MOD_LOG_CHAT_ID = -1002911938910 # Using disappearing group as the admin log channel for testing
+GROUP_RULES = """
+❗️ Group Rules
+1. Please chat in English.
+2. No spam or self-promotion.
+3. No disrespectful behavior or insults.
+4. No off-topic chats or DMs.
+"""
 # MENTION_SOURCE_CHANNEL_ID = -1002911938910 # Diappearing notes
 MENTION_CHAT_ID = -1002606388153 # Cooked Weapons Chat
 MENTION_SOURCE_CHANNEL_ID = -1002511165129 # Notebook of Deku
