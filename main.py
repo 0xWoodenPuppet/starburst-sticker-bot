@@ -15,7 +15,16 @@ from server import run_web
 def main():
     threading.Thread(target=run_web, daemon=True).start()
 
-    application = Application.builder().token(BOT_TOKEN).build()
+    # Set longer timeouts to prevent Telegram API disconnects on cloud hosting
+    application = (
+        Application.builder()
+        .token(BOT_TOKEN)
+        .read_timeout(30)
+        .write_timeout(30)
+        .connect_timeout(30)
+        .pool_timeout(30)
+        .build()
+    )
 
     # Daily messages
     job_queue = application.job_queue
