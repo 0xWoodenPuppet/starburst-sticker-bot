@@ -77,7 +77,18 @@ How did today go? Share your progress below:
 ✅ Screenshot of today's todos (Did you hit 80%?)
 🎥 Screenshot if you joined the stream for 1hr+
 
-Let's keep growing! 🌱"""
+Let's keep growing! 🌱
+
+---
+
+🌿 تسجيل الحضور لليوم {day_number} 🌿
+
+كيف كان يومك؟ شارك تقدمك أدناه:
+⏱️ إجمالي وقت الدراسة
+✅ لقطة شاشة لمهام اليوم (هل أنجزت 80%؟)
+🎥 لقطة شاشة إذا انضممت إلى البث المباشر لساعة أو أكثر
+
+لنمضِ قدماً معاً! 🌱"""
 
     for chat_id in DAILY_CHAT_IDS:
         prev = context.bot_data.get(f"pinned_challenge_{chat_id}")
