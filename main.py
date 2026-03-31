@@ -4,7 +4,7 @@ from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes, CommandHandler
 from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS
 from handlers.messages import check_text
-from handlers.daily import send_todo, send_forest
+from handlers.daily import send_todo, send_forest, send_challenge
 from handlers.session import session_handler
 from handlers.mentions import add_mention, remove_mention, remove_all_mentions, watch_forestapp
 from handlers.coach import handle_dm_reply
@@ -30,6 +30,7 @@ def main():
     job_queue = application.job_queue
     job_queue.run_daily(send_todo,   dt_time(hour=5,  minute=0,  tzinfo=TIMEZONE), name="daily_todo")
     job_queue.run_daily(send_forest, dt_time(hour=22, minute=30, tzinfo=TIMEZONE), name="daily_forest")
+    job_queue.run_daily(send_challenge, dt_time(hour=18, minute=30, tzinfo=TIMEZONE), name="daily_challenge")
 
     application.add_handler(session_handler)
     application.add_handler(CommandHandler("addmention", add_mention))
