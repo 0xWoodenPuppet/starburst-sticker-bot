@@ -48,7 +48,8 @@ async def score_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
             
         day_number = str(int(args[0]))
-        points = str(int(args[1]))
+        # Sum all remaining arguments (e.g., /score 1 2 5 5 2 -> 14)
+        points = str(sum(int(x) for x in args[1:]))
     except ValueError:
         await message.set_reaction(reaction="👎")
         return
@@ -120,14 +121,19 @@ async def export_scores(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
     init_csv() # ensure it exists
     with open(CSV_FILE, 'rb') as f:
-        await update.message.reply_document(document=f, filename=CSV_FILE)
+        # Always send to the admin's private DM, even if they ran the command in the group!
+        try:
+            await context.bot.send_document(chat_id=update.effective_user.id, document=f, filename=CSV_FILE)
+        except Exception:
+            # If the bot is blocked by the admin in DMs
+            await update.message.set_reaction(reaction="👎")
 
 
 async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Public command: /leaderboard"""
     scores = read_scores()
     if not scores:
-        await update.message.reply_text("🏆 *7-Day Challenge Leaderboard*\n\nNo scores have been logged yet!", parse_mode="Markdown")
+        await update.message.reply_text("🏆 <b>7-Day Challenge Leaderboard</b>\n\nNo scores have been logged yet!", parse_mode="HTML")
         return
 
     # Calculate totals
@@ -143,9 +149,11 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Sort users by total points descending
     sorted_users = sorted(totals.values(), key=lambda x: x["total"], reverse=True)
 
-    text = "🏆 *7-Day Challenge Leaderboard* 🏆\n\n"
+    text = "🏆 <b>7-Day Challenge Leaderboard</b> 🏆\n\n"
     for i, user in enumerate(sorted_users, start=1):
         medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else "🔸"
-        text += f"{medal} {user['username']} — {user['total']} pts\n"
+        # Sanitize HTML just in case
+        safe_username = user['username'].replace('<', '&lt;').replace('>', '&gt;').replace('&', '&amp;')
+        text += f"{medal} {safe_username} — {user['total']} pts\n"
 
-    await update.message.reply_text(text, parse_mode="Markdown")
+    await update.message.reply_text(text, parse_mode="HTML")
