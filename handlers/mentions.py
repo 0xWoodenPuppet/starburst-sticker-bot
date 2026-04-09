@@ -1,11 +1,11 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from config import EXPERIMENTAL_CHAT_ID, MENTION_SOURCE_CHANNEL_ID, BOT_ADMIN_IDS
+from config import MENTION_CHAT_ID, MENTION_SOURCE_CHANNEL_ID, BOT_ADMIN_IDS
 
 
 async def add_mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Adds a user to the mention list. Usage: /addmention @username or reply to a user."""
-    if update.effective_chat.id != EXPERIMENTAL_CHAT_ID:
+    if update.effective_chat.id != MENTION_CHAT_ID:
         await update.message.reply_text("⚠️ Mentions are currently experimental and restricted to the testing group.")
         return
 
@@ -24,16 +24,16 @@ async def add_mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
     mentions = context.bot_data.setdefault("mention_list", [])
 
     if username in mentions:
-        await update.message.reply_text(f"⚠️ @{username} is already in the list.")
+        await update.message.reply_text(f"⚠️ {username} is already in the list.")
         return
 
     mentions.append(username)
-    await update.message.reply_text(f"✅ @{username} added to mention list.")
+    await update.message.reply_text(f"✅ {username} added to mention list.")
 
 
 async def remove_mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Removes a user from the mention list. Admins can remove anyone, users can only remove themselves."""
-    if update.effective_chat.id != EXPERIMENTAL_CHAT_ID:
+    if update.effective_chat.id != MENTION_CHAT_ID:
         await update.message.reply_text("⚠️ Mentions are currently experimental and restricted to the testing group.")
         return
 
@@ -61,16 +61,16 @@ async def remove_mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
     mentions = context.bot_data.get("mention_list", [])
 
     if username not in mentions:
-        await update.message.reply_text(f"⚠️ @{username} is not in the list.")
+        await update.message.reply_text(f"⚠️ {username} is not in the list.")
         return
 
     mentions.remove(username)
-    await update.message.reply_text(f"✅ @{username} removed from mention list.")
+    await update.message.reply_text(f"✅ {username} removed from mention list.")
 
 
 async def remove_all_mentions(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Clears the entire mention list. Admins only."""
-    if update.effective_chat.id != EXPERIMENTAL_CHAT_ID:
+    if update.effective_chat.id != MENTION_CHAT_ID:
         await update.message.reply_text("⚠️ Mentions are currently experimental and restricted to the testing group.")
         return
 
@@ -88,7 +88,7 @@ async def watch_forestapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not msg or not msg.text:
         return
 
-    if update.effective_chat.id != EXPERIMENTAL_CHAT_ID:
+    if update.effective_chat.id != MENTION_CHAT_ID:
         return
 
     if "forestapp.cc" not in msg.text:
@@ -107,4 +107,5 @@ async def watch_forestapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     mention_text = " ".join(f"@{u}" for u in mentions)
+    mention_text += "\n\n(use /removemention to opt out)"
     await msg.reply_text(mention_text, disable_notification=True)
