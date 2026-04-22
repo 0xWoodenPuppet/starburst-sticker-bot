@@ -29,7 +29,8 @@ DAILY_CHAT_IDS = [
 # FOREST SESSION
 SESSION_USERS = {
     1463187459: -1002511165129, # Deku -> Notebook of Deku
-    1382116841: -1002999663776 # Mochi -> Mochi Nest
+    1382116841: -1002999663776, # Mochi -> Mochi Nest
+    5236419662: -1003302115271, # Smiley face -> Let's plant together
 }
 
 # EXPERIMENTAL FEATURES (AI Moderator & Mentions)
