@@ -32,6 +32,7 @@ SESSION_USERS = {
     1382116841: -1002999663776, # Mochi -> Mochi Nest
     5236419662: -1003302115271, # Smiley face -> Let's plant together
     5791584631: -1003726481081, # @Memoaw -> studytripfor
+    8473421124: -1003470344015, # Mero -> genius hub
 }
 
 # EXPERIMENTAL FEATURES (AI Moderator & Mentions)
