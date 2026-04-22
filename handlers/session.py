@@ -26,7 +26,7 @@ def _format_text(text: str) -> str:
     for i, url in enumerate(urls):
         text = text.replace(url, f"__URL{i}__")
 
-    text = re.sub(r'([A-Z0-9]{8,})', r'</b><code>\1</code><b>', text)
+    text = re.sub(r'([A-Z0-9]{7,})', r'</b><code>\1</code><b>', text)
     text = f"<b>{text}</b>"
 
     for i, url in enumerate(urls):
