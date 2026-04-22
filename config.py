@@ -29,8 +29,7 @@ DAILY_CHAT_IDS = [
 # FOREST SESSION
 SESSION_USERS = {
     1463187459: -1002511165129, # Deku -> Notebook of Deku
-    # Add other users here:
-    # user_id: channel_id
+    1382116841: -1002999663776 # Mochi -> Mochi Nest
 }
 
 # EXPERIMENTAL FEATURES (AI Moderator & Mentions)

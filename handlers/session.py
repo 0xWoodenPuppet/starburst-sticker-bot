@@ -61,7 +61,7 @@ async def countdown_tick(context: ContextTypes.DEFAULT_TYPE):
         
         # Schedule the coach DM for the end of the session
         from handlers.coach import send_coach_message
-        match = re.search(r"(\d+)-minute", link)
+        match = re.search(r"(\d+)\s*[-_]?\s*(?:min|m\b|분|分|دقيق|دقائق|perc|dakik|мин|menit|मिनट)", link, re.IGNORECASE)
         duration_mins = int(match.group(1)) if match else 25 # fallback
         
         context.job_queue.run_once(
@@ -161,6 +161,22 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             chat_id=update.effective_chat.id,
             text=_build_message(link, f"starting in {minutes} minute{'s' if minutes != 1 else ''}..."),
             parse_mode="HTML",
+        )
+
+        from handlers.coach import send_coach_message
+        match = re.search(r"(\d+)\s*[-_]?\s*(?:min|m\b|분|分|دقيق|دقائق|perc|dakik|мин|menit|मिनट)", link, re.IGNORECASE)
+        duration_mins = int(match.group(1)) if match else 25
+        
+        total_wait_seconds = (minutes + duration_mins) * 60
+        context.application.job_queue.run_once(
+            send_coach_message,
+            when=total_wait_seconds,
+            data={
+                "user_id": user_id,
+                "dm_chat_id": update.effective_chat.id,
+                "duration": duration_mins
+            },
+            name=f"coach_session_unregistered_{user_id}_{update.effective_chat.id}"
         )
 
     context.user_data.clear()
