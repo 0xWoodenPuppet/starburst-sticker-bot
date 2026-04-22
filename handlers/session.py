@@ -1,6 +1,5 @@
 import re
 from datetime import datetime, timezone, timedelta
-import pytz
 from telegram import Update
 from telegram.ext import (
     ContextTypes,
@@ -11,7 +10,6 @@ from telegram.ext import (
 from config import SESSION_USERS
 from triggers import TRIGGERS, TRIGGER_PATTERNS
 
-GMT3 = pytz.timezone("Etc/GMT-3")
 WAITING_MINUTES = 1
 
 def _get_sticker(text: str) -> str | None:
@@ -37,10 +35,9 @@ def _format_text(text: str) -> str:
     return text
 
 
-def _build_message(text: str, start_time_str: str, status: str) -> str:
+def _build_message(text: str, status: str) -> str:
     return (
         f"{_format_text(text)}\n\n"
-        f"<blockquote>starts at {start_time_str} (GMT+3)</blockquote>\n\n"
         f"{status}"
     )
 
@@ -51,7 +48,6 @@ async def countdown_tick(context: ContextTypes.DEFAULT_TYPE):
     chat_id = data["chat_id"]
     message_id = data["message_id"]
     link = data["link"]
-    start_time_str = data["start_time_str"]
     remaining = data["remaining"] - 1
     data["remaining"] = remaining
 
@@ -59,7 +55,7 @@ async def countdown_tick(context: ContextTypes.DEFAULT_TYPE):
         await context.bot.edit_message_text(
             chat_id=chat_id,
             message_id=message_id,
-            text=_build_message(link, start_time_str, "started, good luck!"),
+            text=_build_message(link, "started, good luck!"),
             parse_mode="HTML",
         )
         
@@ -85,17 +81,15 @@ async def countdown_tick(context: ContextTypes.DEFAULT_TYPE):
     await context.bot.edit_message_text(
         chat_id=chat_id,
         message_id=message_id,
-        text=_build_message(link, start_time_str, f"starting in {remaining} minute{'s' if remaining != 1 else ''}..."),
+        text=_build_message(link, f"starting in {remaining} minute{'s' if remaining != 1 else ''}..."),
         parse_mode="HTML",
     )
 
 
 async def receive_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Entry point: detects a forestapp link in DM from the authorized user."""
-    if update.effective_user.id not in SESSION_USERS:
-        return ConversationHandler.END
-
+    """Entry point: detects a forestapp link in DM."""
     link = update.message.text.strip()
+    
     context.user_data["session_link"] = link
     
     # Disable active DM coaching so Gemini doesn't reply to setup messages
@@ -119,48 +113,56 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     user_id = update.effective_user.id
     target_chat_id = SESSION_USERS.get(user_id)
 
-    if not target_chat_id:
-        return ConversationHandler.END
-
-    start_time = datetime.now(timezone.utc) + timedelta(minutes=minutes)
-    start_time_str = start_time.astimezone(GMT3).strftime("%H:%M")
-
     sticker_id = _get_sticker(link)
-    reply_to = None
 
-    if sticker_id:
-        sticker_msg = await context.bot.send_sticker(
+    if target_chat_id:
+        reply_to = None
+
+        if sticker_id:
+            sticker_msg = await context.bot.send_sticker(
+                chat_id=target_chat_id,
+                sticker=sticker_id,
+                disable_notification=True,
+            )
+            reply_to = sticker_msg.message_id
+
+        msg = await context.bot.send_message(
             chat_id=target_chat_id,
-            sticker=sticker_id,
+            text=_build_message(link, f"starting in {minutes} minute{'s' if minutes != 1 else ''}..."),
+            parse_mode="HTML",
+            reply_to_message_id=reply_to,
             disable_notification=True,
         )
-        reply_to = sticker_msg.message_id
 
-    msg = await context.bot.send_message(
-        chat_id=target_chat_id,
-        text=_build_message(link, start_time_str, f"starting in {minutes} minute{'s' if minutes != 1 else ''}..."),
-        parse_mode="HTML",
-        reply_to_message_id=reply_to,
-        disable_notification=True,
-    )
+        context.application.job_queue.run_repeating(
+            countdown_tick,
+            interval=60,
+            first=60,
+            data={
+                "chat_id": target_chat_id,
+                "message_id": msg.message_id,
+                "link": link,
+                "remaining": minutes,
+                "dm_chat_id": update.effective_chat.id,
+                "user_id": user_id,
+            },
+            name=f"countdown_{msg.message_id}",
+        )
+        
+        await update.message.reply_text(f"✅ Posted! Countdown started for {minutes} minute{'s' if minutes != 1 else ''}.")
+    else:
+        if sticker_id:
+            await context.bot.send_sticker(
+                chat_id=update.effective_chat.id,
+                sticker=sticker_id,
+            )
+            
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=_build_message(link, f"starting in {minutes} minute{'s' if minutes != 1 else ''}..."),
+            parse_mode="HTML",
+        )
 
-    context.application.job_queue.run_repeating(
-        countdown_tick,
-        interval=60,
-        first=60,
-        data={
-            "chat_id": target_chat_id,
-            "message_id": msg.message_id,
-            "link": link,
-            "start_time_str": start_time_str,
-            "remaining": minutes,
-            "dm_chat_id": update.effective_chat.id,
-            "user_id": user_id,
-        },
-        name=f"countdown_{msg.message_id}",
-    )
-
-    await update.message.reply_text(f"✅ Posted! Countdown started for {minutes} minute{'s' if minutes != 1 else ''}.")
     context.user_data.clear()
     return ConversationHandler.END
 
