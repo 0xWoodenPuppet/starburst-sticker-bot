@@ -61,8 +61,7 @@ async def countdown_tick(context: ContextTypes.DEFAULT_TYPE):
         
         # Schedule the coach DM for the end of the session
         from handlers.coach import send_coach_message
-        match = re.search(r"(\d+)\s*[-_]?\s*(?:min|m\b|분|分|دقيق|دقائق|perc|dakik|мин|menit|मिनट)", link, re.IGNORECASE)
-        duration_mins = int(match.group(1)) if match else 25 # fallback
+        duration_mins = data["duration"]
         
         context.job_queue.run_once(
             send_coach_message,
@@ -90,7 +89,13 @@ async def receive_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     """Entry point: detects a forestapp link in DM."""
     link = update.message.text.strip()
     
+    match = re.search(r"(\d+)\s*[-_]?\s*(?:min|m\b|분|分|دقيق|دقائق|perc|dakik|мин|menit|मिनट)", link, re.IGNORECASE)
+    if not match:
+        await update.message.reply_text("Sorry, there was an error. Contact @TheWoodenPuppet to report this issue")
+        return ConversationHandler.END
+
     context.user_data["session_link"] = link
+    context.user_data["session_duration"] = int(match.group(1))
     
     # Disable active DM coaching so Gemini doesn't reply to setup messages
     context.bot_data[f"coach_dm_active_{update.effective_user.id}"] = False
@@ -109,6 +114,7 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
     minutes = int(text)
     link = context.user_data.get("session_link")
+    duration_mins = context.user_data.get("session_duration")
 
     user_id = update.effective_user.id
     target_chat_id = SESSION_USERS.get(user_id)
@@ -145,6 +151,7 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 "remaining": minutes,
                 "dm_chat_id": update.effective_chat.id,
                 "user_id": user_id,
+                "duration": duration_mins,
             },
             name=f"countdown_{msg.message_id}",
         )
@@ -164,8 +171,6 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         )
 
         from handlers.coach import send_coach_message
-        match = re.search(r"(\d+)\s*[-_]?\s*(?:min|m\b|분|分|دقيق|دقائق|perc|dakik|мин|menit|मिनट)", link, re.IGNORECASE)
-        duration_mins = int(match.group(1)) if match else 25
         
         total_wait_seconds = (minutes + duration_mins) * 60
         context.application.job_queue.run_once(
