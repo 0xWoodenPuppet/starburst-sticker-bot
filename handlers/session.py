@@ -8,7 +8,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-from config import SESSION_CHAT_ID, SESSION_USER_ID
+from config import SESSION_USERS
 from triggers import TRIGGERS, TRIGGER_PATTERNS
 
 GMT3 = pytz.timezone("Etc/GMT-3")
@@ -92,7 +92,7 @@ async def countdown_tick(context: ContextTypes.DEFAULT_TYPE):
 
 async def receive_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Entry point: detects a forestapp link in DM from the authorized user."""
-    if update.effective_user.id != SESSION_USER_ID:
+    if update.effective_user.id not in SESSION_USERS:
         return ConversationHandler.END
 
     link = update.message.text.strip()
@@ -116,6 +116,12 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     minutes = int(text)
     link = context.user_data.get("session_link")
 
+    user_id = update.effective_user.id
+    target_chat_id = SESSION_USERS.get(user_id)
+
+    if not target_chat_id:
+        return ConversationHandler.END
+
     start_time = datetime.now(timezone.utc) + timedelta(minutes=minutes)
     start_time_str = start_time.astimezone(GMT3).strftime("%H:%M")
 
@@ -124,14 +130,14 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
     if sticker_id:
         sticker_msg = await context.bot.send_sticker(
-            chat_id=SESSION_CHAT_ID,
+            chat_id=target_chat_id,
             sticker=sticker_id,
             disable_notification=True,
         )
         reply_to = sticker_msg.message_id
 
     msg = await context.bot.send_message(
-        chat_id=SESSION_CHAT_ID,
+        chat_id=target_chat_id,
         text=_build_message(link, start_time_str, f"starting in {minutes} minute{'s' if minutes != 1 else ''}..."),
         parse_mode="HTML",
         reply_to_message_id=reply_to,
@@ -143,13 +149,13 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         interval=60,
         first=60,
         data={
-            "chat_id": SESSION_CHAT_ID,
+            "chat_id": target_chat_id,
             "message_id": msg.message_id,
             "link": link,
             "start_time_str": start_time_str,
             "remaining": minutes,
             "dm_chat_id": update.effective_chat.id,
-            "user_id": update.effective_user.id,
+            "user_id": user_id,
         },
         name=f"countdown_{msg.message_id}",
     )

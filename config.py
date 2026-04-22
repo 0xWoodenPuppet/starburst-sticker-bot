@@ -27,9 +27,11 @@ DAILY_CHAT_IDS = [
 ]
 
 # FOREST SESSION
-SESSION_CHAT_ID = -1002511165129 # Notebook of Deku
-SESSION_USER_ID = 1463187459 # Deku
-# SESSION_CHAT_ID = -1002911938910 # disappearing
+SESSION_USERS = {
+    1463187459: -1002511165129, # Deku -> Notebook of Deku
+    # Add other users here:
+    # user_id: channel_id
+}
 
 # EXPERIMENTAL FEATURES (AI Moderator & Mentions)
 EXPERIMENTAL_CHAT_ID = -1003644441864 # disappearing group
