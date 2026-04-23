@@ -55,7 +55,7 @@ async def countdown_tick(context: ContextTypes.DEFAULT_TYPE):
         await context.bot.edit_message_text(
             chat_id=chat_id,
             message_id=message_id,
-            text=_build_message(link, "started, good luck!"),
+            text=_build_message(link, "UPDATE: STARTED. GOOD LUCK!"),
             parse_mode="HTML",
         )
         
