@@ -92,7 +92,7 @@ if __name__ == "__main__":
     print("🚀 Starting Merge...")
     
     # Load IDs
-    st_map = load_stickers_map("stickers.csv")
+    st_map = load_stickers_map("stickers_english.csv")
     print(f"✅ Loaded {len(st_map)} sticker IDs.")
     
     # Merge
