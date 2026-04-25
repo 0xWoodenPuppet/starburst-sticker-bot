@@ -1,9 +1,9 @@
 import os
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta, date
 from telegram import Update
 from telegram.ext import ContextTypes
-from config import BOT_ADMIN_IDS
+from config import BOT_ADMIN_IDS, TIMEZONE
 
 CSV_FILE = "challenge_scores.csv"
 
@@ -32,7 +32,7 @@ def write_scores(scores):
         writer.writerows(scores)
 
 async def score_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Admin command: /score <day> <points> by replying to a user's check-in."""
+    """Admin command: /s <points...> by replying to a user's check-in."""
     if update.effective_user.id not in BOT_ADMIN_IDS:
         return
 
@@ -43,16 +43,23 @@ async def score_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         args = context.args
-        if len(args) < 2:
+        if len(args) < 1:
             await message.set_reaction(reaction="👎")
             return
             
-        day_number = str(int(args[0]))
-        # Sum all remaining arguments (e.g., /score 1 2 5 5 2 -> 14)
-        points = str(sum(int(x) for x in args[1:]))
+        # Sum all arguments as points (e.g., /s 10 5 2 -> 17)
+        points = str(sum(int(x) for x in args))
     except ValueError:
         await message.set_reaction(reaction="👎")
         return
+
+    # Calculate logical day number based on message date
+    # 9:00 AM GMT+3 is 11:30 AM IST. Subtract 11.5 hours so that 11:30 AM IST rolls over at midnight.
+    msg_date = message.reply_to_message.date.astimezone(TIMEZONE)
+    logical_date = (msg_date - timedelta(hours=11, minutes=30)).date()
+    
+    start_date = date(2026, 3, 31)
+    day_number = str((logical_date - start_date).days + 1)
 
     target_user = message.reply_to_message.from_user
     user_id = str(target_user.id)

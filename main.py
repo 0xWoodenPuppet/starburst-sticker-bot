@@ -2,7 +2,7 @@ import threading
 from datetime import time as dt_time
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes, CommandHandler
-from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS
+from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID
 from handlers.messages import check_text
 from handlers.daily import send_todo, send_forest, send_challenge
 from handlers.session import session_handler
@@ -11,6 +11,7 @@ from handlers.coach import handle_dm_reply
 from handlers.moderator import handle_report
 from handlers.scoring import score_user, remove_score, export_scores, leaderboard
 from handlers.sleep import handle_sleep
+from handlers.participants import register_user, unregister_user, handle_automatic_forward
 from server import run_web
 
 
@@ -40,10 +41,15 @@ def main():
     application.add_handler(CommandHandler("removeallmentions", remove_all_mentions))
     application.add_handler(CommandHandler("report", handle_report))
     application.add_handler(CommandHandler("score", score_user))
+    application.add_handler(CommandHandler("s", score_user))
     application.add_handler(CommandHandler("removescore", remove_score))
     application.add_handler(CommandHandler("export_scores", export_scores))
     application.add_handler(CommandHandler("leaderboard", leaderboard))
     application.add_handler(CommandHandler("sleep", handle_sleep))
+    application.add_handler(CommandHandler("register", register_user))
+    application.add_handler(CommandHandler("unregister", unregister_user))
+    
+    application.add_handler(MessageHandler(filters.Chat(MENTION_CHAT_ID) & filters.IS_AUTOMATIC_FORWARD, handle_automatic_forward))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, watch_forestapp), group=1)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.ChatType.PRIVATE, check_text), group=2)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, handle_dm_reply), group=3)

@@ -111,4 +111,5 @@ Let's keep growing! 🌱
         )
 
         context.bot_data[f"pinned_challenge_{chat_id}"] = msg.message_id
+        context.bot_data["last_challenge_msg_id"] = msg.message_id
         print(f"📌 Pinned challenge message ({msg.message_id}) in {chat_id}")

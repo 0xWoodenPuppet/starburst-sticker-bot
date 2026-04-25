@@ -23,7 +23,7 @@ TIMEZONE = pytz.timezone("Asia/Kolkata")
 
 # DAILY MESSAGES
 DAILY_CHAT_IDS = [
-    -1002511165129, # Notebook of Deku
+    -1002911938910, # Disappearing notes (Test Channel)
 ]
 
 # FOREST SESSION
@@ -39,10 +39,8 @@ SESSION_USERS = {
 EXPERIMENTAL_CHAT_ID = -1003644441864 # disappearing group
 
 # MENTIONS
-# MENTION_CHAT_ID = -1003644441864 # Deku and Tooothless
-# MENTION_SOURCE_CHANNEL_ID = -1002911938910 # Diappearing notes
-MENTION_SOURCE_CHANNEL_ID = -1002511165129 # Notebook of Deku
-MENTION_CHAT_ID = -1002606388153 # Cooked chat
+MENTION_SOURCE_CHANNEL_ID = -1002911938910 # Disappearing notes
+MENTION_CHAT_ID = -1003644441864 # disappearing group
 
 # AI MODERATOR
 MOD_LOG_CHAT_ID = -1002911938910 # Using disappearing group as the admin log channel for testing
