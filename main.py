@@ -2,7 +2,7 @@ import threading
 from datetime import time as dt_time
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes, CommandHandler
-from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID
+from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID, BOT_ADMIN_IDS
 from handlers.messages import check_text
 from handlers.daily import send_todo, send_forest, send_challenge
 from handlers.session import session_handler
@@ -39,6 +39,14 @@ def main():
     application.add_handler(CommandHandler("addmention", add_mention))
     application.add_handler(CommandHandler("removemention", remove_mention))
     application.add_handler(CommandHandler("removeallmentions", remove_all_mentions))
+    async def test_challenge(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if update.effective_user.id in BOT_ADMIN_IDS:
+            from handlers.daily import send_challenge
+            await send_challenge(context)
+            await update.message.reply_text("Sent daily challenge!")
+
+    application.add_handler(CommandHandler("test_challenge", test_challenge))
+    
     application.add_handler(CommandHandler("report", handle_report))
     application.add_handler(CommandHandler("score", score_user))
     application.add_handler(CommandHandler("s", score_user))
