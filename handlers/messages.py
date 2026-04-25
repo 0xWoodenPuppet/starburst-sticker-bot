@@ -28,6 +28,12 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not text:
             return
 
+        # Prevent memory leak by cleaning up the cooldown dictionary when it grows too large
+        if len(last_trigger_time) > 1000:
+            stale_keys = [k for k, v in last_trigger_time.items() if now - v > COOLDOWN]
+            for k in stale_keys:
+                del last_trigger_time[k]
+
         # Cooldown check
         if now - last_trigger_time.get(key, 0) < COOLDOWN:
             return

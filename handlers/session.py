@@ -89,16 +89,23 @@ async def receive_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     """Entry point: detects a forestapp link in DM."""
     link = update.message.text.strip()
     
-    match = re.search(r"(\d+)\s*[-_]?\s*(?:min|m\b|분|分|دقيق|دقائق|perc|dakik|мин|menit|मिनट)", link, re.IGNORECASE)
-    if not match:
-        await update.message.reply_text("Sorry, there was an error. Contact @TheWoodenPuppet to report this issue")
+    matches = re.findall(r"(\d+)\s*[-_]?\s*(?:min|m\b|분|分|دقيق|دقائق|perc|dakik|мин|menit|मिनट)", link, re.IGNORECASE)
+    if not matches:
+        await update.message.reply_text("Sorry, there was an error parsing the duration. Contact @TheWoodenPuppet to report this issue")
         return ConversationHandler.END
 
     context.user_data["session_link"] = link
-    context.user_data["session_duration"] = int(match.group(1))
+    context.user_data["session_duration"] = int(matches[-1])
     
     # Disable active DM coaching so Gemini doesn't reply to setup messages
     context.bot_data[f"coach_dm_active_{update.effective_user.id}"] = False
+
+    # Cancel any pending timers from previous sessions for this user!
+    for job in context.application.job_queue.jobs():
+        if hasattr(job, 'data') and isinstance(job.data, dict):
+            if job.data.get("user_id") == update.effective_user.id:
+                if job.name and (job.name.startswith("coach_session_") or job.name.startswith("countdown_")):
+                    job.schedule_removal()
 
     await update.message.reply_text("In how many minutes will you start?")
     return WAITING_MINUTES
