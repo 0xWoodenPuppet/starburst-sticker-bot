@@ -21,9 +21,14 @@ COOLDOWN = 5
 # TIMEZONE
 TIMEZONE = pytz.timezone("Asia/Kolkata")
 
-# DAILY MESSAGES
+# DAILY MESSAGES (Todo, Forest)
 DAILY_CHAT_IDS = [
-    -1002911938910, # Disappearing notes (Test Channel)
+    -1002511165129, # Notebook of Deku
+]
+
+# CHALLENGE MESSAGES
+CHALLENGE_CHAT_IDS = [
+    -1002911938910, # Disappearing notes (Testing)
 ]
 
 # FOREST SESSION

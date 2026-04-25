@@ -67,20 +67,24 @@ async def score_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     scores = read_scores()
     
-    # Check for duplicate
+    # Check if a score already exists for this day to update it
+    score_updated = False
     for row in scores:
         if row["user_id"] == user_id and row["day_number"] == day_number:
-            await message.set_reaction(reaction="👎")
-            return
+            row["points"] = points
+            row["timestamp"] = datetime.now().isoformat()
+            score_updated = True
+            break
 
-    # Append new score
-    scores.append({
-        "user_id": user_id,
-        "username": username,
-        "day_number": day_number,
-        "points": points,
-        "timestamp": datetime.now().isoformat()
-    })
+    # If it doesn't exist, append a new score
+    if not score_updated:
+        scores.append({
+            "user_id": user_id,
+            "username": username,
+            "day_number": day_number,
+            "points": points,
+            "timestamp": datetime.now().isoformat()
+        })
     
     write_scores(scores)
     await message.set_reaction(reaction="👍")

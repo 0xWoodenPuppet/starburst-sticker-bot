@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from telegram.ext import ContextTypes
-from config import DAILY_CHAT_IDS, TIMEZONE
+from config import DAILY_CHAT_IDS, CHALLENGE_CHAT_IDS, TIMEZONE
 
 
 async def send_todo(context: ContextTypes.DEFAULT_TYPE):
@@ -62,9 +62,9 @@ async def send_forest(context: ContextTypes.DEFAULT_TYPE):
 
 async def send_challenge(context: ContextTypes.DEFAULT_TYPE):
     """Sends the 7-day challenge daily post at 16:00 GMT+3 and pins it."""
-    # Only run from March 31, 2026 for 7 days
+    # Only run from today's date for 7 days (temporarily updated for testing)
     today = date.today()
-    start_date = date(2026, 3, 31)
+    start_date = today # date(2026, 3, 31)
     if (today - start_date).days < 0 or (today - start_date).days > 6:
         return
 
@@ -90,7 +90,7 @@ Let's keep growing! 🌱
 
 لنمضِ قدماً معاً! 🌱"""
 
-    for chat_id in DAILY_CHAT_IDS:
+    for chat_id in CHALLENGE_CHAT_IDS:
         prev = context.bot_data.get(f"pinned_challenge_{chat_id}")
         if prev:
             try:

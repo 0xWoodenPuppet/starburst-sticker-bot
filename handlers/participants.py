@@ -61,7 +61,8 @@ async def handle_automatic_forward(update: Update, context: ContextTypes.DEFAULT
     
     # Check if this forward matches the last challenge message sent to the channel
     last_challenge_id = context.bot_data.get("last_challenge_msg_id")
-    if not last_challenge_id or message.forward_from_message_id != last_challenge_id:
+    origin = message.forward_origin
+    if not last_challenge_id or not origin or getattr(origin, 'message_id', None) != last_challenge_id:
         return
 
     participants = load_participants()
