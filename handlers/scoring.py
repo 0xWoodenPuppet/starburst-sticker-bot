@@ -3,7 +3,7 @@ import csv
 from datetime import datetime, timedelta, date
 from telegram import Update
 from telegram.ext import ContextTypes
-from config import BOT_ADMIN_IDS, TIMEZONE
+from config import BOT_ADMIN_IDS, TIMEZONE, DATABASE_CHAT_ID
 
 CSV_FILE = "challenge_scores.csv"
 
@@ -24,12 +24,24 @@ def read_scores():
             scores.append(row)
     return scores
 
-def write_scores(scores):
-    """Write the provided scores list back to the CSV."""
+async def write_scores(scores, context: ContextTypes.DEFAULT_TYPE = None):
+    """Write the provided scores list back to the CSV, and optionally backup to Telegram."""
     with open(CSV_FILE, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=["user_id", "username", "day_number", "points", "timestamp"])
         writer.writeheader()
         writer.writerows(scores)
+        
+    if context and DATABASE_CHAT_ID:
+        try:
+            with open(CSV_FILE, 'rb') as f:
+                await context.bot.send_document(
+                    chat_id=DATABASE_CHAT_ID, 
+                    document=f, 
+                    filename=f"{datetime.now().strftime('%Y-%m-%d_%H-%M')}_scores.csv",
+                    caption="🔄 Database Updated"
+                )
+        except Exception as e:
+            print(f"⚠️ Failed to send database backup: {e}")
 
 async def score_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Admin command: /s <points...> by replying to a user's check-in."""
@@ -58,7 +70,7 @@ async def score_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg_date = message.reply_to_message.date.astimezone(TIMEZONE)
     logical_date = (msg_date - timedelta(hours=11, minutes=30)).date()
     
-    start_date = date(2026, 3, 31)
+    start_date = date(2026, 4, 30)
     day_number = str((logical_date - start_date).days + 1)
 
     target_user = message.reply_to_message.from_user
@@ -86,58 +98,9 @@ async def score_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "timestamp": datetime.now().isoformat()
         })
     
-    write_scores(scores)
+    await write_scores(scores, context)
     await message.set_reaction(reaction="👍")
 
-
-async def remove_score(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Admin command: /removescore <day> by replying to a user's check-in."""
-    if update.effective_user.id not in BOT_ADMIN_IDS:
-        return
-
-    message = update.message
-    if not message.reply_to_message:
-        await message.set_reaction(reaction="👎")
-        return
-
-    try:
-        args = context.args
-        if len(args) < 1:
-            await message.set_reaction(reaction="👎")
-            return
-        day_number = str(int(args[0]))
-    except ValueError:
-        await message.set_reaction(reaction="👎")
-        return
-
-    target_user = message.reply_to_message.from_user
-    user_id = str(target_user.id)
-
-    scores = read_scores()
-    new_scores = [row for row in scores if not (row["user_id"] == user_id and row["day_number"] == day_number)]
-    
-    if len(new_scores) == len(scores):
-        # No score was deleted
-        await message.set_reaction(reaction="👎")
-        return
-
-    write_scores(new_scores)
-    await message.set_reaction(reaction="👍")
-
-
-async def export_scores(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Admin command mostly for Private Chats: /export_scores"""
-    if update.effective_user.id not in BOT_ADMIN_IDS:
-        return
-        
-    init_csv() # ensure it exists
-    with open(CSV_FILE, 'rb') as f:
-        # Always send to the admin's private DM, even if they ran the command in the group!
-        try:
-            await context.bot.send_document(chat_id=update.effective_user.id, document=f, filename=CSV_FILE)
-        except Exception:
-            # If the bot is blocked by the admin in DMs
-            await update.message.set_reaction(reaction="👎")
 
 
 async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):

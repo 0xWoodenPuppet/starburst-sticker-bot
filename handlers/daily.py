@@ -60,35 +60,27 @@ async def send_forest(context: ContextTypes.DEFAULT_TYPE):
         print(f"📌 Pinned forest message ({msg.message_id}) in {chat_id}")
 
 
-async def send_challenge(context: ContextTypes.DEFAULT_TYPE):
-    """Sends the 7-day challenge daily post at 16:00 GMT+3 and pins it."""
-    # Only run from today's date for 7 days (temporarily updated for testing)
+async def send_challenge(context: ContextTypes.DEFAULT_TYPE, force: bool = False):
+    """Sends the 21-day challenge daily post at 16:30 GMT+3 and pins it."""
     today = date.today()
-    start_date = today # date(2026, 3, 31)
-    if (today - start_date).days < 0 or (today - start_date).days > 6:
-        return
-
-    day_number = (today - start_date).days + 1
+    start_date = date(2026, 4, 30)
     
-    text = f"""🌿 Day {day_number} Check in! 🌿
+    # If not forcing a test, abort if we are outside the 21-day window
+    if not force:
+        if (today - start_date).days < 0 or (today - start_date).days > 20:
+            return
 
-How did today go? Share your progress below:
-⏱️ Total study time
-✅ Screenshot of today's todos (Did you hit 80%?)
-🎥 Screenshot if you joined the stream for 1hr+
+    # If forcing a test before it starts, just pretend it's Day 1
+    if force and (today - start_date).days < 0:
+        day_number = 1
+    else:
+        day_number = (today - start_date).days + 1
+    
+    text = f"""🌿 Day {day_number} Check in of Study Challenge
 
-Let's keep growing! 🌱
+📸 Reply under this post with the <a href="https://t.me/c/2606388153/92345">specified format</a> — open 16:30 to 09:00 GMT+3
 
----
-
-🌿 تسجيل الحضور لليوم {day_number} 🌿
-
-كيف كان يومك؟ شارك تقدمك أدناه:
-⏱️ إجمالي وقت الدراسة
-✅ لقطة شاشة لمهام اليوم (هل أنجزت 80%؟)
-🎥 لقطة شاشة إذا انضممت إلى البث المباشر لساعة أو أكثر
-
-لنمضِ قدماً معاً! 🌱"""
+🔗 <a href="https://t.me/NotebookofDeku/6854">Click here for the challenge info</a>"""
 
     for chat_id in CHALLENGE_CHAT_IDS:
         prev = context.bot_data.get(f"pinned_challenge_{chat_id}")
@@ -101,7 +93,9 @@ Let's keep growing! 🌱
         msg = await context.bot.send_message(
             chat_id=chat_id,
             text=text,
+            parse_mode="HTML",
             disable_notification=True,
+            disable_web_page_preview=True,
         )
 
         await context.bot.pin_chat_message(

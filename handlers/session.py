@@ -115,11 +115,13 @@ async def receive_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     """Receives the minute count, posts the session message, starts countdown."""
     text = update.message.text.strip()
 
-    if not text.isdigit() or int(text) <= 0:
-        await update.message.reply_text("Please send a valid number of minutes.")
+    try:
+        minutes = int(text)
+        if minutes <= 0:
+            raise ValueError
+    except ValueError:
+        await update.message.reply_text("Please send a valid positive number for minutes.")
         return WAITING_MINUTES
-
-    minutes = int(text)
     link = context.user_data.get("session_link")
     duration_mins = context.user_data.get("session_duration")
 

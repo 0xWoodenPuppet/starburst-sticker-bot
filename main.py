@@ -9,9 +9,10 @@ from handlers.session import session_handler
 from handlers.mentions import add_mention, remove_mention, remove_all_mentions, watch_forestapp
 from handlers.coach import handle_dm_reply
 from handlers.moderator import handle_report
-from handlers.scoring import score_user, remove_score, export_scores, leaderboard
+from handlers.scoring import score_user, leaderboard
+from handlers.ask import ask_command
 from handlers.sleep import handle_sleep
-from handlers.participants import register_user, unregister_user, handle_automatic_forward
+from handlers.participants import handle_automatic_forward
 from server import run_web
 
 
@@ -33,29 +34,26 @@ def main():
     job_queue = application.job_queue
     job_queue.run_daily(send_todo,   dt_time(hour=5,  minute=0,  tzinfo=TIMEZONE), name="daily_todo")
     job_queue.run_daily(send_forest, dt_time(hour=22, minute=30, tzinfo=TIMEZONE), name="daily_forest")
-    job_queue.run_daily(send_challenge, dt_time(hour=18, minute=30, tzinfo=TIMEZONE), name="daily_challenge")
+    job_queue.run_daily(send_challenge, dt_time(hour=19, minute=0, tzinfo=TIMEZONE), name="daily_challenge")
 
     application.add_handler(session_handler)
     application.add_handler(CommandHandler("addmention", add_mention))
     application.add_handler(CommandHandler("removemention", remove_mention))
     application.add_handler(CommandHandler("removeallmentions", remove_all_mentions))
+    
     async def test_challenge(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.effective_user.id in BOT_ADMIN_IDS:
             from handlers.daily import send_challenge
-            await send_challenge(context)
-            await update.message.reply_text("Sent daily challenge!")
+            await update.message.reply_text("Triggering test challenge...")
+            await send_challenge(context, force=True)
 
     application.add_handler(CommandHandler("test_challenge", test_challenge))
-    
+
     application.add_handler(CommandHandler("report", handle_report))
-    application.add_handler(CommandHandler("score", score_user))
     application.add_handler(CommandHandler("s", score_user))
-    application.add_handler(CommandHandler("removescore", remove_score))
-    application.add_handler(CommandHandler("export_scores", export_scores))
+    application.add_handler(CommandHandler("ask", ask_command))
     application.add_handler(CommandHandler("leaderboard", leaderboard))
     application.add_handler(CommandHandler("sleep", handle_sleep))
-    application.add_handler(CommandHandler("register", register_user))
-    application.add_handler(CommandHandler("unregister", unregister_user))
     
     application.add_handler(MessageHandler(filters.Chat(MENTION_CHAT_ID) & filters.IS_AUTOMATIC_FORWARD, handle_automatic_forward))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, watch_forestapp), group=1)
