@@ -13,6 +13,7 @@ from handlers.scoring import score_user, leaderboard
 from handlers.ask import ask_command
 from handlers.sleep import handle_sleep
 from handlers.participants import handle_automatic_forward
+from handlers.screenshare import handle_screenshare
 from server import run_web
 
 
@@ -54,6 +55,7 @@ def main():
     application.add_handler(CommandHandler("ask", ask_command))
     application.add_handler(CommandHandler("leaderboard", leaderboard))
     application.add_handler(CommandHandler("sleep", handle_sleep))
+    application.add_handler(CommandHandler("screenshare", handle_screenshare))
     
     application.add_handler(MessageHandler(filters.Chat(MENTION_CHAT_ID) & filters.IS_AUTOMATIC_FORWARD, handle_automatic_forward))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, watch_forestapp), group=1)
