@@ -30,5 +30,8 @@ async def handle_automatic_forward(update: Update, context: ContextTypes.DEFAULT
         safe_uname = uname.replace('<', '&lt;').replace('>', '&gt;').replace('&', '&amp;')
         mentions.append(f'<a href="tg://user?id={uid}">{safe_uname}</a>')
     
-    text = " ".join(mentions)
-    await message.reply_text(text, parse_mode="HTML", disable_notification=True)
+    # Telegram allows max 50 mentions per message
+    chunk_size = 50
+    for i in range(0, len(mentions), chunk_size):
+        text = " ".join(mentions[i:i + chunk_size])
+        await message.reply_text(text, parse_mode="HTML", disable_notification=True)
