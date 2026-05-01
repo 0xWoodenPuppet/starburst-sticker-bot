@@ -96,6 +96,8 @@ async def handle_screenshare(update: Update, context: ContextTypes.DEFAULT_TYPE)
             chat_id=CHANNEL_ID,
             user_id=user_id,
             can_manage_video_chats=True,
+            can_restrict_members=False,
+            can_promote_members=False,
         )
     except TelegramError as e:
         print(f"⚠️ Could not grant screenshare to user {user_id}: {e}")

@@ -24,16 +24,11 @@ async def handle_automatic_forward(update: Update, context: ContextTypes.DEFAULT
     if not participants:
         return
 
-    # Build mentions
+    # Build mentions for all participants
     mentions = []
     for uid, uname in participants.items():
         safe_uname = uname.replace('<', '&lt;').replace('>', '&gt;').replace('&', '&amp;')
         mentions.append(f'<a href="tg://user?id={uid}">{safe_uname}</a>')
     
-    # Group them so it's not a huge wall of text
-    chunk_size = 10
-    chunks = [mentions[i:i + chunk_size] for i in range(0, len(mentions), chunk_size)]
-    
-    for chunk in chunks:
-        text = " ".join(chunk)
-        await message.reply_text(text, parse_mode="HTML", disable_notification=True)
+    text = " ".join(mentions)
+    await message.reply_text(text, parse_mode="HTML", disable_notification=True)
