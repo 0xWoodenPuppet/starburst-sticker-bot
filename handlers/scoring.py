@@ -107,7 +107,7 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Public command: /leaderboard"""
     scores = read_scores()
     if not scores:
-        await update.message.reply_text("🏆 <b>7-Day Challenge Leaderboard</b>\n\nNo scores have been logged yet!", parse_mode="HTML")
+        await update.message.reply_text("🏆 <b>21-Day Challenge Leaderboard</b>\n\nNo scores have been logged yet!", parse_mode="HTML")
         return
 
     # Calculate totals
@@ -123,7 +123,7 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Sort users by total points descending
     sorted_users = sorted(totals.values(), key=lambda x: x["total"], reverse=True)
 
-    text = "🏆 <b>7-Day Challenge Leaderboard</b> 🏆\n\n"
+    text = "🏆 <b>21-Day Challenge Leaderboard</b> 🏆\n\n"
     for i, user in enumerate(sorted_users, start=1):
         medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else "🔸"
         # Sanitize HTML just in case
