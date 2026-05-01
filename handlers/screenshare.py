@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime, timezone
 
 from telegram import Update
-from telegram.error import TelegramError
+from telegram.error import RetryAfter, TelegramError
 from telegram.ext import ContextTypes
 
 CHANNEL_ID = -1002511165129
@@ -14,6 +14,21 @@ GRANT_DURATION = 120  # seconds
 _active_grants: dict[int, float] = {}
 # Running revocation tasks: { user_id: asyncio.Task }
 _revoke_tasks: dict[int, asyncio.Task] = {}
+
+
+async def _safe_reply(msg, text: str) -> None:
+    """Send a reply, respecting Telegram flood-control by retrying once after the required delay."""
+    try:
+        await msg.reply_text(text)
+    except RetryAfter as e:
+        print(f"⏳ Flood control hit, retrying reply in {e.retry_after}s…")
+        await asyncio.sleep(e.retry_after)
+        try:
+            await msg.reply_text(text)
+        except TelegramError as inner:
+            print(f"⚠️ Could not send reply after retry: {inner}")
+    except TelegramError as e:
+        print(f"⚠️ Could not send reply: {e}")
 
 
 async def _revoke_after_delay(bot, user_id: int, delay: float) -> None:
@@ -61,18 +76,18 @@ async def handle_screenshare(update: Update, context: ContextTypes.DEFAULT_TYPE)
         new_expiry = now + GRANT_DURATION
         _active_grants[user_id] = new_expiry
         _schedule_revocation(context.bot, user_id, GRANT_DURATION)
-        await msg.reply_text("🎥 You can now share your screen/cam in the channel!")
+        await _safe_reply(msg, "🎥 You can now share your screen/cam in the channel!")
         return
 
     # --- Check channel membership ---
     try:
         member = await context.bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
         if member.status in ("left", "kicked", "banned"):
-            await msg.reply_text("❌ Please join the channel first.")
+            await _safe_reply(msg, "❌ Please join the channel first.")
             return
     except TelegramError as e:
         print(f"⚠️ Could not check membership for user {user_id}: {e}")
-        await msg.reply_text("❌ Please join the channel first.")
+        await _safe_reply(msg, "❌ Please join the channel first.")
         return
 
     # --- Grant permission ---
@@ -84,12 +99,12 @@ async def handle_screenshare(update: Update, context: ContextTypes.DEFAULT_TYPE)
         )
     except TelegramError as e:
         print(f"⚠️ Could not grant screenshare to user {user_id}: {e}")
-        await msg.reply_text("⚠️ Could not grant permission, please try again.")
+        await _safe_reply(msg, "⚠️ Could not grant permission, please try again.")
         return
 
     # --- Record grant and start revocation timer ---
     _active_grants[user_id] = now + GRANT_DURATION
     _schedule_revocation(context.bot, user_id, GRANT_DURATION)
 
-    await msg.reply_text("🎥 You can now share your screen/cam in the channel!")
+    await _safe_reply(msg, "🎥 You can now share your screen/cam in the channel!")
     print(f"✅ Granted screenshare to user {user_id} for {GRANT_DURATION}s")
