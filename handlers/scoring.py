@@ -185,10 +185,9 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f'❌ Player "{safe_query}" not found.', parse_mode="HTML")
         return
 
-    # Determine how many days have elapsed so far
-    today = date.today()
-    elapsed_days = (today - CHALLENGE_START_DATE).days + 1
-    elapsed_days = max(0, min(elapsed_days, CHALLENGE_TOTAL_DAYS))
+    # Determine how many days have elapsed based on the highest day logged in the CSV
+    max_day = max(int(row["day_number"]) for row in scores)
+    elapsed_days = min(max_day, CHALLENGE_TOTAL_DAYS)
 
     # Build the profile text
     display_name = _safe_display_name(matched_name)
