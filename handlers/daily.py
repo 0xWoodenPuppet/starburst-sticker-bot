@@ -82,7 +82,7 @@ async def send_challenge(context: ContextTypes.DEFAULT_TYPE, force: bool = False
     
     text = f"""🌿 Day {day_number} Check in of Study Challenge
 
-📸 Reply under this post with the <a href="https://t.me/c/2606388153/92345">specified format</a> — open 16:30 to 09:00 GMT+3
+📸 Reply under this post with the <a href="https://t.me/c/2606388153/92345">specified format</a> — check-in closes in <b>24 hours</b>.
 
 🔗 <a href="https://t.me/NotebookofDeku/6854">Click here for the challenge info</a>"""
 
