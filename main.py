@@ -11,7 +11,7 @@ from handlers.session import session_handler
 from handlers.mentions import add_mention, remove_mention, remove_all_mentions, watch_forestapp
 from handlers.coach import handle_dm_reply
 from handlers.moderator import handle_report
-from handlers.scoring import score_user, leaderboard
+from handlers.scoring import score_user, leaderboard, profile
 from handlers.ask import ask_command
 from handlers.sleep import handle_sleep
 from handlers.participants import handle_automatic_forward
@@ -56,6 +56,7 @@ def main():
     application.add_handler(CommandHandler("s", score_user))
     application.add_handler(CommandHandler("ask", ask_command))
     application.add_handler(CommandHandler("leaderboard", leaderboard))
+    application.add_handler(CommandHandler("profile", profile))
     application.add_handler(CommandHandler("sleep", handle_sleep))
     application.add_handler(CommandHandler("screenshare", handle_screenshare))
     
