@@ -84,7 +84,15 @@ async def send_challenge(context: ContextTypes.DEFAULT_TYPE, force: bool = False
 
 📸 Reply under this post with the <a href="https://t.me/c/2606388153/92345">specified format</a> — check-in closes in <b>24 hours</b>.
 
-🔗 <a href="https://t.me/NotebookofDeku/6854">Click here for the challenge info</a>"""
+🔗 <a href="https://t.me/NotebookofDeku/6854">Click here for the challenge info</a>
+
+Commands: 
+
+/leaderboard 
+
+/profile &lt;username&gt;
+
+/screenshare"""
 
     for chat_id in CHALLENGE_CHAT_IDS:
         prev = context.bot_data.get(f"pinned_challenge_{chat_id}")
