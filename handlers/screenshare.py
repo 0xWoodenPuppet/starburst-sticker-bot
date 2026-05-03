@@ -87,7 +87,7 @@ async def handle_screenshare(update: Update, context: ContextTypes.DEFAULT_TYPE)
             return
     except TelegramError as e:
         print(f"⚠️ Could not check membership for user {user_id}: {e}")
-        await _safe_reply(msg, "❌ Please join the channel first. @NoteOfDeku")
+        await _safe_reply(msg, "❌ Please join the channel first. @NotebookOfDeku")
         return
 
     # --- Grant permission ---
@@ -101,14 +101,13 @@ async def handle_screenshare(update: Update, context: ContextTypes.DEFAULT_TYPE)
         )
     except TelegramError as e:
         print(f"⚠️ Could not grant screenshare to user {user_id}: {e}")
-        await _safe_reply(msg, "⚠️ You already have permission to share your screen/cam in the channel!")
+        await _safe_reply(msg, "⚠️ You already have permission to share your screen/cam in @NotebookofDeku!")
         return
 
     # --- Record grant and start revocation timer ---
     _active_grants[user_id] = now + GRANT_DURATION
     _schedule_revocation(context.bot, user_id, GRANT_DURATION)
 
-    await _safe_reply(msg, "🎥 You can now share your screen/cam in the channel! Please do not click on 'End live stream' when leaving.\
-🎥 يمكنك الآن مشاركة شاشتك/كاميرتك في القناة! يُرجى عدم النقر على 'إنهاء البث المباشر' عند المغادرة.")   
+    await _safe_reply(msg, "🎥 You can now share your screen/cam in @NotebookofDeku! Please do not click on 'End live stream' when leaving.\n \n 🎥 يمكنك الآن مشاركة شاشتك/كاميرتك في القناة! يُرجى عدم النقر على 'إنهاء البث المباشر' عند المغادرة.")   
 
     print(f"✅ Granted screenshare to user {user_id} for {GRANT_DURATION}s")
