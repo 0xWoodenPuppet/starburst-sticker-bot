@@ -22,8 +22,8 @@ from config import BOT_ADMIN_IDS
 from triggers import TRIGGERS, TRIGGER_PATTERNS
 
 # ── Constants ──────────────────────────────────────────────────────────
-CHANNEL_ID = -1002911938910
-GROUP_ID = -1003644441864
+CHANNEL_ID = -1002511165129
+GROUP_ID = -1002606388153
 GMT3 = timezone(timedelta(hours=3))
 
 WAITING_LINK = 0
