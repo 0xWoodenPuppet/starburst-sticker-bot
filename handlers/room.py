@@ -102,17 +102,19 @@ def _build_task_text() -> str:
     lines = [
         "📋 Reply under this post with /task to add tasks for this session:",
         "",
-        "- you'll be restricted from sending messages when session starts.",
-        "- ✅: Completed",
-        "- 🦦: Distracted",
-        "- ⏳: Needs more time",
-        "",
-        "Participants:",
+        "- You'll be restricted from sending messages three minutes after the session starts.",
     ]
+    if s["phase"] == "scoring":
+        lines.extend([
+            "- ✅: Completed",
+            "- 🦦: Distracted",
+            "- ⏳: Needs more time",
+        ])
+    lines.extend(["", "Participants:"])
     parts = []
     for uid, uname in s["participants"].items():
         emoji = s["scores"].get(uid, "")
-        name = f"@{uname}" if uname else f"User {uid}"
+        name = uname if uname else f"User {uid}"
         parts.append(f"{name} {emoji}".rstrip())
     if parts:
         lines.append("<blockquote expandable>")
