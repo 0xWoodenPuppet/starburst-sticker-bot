@@ -448,21 +448,27 @@ async def _deactivate_scoring(context: ContextTypes.DEFAULT_TYPE):
 # ═══════════════════════════════════════════════════════════════════════
 
 async def track_forwarded_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Capture auto-forwarded channel post → store group thread ID."""
-    if _session is None or _session.get("group_thread_id"):
+    """Capture auto-forwarded task post in group → store its thread ID for /task matching."""
+    if _session is None:
         return
     msg = update.message
     if msg is None:
         return
+
+    # Resolve the original channel message_id from the forwarded copy
     origin_id = None
     if hasattr(msg, "forward_origin") and msg.forward_origin:
         origin_id = getattr(msg.forward_origin, "message_id", None)
-    if origin_id is None and msg.forward_from_message_id:
-        origin_id = msg.forward_from_message_id
-    # Match against either session or task post
-    if origin_id in (_session.get("session_msg_id"), _session.get("task_msg_id")):
+    if origin_id is None:
+        origin_id = getattr(msg, "forward_from_message_id", None)
+
+    print(f"🔍 Auto-forward in group: group_msg={msg.message_id}, origin={origin_id}, "
+          f"want_task={_session.get('task_msg_id')}")
+
+    # We specifically want the TASK post's forward (that's where /task replies go)
+    if origin_id == _session.get("task_msg_id"):
         _session["group_thread_id"] = msg.message_id
-        print(f"✅ Captured group thread ID: {msg.message_id}")
+        print(f"✅ Captured task thread ID: {msg.message_id}")
 
 
 async def task_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -473,6 +479,8 @@ async def task_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if msg is None or msg.chat_id != GROUP_ID:
         return
     thread_id = getattr(msg, "message_thread_id", None)
+    print(f"🔍 /task received: chat={msg.chat_id}, thread={thread_id}, "
+          f"expected={_session.get('group_thread_id')}, phase={_session.get('phase')}")
     if not thread_id or thread_id != _session.get("group_thread_id"):
         return
 
