@@ -523,6 +523,10 @@ async def monitor_group_messages(update: Update, context: ContextTypes.DEFAULT_T
     """During active phase: delete ANY message type from participants and warn."""
     if _session is None or _session["phase"] != "active":
         return
+    # 3-minute grace period at start of active phase
+    elapsed = _session["duration"] - _session["remaining_active"]
+    if elapsed < 3:
+        return
     msg = update.message
     if msg is None or msg.chat_id != GROUP_ID:
         return
