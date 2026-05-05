@@ -145,11 +145,16 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
         uid = row["user_id"]
         points = int(row["points"])
         if uid not in totals:
-            totals[uid] = {"username": row["username"], "total": 0}
+            totals[uid] = {"uid": uid, "username": row["username"], "total": 0}
         totals[uid]["total"] += points
 
-    # Sort users by total points descending
-    sorted_users = sorted(totals.values(), key=lambda x: x["total"], reverse=True)
+    # Sort users by total points descending.
+    # Tiebreaker: prioritise user 5534874386 when totals are equal.
+    PRIORITY_UID = "5534874386"
+    sorted_users = sorted(
+        totals.values(),
+        key=lambda x: (-x["total"], 0 if x.get("uid") == PRIORITY_UID else 1),
+    )
     ranked = _dense_ranks(sorted_users)
 
     text = "🏆 <b>21-Day Challenge Leaderboard</b> 🏆\n\n"
@@ -210,10 +215,14 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
         uid = row["user_id"]
         p = int(row["points"])
         if uid not in totals:
-            totals[uid] = {"username": row["username"], "total": 0}
+            totals[uid] = {"uid": uid, "username": row["username"], "total": 0}
         totals[uid]["total"] += p
 
-    sorted_users = sorted(totals.values(), key=lambda x: x["total"], reverse=True)
+    PRIORITY_UID = "5534874386"
+    sorted_users = sorted(
+        totals.values(),
+        key=lambda x: (-x["total"], 0 if x.get("uid") == PRIORITY_UID else 1),
+    )
     ranked = _dense_ranks(sorted_users)
 
     player_rank = None
