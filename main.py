@@ -75,7 +75,7 @@ def main():
         track_forwarded_post
     ), group=5)
     application.add_handler(MessageHandler(
-        filters.Chat(ROOM_GROUP_ID) & filters.TEXT & ~filters.COMMAND,
+        filters.Chat(ROOM_GROUP_ID) & ~filters.COMMAND & ~filters.StatusUpdate.ALL & ~filters.IS_AUTOMATIC_FORWARD,
         monitor_group_messages
     ), group=6)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, watch_forestapp), group=1)
