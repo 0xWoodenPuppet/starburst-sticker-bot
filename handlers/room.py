@@ -22,8 +22,14 @@ from config import BOT_ADMIN_IDS
 from triggers import TRIGGERS, TRIGGER_PATTERNS
 
 # ── Constants ──────────────────────────────────────────────────────────
-CHANNEL_ID = -1002511165129
-GROUP_ID = -1002606388153
+# Notebook of Deku > Academically Cooked Weapons Chat
+# CHANNEL_ID = -1002511165129 
+# GROUP_ID = -1002606388153
+
+# Disappearing Notes > Test
+CHANNEL_ID = -1002911938910
+GROUP_ID = -1003644441864
+
 GMT3 = timezone(timedelta(hours=3))
 
 WAITING_LINK = 0
@@ -41,6 +47,7 @@ except FileNotFoundError:
 # ── Module-level state ─────────────────────────────────────────────────
 _session: dict | None = None
 _pending_setup: dict[int, dict] = {}
+_legacy_scoring: list[dict] = []
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -51,7 +58,8 @@ def _find_tree(text: str) -> tuple[str, str | None]:
     for trigger, pattern in TRIGGER_PATTERNS.items():
         if pattern.search(text):
             sid = TRIGGERS[trigger]
-            return _ENGLISH_NAMES.get(sid, trigger.title()), sid
+            name = _ENGLISH_NAMES.get(sid, trigger.title())
+            return name.title(), sid
     return "Unknown Tree", None
 
 
@@ -61,7 +69,7 @@ def _parse_forest_link(text: str) -> dict | None:
     if not token_m or not link_m:
         return None
     dur = re.findall(
-        r"(\d+)\s*[-–]?\s*(?:min|m\b|분|分|دقيق|دقائق|perc|dakik|мин|menit|मिनट)",
+        r"(\d+)\s*[-–]?\s*(?:min|m\b|분|分|دقيق|دقائق|perc|dakik|мін|мин|menit|मिनट)",
         text, re.IGNORECASE,
     )
     if not dur:
@@ -77,43 +85,29 @@ def _parse_forest_link(text: str) -> dict | None:
 
 # ── Post text builders ────────────────────────────────────────────────
 
-def _build_session_text(strikethrough: bool = False) -> str:
+def _build_session_text() -> str:
     """Post 1 — session info."""
     s = _session
     host = f"@{s['host_username']}" if s["host_username"] else f"User {s['host_id']}"
-    body = (
-        f"Hosted by {host}\n\n"
-        f"Tree: {s['tree']}\n\n"
-        f"Duration: {s['duration']} Minutes\n\n"
+    return (
+        f"🌚 Host: {host}\n\n"
+        f"🌱 Tree: {s['tree']}\n\n"
+        f"⏳ Time: {s['duration']} Minutes\n\n"
         f"Starts at {s['start_time'].strftime('%H:%M')} GMT+3\n\n"
         f"Code: <code>{s['token']}</code>\n\n"
-        f"Join: {s['join_link']}"
+        f"Link: {s['join_link']}"
     )
-    if strikethrough:
-        return "\n".join(
-            f"<s>{ln}</s>" if ln.strip() else ln for ln in body.split("\n")
-        )
-    return body
 
 
-def _build_task_text() -> str:
-    """Post 2 — task collection + participants."""
-    s = _session
-    lines = [
-        "📋 Reply under this post with /task to add tasks for this session:",
-        "",
-        "- You'll be restricted from sending messages three minutes after the session starts.",
-    ]
-    if s["phase"] == "scoring":
-        lines.extend([
-            "- ✅: Completed",
-            "- 🦦: Distracted",
-            "- ⏳: Needs more time",
-        ])
-    lines.extend(["", "Participants:"])
+def _build_task_text_data(participants, scores, scoring=False) -> str:
+    """Build task post text from arbitrary participant/score data."""
+    if scoring:
+        lines = ["Participants scores:"]
+    else:
+        lines = ["📋 Write down your tasks for this session using /task <your task>"]
     parts = []
-    for uid, uname in s["participants"].items():
-        emoji = s["scores"].get(uid, "")
+    for uid, uname in participants.items():
+        emoji = scores.get(uid, "")
         name = uname if uname else f"User {uid}"
         parts.append(f"{name} {emoji}".rstrip())
     if parts:
@@ -121,6 +115,15 @@ def _build_task_text() -> str:
         lines.extend(parts)
         lines.append("</blockquote>")
     return "\n".join(lines)
+
+
+def _build_task_text() -> str:
+    """Post 2 — task collection + participants."""
+    s = _session
+    return _build_task_text_data(
+        s["participants"], s["scores"],
+        scoring=(s["phase"] in ("scoring", "ended")),
+    )
 
 
 # ── Keyboards ──────────────────────────────────────────────────────────
@@ -137,23 +140,23 @@ def _kb_active(remaining: int) -> InlineKeyboardMarkup:
     ]])
 
 def _kb_scoring() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([[
-        InlineKeyboardButton("✅", callback_data="room_done"),
-        InlineKeyboardButton("🦦", callback_data="room_distracted"),
-        InlineKeyboardButton("⏳", callback_data="room_more"),
-    ]])
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("✅ Completed", callback_data="room_done")],
+        [InlineKeyboardButton("🦦 Distracted", callback_data="room_distracted")],
+        [InlineKeyboardButton("⏳ Needs more time", callback_data="room_more")],
+    ])
 
 
 # ── Edit helpers ───────────────────────────────────────────────────────
 
-async def _edit_session_post(bot, keyboard=None, strikethrough=False):
+async def _edit_session_post(bot, keyboard=None, active=False):
     if _session is None or not _session.get("session_msg_id"):
         return
+    text = "Session has started, good luck! 🩴" if active else _build_session_text()
     try:
         await bot.edit_message_text(
             chat_id=CHANNEL_ID, message_id=_session["session_msg_id"],
-            text=_build_session_text(strikethrough=strikethrough),
-            parse_mode="HTML", reply_markup=keyboard,
+            text=text, parse_mode="HTML", reply_markup=keyboard,
             disable_web_page_preview=True,
         )
     except Exception as e:
@@ -172,9 +175,11 @@ async def _edit_task_post(bot, keyboard=None):
         print(f"⚠️ Failed to edit task post: {e}")
 
 
-def _cancel_jobs(job_queue):
+def _cancel_jobs(job_queue, exclude_scoring=False):
     for job in job_queue.jobs():
         if job.name and job.name.startswith("room_"):
+            if exclude_scoring and job.name == "room_scoring_timeout":
+                continue
             job.schedule_removal()
 
 
@@ -204,6 +209,28 @@ def _task_window_open() -> bool:
     return False
 
 
+async def _cleanup_old_session(context):
+    """Phase-aware cleanup when starting a new /room session."""
+    global _session
+    if _session is None:
+        return
+    if _session["phase"] == "scoring":
+        # Preserve scoring — move to legacy so buttons stay alive
+        _legacy_scoring.append({
+            "task_msg_id": _session["task_msg_id"],
+            "participants": dict(_session["participants"]),
+            "scores": dict(_session["scores"]),
+            "tasks": dict(_session["tasks"]),
+        })
+        # Cancel all jobs except the scoring timeout
+        _cancel_jobs(context.application.job_queue, exclude_scoring=True)
+    else:
+        # Countdown or active — fully stop, strip everything
+        _cancel_jobs(context.application.job_queue)
+        await _strip_old_buttons(context.bot)
+    _session = None
+
+
 # ═══════════════════════════════════════════════════════════════════════
 #  CONVERSATION HANDLER — /room DM flow
 # ═══════════════════════════════════════════════════════════════════════
@@ -212,12 +239,11 @@ async def room_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     global _session
     if update.effective_user.id not in BOT_ADMIN_IDS:
         return ConversationHandler.END
-    if _session is not None:
-        _cancel_jobs(context.application.job_queue)
-        await _strip_old_buttons(context.bot)
-        _session = None
     _pending_setup.pop(update.effective_user.id, None)
+    # Reply immediately to minimize perceived delay
     await update.message.reply_text("Paste your Forest session link:")
+    # Then clean up old session
+    await _cleanup_old_session(context)
     return WAITING_LINK
 
 
@@ -282,9 +308,8 @@ async def _cb_minute(query, context):
     minutes = int(query.data.split("_")[-1])
     start_time = datetime.now(GMT3) + timedelta(minutes=minutes)
 
-    if _session is not None:
-        _cancel_jobs(context.application.job_queue)
-        await _strip_old_buttons(context.bot)
+    # Phase-aware cleanup of any existing session
+    await _cleanup_old_session(context)
 
     _session = {
         "host_id": setup["host_id"],
@@ -356,15 +381,37 @@ async def _cb_extend(query, context):
 
 
 async def _cb_score(query, context, data: str):
-    if _session is None or _session["phase"] != "scoring":
-        await query.answer(); return
     uid = query.from_user.id
-    if uid not in _session["participants"]:
-        await query.answer(); return
     emoji = {"room_done": "✅", "room_distracted": "🦦", "room_more": "⏳"}[data]
-    _session["scores"][uid] = emoji
-    await query.answer(f"Recorded: {emoji}")
-    await _edit_task_post(context.bot, _kb_scoring())
+
+    # Check current session first
+    if _session is not None and _session["phase"] == "scoring":
+        if uid in _session["participants"]:
+            _session["scores"][uid] = emoji
+            await query.answer(f"Recorded: {emoji}")
+            await _edit_task_post(context.bot, _kb_scoring())
+            return
+
+    # Check legacy scoring entries (matched by the message the button is on)
+    msg_id = query.message.message_id if query.message else None
+    for legacy in _legacy_scoring:
+        if legacy["task_msg_id"] == msg_id and uid in legacy["participants"]:
+            legacy["scores"][uid] = emoji
+            await query.answer(f"Recorded: {emoji}")
+            text = _build_task_text_data(
+                legacy["participants"], legacy["scores"], scoring=True,
+            )
+            try:
+                await context.bot.edit_message_text(
+                    chat_id=CHANNEL_ID, message_id=legacy["task_msg_id"],
+                    text=text, parse_mode="HTML",
+                    reply_markup=_kb_scoring(), disable_web_page_preview=True,
+                )
+            except Exception as e:
+                print(f"⚠️ Failed to edit legacy task post: {e}")
+            return
+
+    await query.answer()
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -381,8 +428,8 @@ async def _countdown_tick(context: ContextTypes.DEFAULT_TYPE):
     if remaining <= 0:
         _session["phase"] = "active"
         _session["remaining_active"] = _session["duration"]
-        # Strikethrough session post, active timer on it
-        await _edit_session_post(context.bot, _kb_active(_session["duration"]), strikethrough=True)
+        # Replace session post with "good luck" message, show active timer
+        await _edit_session_post(context.bot, _kb_active(_session["duration"]), active=True)
         for job in context.job_queue.jobs():
             if job.name == "room_countdown":
                 job.schedule_removal()
@@ -402,8 +449,8 @@ async def _session_tick(context: ContextTypes.DEFAULT_TYPE):
 
     if remaining <= 0:
         _session["phase"] = "scoring"
-        # Strip buttons from session post
-        await _edit_session_post(context.bot, keyboard=None, strikethrough=True)
+        # Keep "good luck" text, strip keyboard from session post
+        await _edit_session_post(context.bot, keyboard=None, active=True)
         # Scoring buttons on task post
         await _edit_task_post(context.bot, _kb_scoring())
 
@@ -413,16 +460,20 @@ async def _session_tick(context: ContextTypes.DEFAULT_TYPE):
 
         # Post session-over in group thread
         if _session.get("group_thread_id"):
-            mentions = " ".join(f"@{u}" for u in _session["participants"].values() if u)
             cid = str(CHANNEL_ID).replace("-100", "")
             link = f"https://t.me/c/{cid}/{_session['task_msg_id']}"
+            parts = []
+            for uid, uname in _session["participants"].items():
+                mention = f"@{uname}" if uname else f"User {uid}"
+                task = _session["tasks"].get(uid, "")
+                parts.append(f"{mention} - {task}" if task else mention)
+            body = "\n".join(parts)
             try:
                 await context.bot.send_message(
                     chat_id=GROUP_ID,
                     text=(
-                        f"⏰ Session over! Time to score yourselves.\n"
-                        f"{mentions} — how did it go?\n"
-                        f'<a href="{link}">Score here</a>'
+                        f'🩴 Session over! <a href="{link}">Tap here to score yourselves</a>\n\n'
+                        f"{body}"
                     ),
                     message_thread_id=_session["group_thread_id"],
                     parse_mode="HTML", disable_web_page_preview=True,
@@ -432,17 +483,40 @@ async def _session_tick(context: ContextTypes.DEFAULT_TYPE):
 
         context.job_queue.run_once(
             _deactivate_scoring, when=600, name="room_scoring_timeout",
+            data={"task_msg_id": _session["task_msg_id"]},
         )
         return
-    await _edit_session_post(context.bot, _kb_active(remaining), strikethrough=True)
+    await _edit_session_post(context.bot, _kb_active(remaining), active=True)
 
 
 async def _deactivate_scoring(context: ContextTypes.DEFAULT_TYPE):
     global _session
-    if _session is None or _session["phase"] != "scoring":
-        return
-    _session["phase"] = "ended"
-    await _edit_task_post(context.bot, keyboard=None)
+    task_msg_id = context.job.data.get("task_msg_id") if context.job.data else None
+
+    # Check current session
+    if _session is not None and _session["phase"] == "scoring":
+        if task_msg_id is None or task_msg_id == _session.get("task_msg_id"):
+            _session["phase"] = "ended"
+            await _edit_task_post(context.bot, keyboard=None)
+            return
+
+    # Check legacy scoring entries
+    for legacy in _legacy_scoring[:]:
+        if legacy["task_msg_id"] == task_msg_id:
+            _legacy_scoring.remove(legacy)
+            # Edit to show final scores without buttons
+            text = _build_task_text_data(
+                legacy["participants"], legacy["scores"], scoring=True,
+            )
+            try:
+                await context.bot.edit_message_text(
+                    chat_id=CHANNEL_ID, message_id=task_msg_id,
+                    text=text, parse_mode="HTML",
+                    reply_markup=None, disable_web_page_preview=True,
+                )
+            except Exception:
+                pass
+            return
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -484,6 +558,17 @@ async def task_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f"🔍 /task received: chat={msg.chat_id}, thread={thread_id}, "
           f"expected={_session.get('group_thread_id')}, phase={_session.get('phase')}")
     if not thread_id or thread_id != _session.get("group_thread_id"):
+        # Inform user to use /task under the correct post
+        if _session.get("task_msg_id"):
+            cid = str(CHANNEL_ID).replace("-100", "")
+            link = f"https://t.me/c/{cid}/{_session['task_msg_id']}"
+            try:
+                await msg.reply_text(
+                    f'Please use /task under the <a href="{link}">task post</a>.',
+                    parse_mode="HTML", disable_web_page_preview=True,
+                )
+            except Exception:
+                pass
         return
 
     user = update.effective_user
