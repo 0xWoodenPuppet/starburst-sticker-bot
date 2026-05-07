@@ -23,12 +23,12 @@ from triggers import TRIGGERS, TRIGGER_PATTERNS
 
 # ── Constants ──────────────────────────────────────────────────────────
 # Notebook of Deku > Academically Cooked Weapons Chat
-# CHANNEL_ID = -1002511165129 
-# GROUP_ID = -1002606388153
+CHANNEL_ID = -1002511165129 
+GROUP_ID = -1002606388153
 
 # Disappearing Notes > Test
-CHANNEL_ID = -1002911938910
-GROUP_ID = -1003644441864
+# CHANNEL_ID = -1002911938910
+# GROUP_ID = -1003644441864
 
 GMT3 = timezone(timedelta(hours=3))
 
@@ -90,21 +90,21 @@ def _build_session_text() -> str:
     s = _session
     host = f"@{s['host_username']}" if s["host_username"] else f"User {s['host_id']}"
     return (
-        f"🌚 Host: {host}\n\n"
+        f"<b>🌚 Host: {host}\n\n"
         f"🌱 Tree: {s['tree']}\n\n"
         f"⏳ Time: {s['duration']} Minutes\n\n"
         f"Starts at {s['start_time'].strftime('%H:%M')} GMT+3\n\n"
-        f"Code: <code>{s['token']}</code>\n\n"
-        f"Link: {s['join_link']}"
+        f"Code:</b> <code>{s['token']}</code>\n\n"
+        f"<b>Link: {s['join_link']}</b>"
     )
 
 
 def _build_task_text_data(participants, scores, scoring=False) -> str:
     """Build task post text from arbitrary participant/score data."""
     if scoring:
-        lines = ["Participants scores:"]
+        lines = ["<b>Participants scores:</b>"]
     else:
-        lines = ["📋 Write down your tasks for this session using /task <your task>"]
+        lines = ["<b>📋 Write down your tasks for this session using /task &lt;your task&gt;</b>"]
     parts = []
     for uid, uname in participants.items():
         emoji = scores.get(uid, "")
@@ -476,6 +476,7 @@ async def _session_tick(context: ContextTypes.DEFAULT_TYPE):
                         f"{body}"
                     ),
                     message_thread_id=_session["group_thread_id"],
+                    reply_to_message_id=_session["group_thread_id"],
                     parse_mode="HTML", disable_web_page_preview=True,
                 )
             except Exception as e:
