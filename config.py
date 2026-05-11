@@ -36,7 +36,7 @@ DATABASE_CHAT_ID = -5265809272 # Toothless Database
 
 # FOREST SESSION
 SESSION_USERS = {
-    1463187459: -1002511165129, # Deku -> Notebook of Deku
+    5534874386: -1002511165129, # Ari -> Notebook of Deku
     1382116841: -1002999663776, # Mochi -> Mochi Nest
     5236419662: -1003302115271, # Smiley face -> Let's plant together
     5791584631: -1003726481081, # @Memoaw -> studytripfor
