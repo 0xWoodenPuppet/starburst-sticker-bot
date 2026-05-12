@@ -23,7 +23,7 @@ from triggers import TRIGGERS, TRIGGER_PATTERNS
 
 # ── Constants ──────────────────────────────────────────────────────────
 # Notebook of Deku > Academically Cooked Weapons Chat
-CHANNEL_ID = -1002511165129 
+CHANNEL_ID = -1002511165129
 GROUP_ID = -1002606388153
 
 # Disappearing Notes > Test
@@ -43,6 +43,11 @@ try:
                 _ENGLISH_NAMES[_row[1].strip()] = _row[0].strip()
 except FileNotFoundError:
     print("⚠️ stickers_english.csv not found – tree names will show as 'Unknown Tree'")
+
+# Reverse lookup: lowercase english name → sticker_id
+_NAME_TO_STICKER: dict[str, str] = {
+    name.lower(): sid for sid, name in _ENGLISH_NAMES.items()
+}
 
 # ── Module-level state ─────────────────────────────────────────────────
 _session: dict | None = None
@@ -240,9 +245,51 @@ async def room_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     if update.effective_user.id not in BOT_ADMIN_IDS:
         return ConversationHandler.END
     _pending_setup.pop(update.effective_user.id, None)
-    # Reply immediately to minimize perceived delay
+
+    # ── Quick flow: /room <code> <tree...> <duration> ──
+    if context.args and len(context.args) >= 3:
+        code = context.args[0].upper()
+        try:
+            duration = int(context.args[-1])
+        except ValueError:
+            await update.message.reply_text(
+                "Last argument must be a number (duration in minutes).\n"
+                "Usage: /room <CODE> <TREE_NAME> <DURATION>"
+            )
+            return ConversationHandler.END
+
+        tree_name_raw = " ".join(context.args[1:-1]).lower()
+        sticker_id = _NAME_TO_STICKER.get(tree_name_raw)  # None if not found — sticker just won't be sent
+
+        tree_display = tree_name_raw.title()
+        user = update.effective_user
+        setup = {
+            "tree": tree_display,
+            "sticker_id": sticker_id,
+            "duration": duration,
+            "token": code,
+            "join_link": f"https://forestapp.cc/join-room?token={code}",
+            "host_id": user.id,
+            "host_username": user.username or "",
+        }
+        _pending_setup[user.id] = setup
+
+        await _cleanup_old_session(context)
+
+        buttons = [
+            InlineKeyboardButton(str(n), callback_data=f"room_min_{n}")
+            for n in range(3, 11)
+        ]
+        await update.message.reply_text(
+            f"🌳 <b>{tree_display}</b> — {duration} min session\n\n"
+            "In how many minutes will you start?",
+            reply_markup=InlineKeyboardMarkup([buttons]),
+            parse_mode="HTML",
+        )
+        return ConversationHandler.END
+
+    # ── Existing flow: ask for Forest link ──
     await update.message.reply_text("Paste your Forest session link:")
-    # Then clean up old session
     await _cleanup_old_session(context)
     return WAITING_LINK
 
