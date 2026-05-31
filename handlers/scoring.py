@@ -82,24 +82,35 @@ async def score_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     try:
-        args = context.args
+        args = list(context.args)
         if len(args) < 1:
             await message.set_reaction(reaction="👎")
             return
-            
-        # Sum all arguments as points (e.g., /s 10 5 2 -> 17)
+
+        # Optional day override: /s d5 10 -> day 5, 10 points
+        manual_day = None
+        if args[0].lower().startswith("d") and args[0][1:].isdigit():
+            manual_day = int(args[0][1:])
+            args = args[1:]
+            if len(args) < 1:
+                await message.set_reaction(reaction="👎")
+                return
+
+        # Sum all remaining arguments as points (e.g., /s 10 5 2 -> 17)
         points = str(sum(int(x) for x in args))
     except ValueError:
         await message.set_reaction(reaction="👎")
         return
 
-    # Calculate logical day number based on message date
-    # Day boundary is 16:30 GMT+3 = 19:00 IST.
-    # Subtract 19 hours so that 19:00 IST rolls over to the next logical day.
-    msg_date = message.reply_to_message.date.astimezone(TIMEZONE)
-    logical_date = (msg_date - timedelta(hours=19, minutes=0)).date()
-    
-    day_number = str((logical_date - CHALLENGE_START_DATE).days + 1)
+    if manual_day is not None:
+        day_number = str(manual_day)
+    else:
+        # Calculate logical day number based on message date
+        # Day boundary is 16:30 GMT+3 = 19:00 IST.
+        # Subtract 19 hours so that 19:00 IST rolls over to the next logical day.
+        msg_date = message.reply_to_message.date.astimezone(TIMEZONE)
+        logical_date = (msg_date - timedelta(hours=19, minutes=0)).date()
+        day_number = str((logical_date - CHALLENGE_START_DATE).days + 1)
 
     target_user = message.reply_to_message.from_user
     user_id = str(target_user.id)
