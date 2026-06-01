@@ -33,34 +33,33 @@ async def send_todo(context: ContextTypes.DEFAULT_TYPE):
 
 
 async def send_forest(context: ContextTypes.DEFAULT_TYPE):
-    """Sends the daily forest message at 10:30 PM IST to the forest group and pins it."""
+    """Sends the daily forest message at 10:30 PM IST to the forest group and daily chats, and pins it."""
     today = datetime.now(TIMEZONE).strftime("%d/%m/%Y")
     text = f"🌲 Today's Forest ({today})"
 
-    forest_chat_id = -1001876174346
+    for chat_id in DAILY_CHAT_IDS:
+        # Unpin yesterday's forest message (only this bot's previous forest pin)
+        prev = context.bot_data.get(f"pinned_forest_{chat_id}")
+        if prev:
+            try:
+                await context.bot.unpin_chat_message(chat_id=chat_id, message_id=prev)
+            except Exception as e:
+                print(f"⚠️ Could not unpin forest message in {chat_id}: {e}")
 
-    # Unpin yesterday's forest message (only this bot's previous forest pin)
-    prev = context.bot_data.get(f"pinned_forest_{forest_chat_id}")
-    if prev:
-        try:
-            await context.bot.unpin_chat_message(chat_id=forest_chat_id, message_id=prev)
-        except Exception as e:
-            print(f"⚠️ Could not unpin forest message in {forest_chat_id}: {e}")
+        msg = await context.bot.send_message(
+            chat_id=chat_id,
+            text=text,
+            disable_notification=True,
+        )
 
-    msg = await context.bot.send_message(
-        chat_id=forest_chat_id,
-        text=text,
-        disable_notification=True,
-    )
+        await context.bot.pin_chat_message(
+            chat_id=chat_id,
+            message_id=msg.message_id,
+            disable_notification=True,
+        )
 
-    await context.bot.pin_chat_message(
-        chat_id=forest_chat_id,
-        message_id=msg.message_id,
-        disable_notification=True,
-    )
-
-    context.bot_data[f"pinned_forest_{forest_chat_id}"] = msg.message_id
-    print(f"📌 Pinned forest message ({msg.message_id}) in {forest_chat_id}")
+        context.bot_data[f"pinned_forest_{chat_id}"] = msg.message_id
+        print(f"📌 Pinned forest message ({msg.message_id}) in {chat_id}")
 
 
 
