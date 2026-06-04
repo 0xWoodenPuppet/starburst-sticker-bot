@@ -14,8 +14,10 @@ from handlers.moderator import handle_report
 from handlers.scoring import score_user, leaderboard, profile
 from handlers.ask import ask_command
 from handlers.sleep import handle_sleep
+from handlers.study import handle_study
 from handlers.participants import handle_automatic_forward
 from handlers.screenshare import handle_screenshare
+from handlers.tictactoe import fight_command, ttt_callback_handler
 from handlers.room import (
     room_handler, task_command, room_callback_handler,
     track_forwarded_post, monitor_group_messages,
@@ -64,10 +66,13 @@ def main():
     application.add_handler(CommandHandler("leaderboard", leaderboard))
     application.add_handler(CommandHandler("profile", profile))
     application.add_handler(CommandHandler("sleep", handle_sleep))
+    application.add_handler(CommandHandler("study", handle_study))
     application.add_handler(CommandHandler("screenshare", handle_screenshare))
+    application.add_handler(CommandHandler("fight", fight_command))
     
     application.add_handler(CommandHandler("task", task_command))
     application.add_handler(CallbackQueryHandler(room_callback_handler, pattern=r"^room_"))
+    application.add_handler(CallbackQueryHandler(ttt_callback_handler, pattern=r"^ttt_"))
 
     application.add_handler(MessageHandler(filters.Chat(MENTION_CHAT_ID) & filters.IS_AUTOMATIC_FORWARD, handle_automatic_forward))
     application.add_handler(MessageHandler(
