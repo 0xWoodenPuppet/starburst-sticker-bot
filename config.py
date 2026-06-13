@@ -10,6 +10,22 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 # GEMINI API KEY
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+# MONGODB
+MONGO_URI = os.getenv("MONGODB_URI")
+
+# BOT
+BOT_USERNAME = "StarburstStickerBot"
+
+# TASK TRACKING (test chats only during development)
+TASK_TEST_CHAT_IDS = [
+    -1002911938910,  # disappearing notes (test channel)
+    -1003644441864,  # test (test group)
+]
+
+# Buffer time (minutes) between Forest link posting and assumed session start.
+# Session-end DM fires after: BUFFER + session duration.
+SESSION_BUFFER_MINUTES = 5
+
 # ADMIN USER IDs
 BOT_ADMIN_IDS = {
     1463187459,  # deku

@@ -2,3 +2,5 @@ python-telegram-bot[job-queue]
 Flask
 pytz
 python-dotenv
+motor
+dnspython

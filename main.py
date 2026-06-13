@@ -7,9 +7,9 @@ from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID, BOT_ADM
 FOREST_CHAT_ID = -1001876174346
 from handlers.messages import check_text
 from handlers.daily import send_todo, send_forest, send_challenge
-from handlers.session import session_handler
+# from handlers.session import session_handler  # disabled — clashes with new task tracking
 from handlers.mentions import add_mention, remove_mention, remove_all_mentions, watch_forestapp
-from handlers.coach import handle_dm_reply
+# from handlers.coach import handle_dm_reply  # disabled — clashes with new task tracking
 from handlers.moderator import handle_report
 from handlers.scoring import score_user, leaderboard, profile
 from handlers.ask import ask_command
@@ -23,6 +23,7 @@ from handlers.room import (
     track_forwarded_post, monitor_group_messages,
     GROUP_ID as ROOM_GROUP_ID,
 )
+from handlers.tasks import task_conversation, skip_review_handler, history_command
 from server import run_web
 
 
@@ -46,8 +47,9 @@ def main():
     job_queue.run_daily(send_forest, dt_time(hour=22, minute=30, tzinfo=TIMEZONE), name="daily_forest")
     job_queue.run_daily(send_challenge, dt_time(hour=19, minute=0, tzinfo=TIMEZONE), name="daily_challenge")
 
+    application.add_handler(task_conversation)  # must be before room_handler to catch /start deep links
     application.add_handler(room_handler)
-    application.add_handler(session_handler)
+    # application.add_handler(session_handler)  # disabled — clashes with new task tracking
     application.add_handler(CommandHandler("addmention", add_mention))
     application.add_handler(CommandHandler("removemention", remove_mention))
     application.add_handler(CommandHandler("removeallmentions", remove_all_mentions))
@@ -85,7 +87,10 @@ def main():
     ), group=6)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, watch_forestapp), group=1)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.ChatType.PRIVATE, check_text), group=2)
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, handle_dm_reply), group=3)
+    application.add_handler(skip_review_handler)  # standalone: Skip button on session-end DMs
+    # application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, handle_dm_reply), group=3)  # disabled — clashes with new task tracking
+
+    application.add_handler(CommandHandler("history", history_command))
 
     async def delete_pin_service_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg = update.message or update.channel_post
