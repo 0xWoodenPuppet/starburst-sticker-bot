@@ -24,3 +24,4 @@ db = _get_db()
 # ── Collections ────────────────────────────────────────────────────────
 sessions = db.sessions              # focus session history (tasks, scores, participants)
 coach_sessions = db.coach_sessions  # active AI coaching conversations
+games = db.games                    # game history (tic tac toe, connect 4)

@@ -411,10 +411,10 @@ async def _session_ended_job(context: ContextTypes.DEFAULT_TYPE):
         except Exception as e:
             logger.error(f"Failed to DM user {user_id}: {e}")
 
-    # Auto-close review after 30 minutes
+    # Auto-close review after 24 hours
     context.job_queue.run_once(
         _close_review,
-        when=1800,
+        when=86400,
         data={"session_id": session_id},
         name=f"close_review_{session_id}",
     )

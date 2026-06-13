@@ -16,12 +16,6 @@ MONGO_URI = os.getenv("MONGODB_URI")
 # BOT
 BOT_USERNAME = "StarburstStickerBot"
 
-# TASK TRACKING (test chats only during development)
-TASK_TEST_CHAT_IDS = [
-    -1002911938910,  # disappearing notes (test channel)
-    -1003644441864,  # test (test group)
-]
-
 # Buffer time (minutes) between Forest link posting and assumed session start.
 # Session-end DM fires after: BUFFER + session duration.
 SESSION_BUFFER_MINUTES = 5

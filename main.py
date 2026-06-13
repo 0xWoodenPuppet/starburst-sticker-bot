@@ -17,7 +17,7 @@ from handlers.sleep import handle_sleep
 from handlers.study import handle_study
 from handlers.participants import handle_automatic_forward
 from handlers.screenshare import handle_screenshare
-from handlers.tictactoe import fight_command, ttt_callback_handler
+from handlers.tictactoe import fight_command, game_callback_handler, cleanup_inactive_games
 from handlers.room import (
     room_handler, task_command, room_callback_handler,
     track_forwarded_post, monitor_group_messages,
@@ -46,6 +46,7 @@ def main():
     job_queue.run_daily(send_todo,   dt_time(hour=5,  minute=0,  tzinfo=TIMEZONE), name="daily_todo")
     job_queue.run_daily(send_forest, dt_time(hour=22, minute=30, tzinfo=TIMEZONE), name="daily_forest")
     job_queue.run_daily(send_challenge, dt_time(hour=19, minute=0, tzinfo=TIMEZONE), name="daily_challenge")
+    job_queue.run_repeating(cleanup_inactive_games, interval=60, first=60, name="game_cleanup")
 
     application.add_handler(task_conversation)  # must be before room_handler to catch /start deep links
     application.add_handler(room_handler)
@@ -74,7 +75,7 @@ def main():
     
     application.add_handler(CommandHandler("task", task_command))
     application.add_handler(CallbackQueryHandler(room_callback_handler, pattern=r"^room_"))
-    application.add_handler(CallbackQueryHandler(ttt_callback_handler, pattern=r"^ttt_"))
+    application.add_handler(CallbackQueryHandler(game_callback_handler, pattern=r"^(g_|ttt_|c4_)"))
 
     application.add_handler(MessageHandler(filters.Chat(MENTION_CHAT_ID) & filters.IS_AUTOMATIC_FORWARD, handle_automatic_forward))
     application.add_handler(MessageHandler(

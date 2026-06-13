@@ -3,7 +3,7 @@ import time
 from datetime import datetime, timezone, timedelta
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-from config import COOLDOWN, BOT_USERNAME, TASK_TEST_CHAT_IDS, SESSION_BUFFER_MINUTES
+from config import COOLDOWN, BOT_USERNAME, SESSION_BUFFER_MINUTES
 from triggers import TRIGGERS, TRIGGER_PATTERNS, last_trigger_time
 from db import sessions
 
@@ -56,9 +56,7 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if pattern.search(text):
                 tree_matched = True
                 # Check if this chat is in the test list for task tracking
-                keyboard = None
-                if chat.id in TASK_TEST_CHAT_IDS:
-                    keyboard = await _create_task_button(msg, text, trigger, context)
+                keyboard = await _create_task_button(msg, text, trigger, context)
 
                 await msg.reply_sticker(
                     sticker=TRIGGERS[trigger],
@@ -69,11 +67,11 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 break
 
         # No tree matched, but Forest link is present — still offer task tracking
-        if not tree_matched and chat.id in TASK_TEST_CHAT_IDS:
+        if not tree_matched:
             keyboard = await _create_task_button(msg, text, "unknown", context)
             if keyboard:
                 await msg.reply_text(
-                    "🌱 Forest session detected!",
+                    "‌ ‌ㅤ",
                     reply_markup=keyboard,
                     disable_notification=True,
                 )
