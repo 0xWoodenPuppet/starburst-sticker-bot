@@ -344,7 +344,7 @@ async def cancel_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 
 async def schedule_session_end(context: ContextTypes.DEFAULT_TYPE, session_id: str, duration: int):
     """Schedule a job to fire when the session ends (buffer + duration)."""
-    delay_seconds = duration * 60
+    delay_seconds = (SESSION_BUFFER_MINUTES + duration) * 60
 
     context.job_queue.run_once(
         _session_ended_job,
@@ -435,21 +435,18 @@ async def _close_review(context: ContextTypes.DEFAULT_TYPE):
 #  AI COACH
 # ═══════════════════════════════════════════════════════════════════════
 
-COACH_SYSTEM_PROMPT = """You are a sharp, no-BS productivity coach. You analyze focus sessions.
+COACH_SYSTEM_PROMPT = """You are a warm, encouraging mentor.
+Review the user's focus session using:
+- Duration (in minutes)
+- PLANNED: their goal
+- ACTUAL: what they achieved
 
-You will receive:
-- The session duration in minutes
-- What the user PLANNED to do
-- What they ACTUALLY did
-
-Your job:
-- Compare the two honestly, factoring in the session duration.
-- For short sessions (10-25m), a small amount of progress is great. For long sessions (60-120m), expect substantial progress.
-- Give ONE specific, actionable insight (not generic motivation)
-- Be direct but not harsh. Think "smart friend who tells it like it is"
-- Max 2-3 sentences. No emojis. No "Great job!" unless they genuinely crushed it.
-- If they got distracted, say WHY it probably happened and what to try next time.
-- If they did well, acknowledge it briefly and suggest how to build on it."""
+Rules:
+1. Reply in exactly 2 short sentences.
+2. Focus on praising the effort, even if they didn't finish everything.
+3. If they struggled, offer a gentle suggestion for next time.
+4. If the duration is under 10 minutes, congratulate them on doing a quick warm-up or test.
+5. Do NOT use labels, emojis, or prefixes. Output only the conversational text."""
 
 
 async def _get_coach_feedback(planned_task: str, actual_outcome: str, duration: int) -> str | None:

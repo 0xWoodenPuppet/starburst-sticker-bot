@@ -18,7 +18,7 @@ BOT_USERNAME = "StarburstStickerBot"
 
 # Buffer time (minutes) between Forest link posting and assumed session start.
 # Session-end DM fires after: BUFFER + session duration.
-SESSION_BUFFER_MINUTES = 0
+SESSION_BUFFER_MINUTES = 3
 
 # ADMIN USER IDs
 BOT_ADMIN_IDS = {

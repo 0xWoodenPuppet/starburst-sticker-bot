@@ -9,6 +9,7 @@ from telegram.ext import (
 )
 from config import SESSION_USERS
 from triggers import TRIGGERS, TRIGGER_PATTERNS
+from handlers.messages import _extract_duration
 
 WAITING_MINUTES = 1
 
@@ -89,13 +90,13 @@ async def receive_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     """Entry point: detects a forestapp link in DM."""
     link = update.message.text.strip()
     
-    matches = re.findall(r"(\d+)\s*[-_]?\s*(?:min|m\b|분|分|دقيق|دقائق|perc|dakik|мин|menit|मिनट)", link, re.IGNORECASE)
-    if not matches:
+    duration = _extract_duration(link)
+    if duration is None:
         await update.message.reply_text("Sorry, there was an error parsing the duration. Contact @TheWoodenPuppet to report this issue")
         return ConversationHandler.END
 
     context.user_data["session_link"] = link
-    context.user_data["session_duration"] = int(matches[-1])
+    context.user_data["session_duration"] = duration
     
     # Disable active DM coaching so Gemini doesn't reply to setup messages
     context.bot_data[f"coach_dm_active_{update.effective_user.id}"] = False

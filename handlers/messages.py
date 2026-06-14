@@ -68,7 +68,7 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if keyboard and duration:
                     context.application.job_queue.run_once(
                         remove_task_button,
-                        when=(duration / 3.0) * 60,
+                        when=10 * 60,
                         data={"chat_id": sent_msg.chat_id, "message_id": sent_msg.message_id},
                         name=f"remove_btn_{sent_msg.message_id}"
                     )
@@ -86,7 +86,7 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if duration:
                     context.application.job_queue.run_once(
                         remove_task_button,
-                        when=(duration / 3.0) * 60,
+                        when=10 * 60,
                         data={"chat_id": sent_msg.chat_id, "message_id": sent_msg.message_id},
                         name=f"remove_btn_{sent_msg.message_id}"
                     )
@@ -115,15 +115,58 @@ async def remove_task_button(context: ContextTypes.DEFAULT_TYPE):
         pass
 
 
+def _extract_duration(text: str) -> int | None:
+    """Extract the session duration strictly by proximity to the room code token."""
+    # Find token
+    token_match = re.search(r"token=([A-Z0-9]+)", text)
+    if not token_match:
+        # Fallback to the old logic if no URL
+        matches = DURATION_PATTERN.findall(text)
+        if not matches:
+            return None
+        return int(matches[-1])
+
+    token = token_match.group(1)
+    
+    # Find token in body (not in URL)
+    body_token_idx = text.find(token)
+    url_token_idx = text.rfind(token)
+    ref_idx = body_token_idx if body_token_idx != url_token_idx and body_token_idx != -1 else url_token_idx
+    if ref_idx == -1:
+        ref_idx = 0
+        
+    best_dur = None
+    min_dist = float('inf')
+    
+    # Iterate all matches of the broad duration pattern
+    for m in DURATION_PATTERN.finditer(text):
+        try:
+            val = int(m.group(1))
+            # Validate it's a reasonable Forest duration
+            if 10 <= val <= 120 and val % 5 == 0:
+                dist = abs(m.start() - ref_idx)
+                if dist < min_dist:
+                    min_dist = dist
+                    best_dur = val
+        except ValueError:
+            pass
+            
+    # If no valid forest duration matched, fallback to the last match
+    if best_dur is None:
+        matches = DURATION_PATTERN.findall(text)
+        if matches:
+            return int(matches[-1])
+        return None
+        
+    return best_dur
+
+
 async def _create_task_button(msg, text: str, tree_name: str, context) -> tuple[InlineKeyboardMarkup | None, int | None]:
     """Create a session in MongoDB and return an inline keyboard with the Add Task button."""
-    # Parse duration from the Forest link text
-    matches = DURATION_PATTERN.findall(text)
-    if not matches:
+    duration = _extract_duration(text)
+    if duration is None:
         # Can't determine duration — skip task tracking
         return None, None
-
-    duration = int(matches[-1])
 
     # Handle channel posts where from_user is None
     if msg.from_user:
