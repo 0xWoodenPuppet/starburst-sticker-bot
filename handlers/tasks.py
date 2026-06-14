@@ -291,7 +291,7 @@ async def receive_review(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     )
 
     # AI coach — single reply
-    coach_response = await _get_coach_feedback(task, note)
+    coach_response = await _get_coach_feedback(task, note, session.get("duration", 0))
 
     if coach_response:
         await sessions.update_one(
@@ -344,7 +344,7 @@ async def cancel_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 
 async def schedule_session_end(context: ContextTypes.DEFAULT_TYPE, session_id: str, duration: int):
     """Schedule a job to fire when the session ends (buffer + duration)."""
-    delay_seconds = (SESSION_BUFFER_MINUTES + duration) * 60
+    delay_seconds = duration * 60
 
     context.job_queue.run_once(
         _session_ended_job,
@@ -438,11 +438,13 @@ async def _close_review(context: ContextTypes.DEFAULT_TYPE):
 COACH_SYSTEM_PROMPT = """You are a sharp, no-BS productivity coach. You analyze focus sessions.
 
 You will receive:
+- The session duration in minutes
 - What the user PLANNED to do
 - What they ACTUALLY did
 
 Your job:
-- Compare the two honestly
+- Compare the two honestly, factoring in the session duration.
+- For short sessions (10-25m), a small amount of progress is great. For long sessions (60-120m), expect substantial progress.
 - Give ONE specific, actionable insight (not generic motivation)
 - Be direct but not harsh. Think "smart friend who tells it like it is"
 - Max 2-3 sentences. No emojis. No "Great job!" unless they genuinely crushed it.
@@ -450,7 +452,7 @@ Your job:
 - If they did well, acknowledge it briefly and suggest how to build on it."""
 
 
-async def _get_coach_feedback(planned_task: str, actual_outcome: str) -> str | None:
+async def _get_coach_feedback(planned_task: str, actual_outcome: str, duration: int) -> str | None:
     """Call Gemini to compare planned vs actual and give feedback."""
     if not GEMINI_API_KEY:
         return None
@@ -458,6 +460,7 @@ async def _get_coach_feedback(planned_task: str, actual_outcome: str) -> str | N
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={GEMINI_API_KEY}"
 
     prompt = (
+        f"Session duration: {duration} minutes\n"
         f"Planned task: \"{planned_task}\"\n"
         f"What they actually did: \"{actual_outcome}\"\n\n"
         f"Give your feedback."

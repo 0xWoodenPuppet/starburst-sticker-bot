@@ -56,25 +56,40 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if pattern.search(text):
                 tree_matched = True
                 # Check if this chat is in the test list for task tracking
-                keyboard = await _create_task_button(msg, text, trigger, context)
+                keyboard, duration = await _create_task_button(msg, text, trigger, context)
 
-                await msg.reply_sticker(
+                sent_msg = await msg.reply_sticker(
                     sticker=TRIGGERS[trigger],
                     reply_markup=keyboard,
                     disable_notification=True,
                 )
                 last_trigger_time[key] = now
+                
+                if keyboard and duration:
+                    context.application.job_queue.run_once(
+                        remove_task_button,
+                        when=(duration / 3.0) * 60,
+                        data={"chat_id": sent_msg.chat_id, "message_id": sent_msg.message_id},
+                        name=f"remove_btn_{sent_msg.message_id}"
+                    )
                 break
 
         # No tree matched, but Forest link is present — still offer task tracking
         if not tree_matched:
-            keyboard = await _create_task_button(msg, text, "unknown", context)
+            keyboard, duration = await _create_task_button(msg, text, "unknown", context)
             if keyboard:
-                await msg.reply_text(
+                sent_msg = await msg.reply_text(
                     "‌ ‌ㅤ",
                     reply_markup=keyboard,
                     disable_notification=True,
                 )
+                if duration:
+                    context.application.job_queue.run_once(
+                        remove_task_button,
+                        when=(duration / 3.0) * 60,
+                        data={"chat_id": sent_msg.chat_id, "message_id": sent_msg.message_id},
+                        name=f"remove_btn_{sent_msg.message_id}"
+                    )
 
     # Group / private messages
     if update.message and update.message.text:
@@ -87,13 +102,26 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await process_message(update.channel_post)
 
 
-async def _create_task_button(msg, text: str, tree_name: str, context) -> InlineKeyboardMarkup | None:
+async def remove_task_button(context: ContextTypes.DEFAULT_TYPE):
+    """Job to remove the inline task button after 1/3 of the session duration."""
+    data = context.job.data
+    try:
+        await context.bot.edit_message_reply_markup(
+            chat_id=data["chat_id"],
+            message_id=data["message_id"],
+            reply_markup=None
+        )
+    except Exception:
+        pass
+
+
+async def _create_task_button(msg, text: str, tree_name: str, context) -> tuple[InlineKeyboardMarkup | None, int | None]:
     """Create a session in MongoDB and return an inline keyboard with the Add Task button."""
     # Parse duration from the Forest link text
     matches = DURATION_PATTERN.findall(text)
     if not matches:
         # Can't determine duration — skip task tracking
-        return None
+        return None, None
 
     duration = int(matches[-1])
 
@@ -131,4 +159,4 @@ async def _create_task_button(msg, text: str, tree_name: str, context) -> Inline
             "✏️ Add Task",
             url=f"https://t.me/{BOT_USERNAME}?start=task_{session_id}",
         )
-    ]])
+    ]]), duration
