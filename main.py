@@ -10,7 +10,7 @@ from handlers.daily import send_todo, send_forest, send_challenge
 # from handlers.session import session_handler  # disabled — clashes with new task tracking
 from handlers.mentions import add_mention, remove_mention, remove_all_mentions, watch_forestapp
 # from handlers.coach import handle_dm_reply  # disabled — clashes with new task tracking
-from handlers.moderator import handle_report
+# from handlers.moderator import handle_report
 from handlers.scoring import score_user, leaderboard, profile
 from handlers.ask import ask_command
 from handlers.sleep import handle_sleep
@@ -64,7 +64,7 @@ def main():
 
     application.add_handler(CommandHandler("test_challenge", test_challenge))
 
-    application.add_handler(CommandHandler("report", handle_report))
+    # application.add_handler(CommandHandler("report", handle_report))
     application.add_handler(CommandHandler("s", score_user))
     application.add_handler(CommandHandler("ask", ask_command))
     application.add_handler(CommandHandler("leaderboard", leaderboard))
