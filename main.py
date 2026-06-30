@@ -23,7 +23,7 @@ from handlers.room import (
     track_forwarded_post, monitor_group_messages,
     GROUP_ID as ROOM_GROUP_ID,
 )
-from handlers.tasks import task_conversation, skip_review_handler, history_command
+from handlers.tasks import task_conversation, skip_review_handler, history_command, restore_pending_sessions
 from server import run_web
 
 
@@ -38,6 +38,7 @@ def main():
         .write_timeout(30)
         .connect_timeout(30)
         .pool_timeout(30)
+        .post_init(restore_pending_sessions)
         .build()
     )
 

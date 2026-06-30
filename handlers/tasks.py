@@ -431,6 +431,67 @@ async def _close_review(context: ContextTypes.DEFAULT_TYPE):
         )
 
 
+async def restore_pending_sessions(app):
+    """Re-schedule session-end and review-close jobs after a bot restart.
+
+    Called via Application.post_init — runs once at startup before polling.
+    Any sessions still in 'active' or 'review' phase in MongoDB will have
+    their lost job_queue timers re-created.
+    """
+    now = datetime.now(timezone.utc)
+    restored = 0
+
+    # ── Active sessions: re-schedule session-end jobs ──────────────────
+    async for session in sessions.find({"phase": "active"}):
+        session_id = str(session["_id"])
+        created_at = session.get("created_at")
+        duration = session.get("duration", 0)
+        if not created_at:
+            continue
+
+        # Original deadline: created_at + (buffer + duration) minutes
+        deadline = created_at + timedelta(minutes=SESSION_BUFFER_MINUTES + duration)
+        remaining = (deadline - now).total_seconds()
+
+        # If deadline already passed, fire in 5 seconds (give startup time)
+        when = max(remaining, 5)
+
+        app.job_queue.run_once(
+            _session_ended_job,
+            when=when,
+            data={"session_id": session_id},
+            name=f"session_end_{session_id}",
+        )
+        restored += 1
+        logger.info(f"Restored session-end job for {session_id} (fires in {when:.0f}s)")
+
+    # ── Review sessions: re-schedule review-close jobs ─────────────────
+    async for session in sessions.find({"phase": "review"}):
+        session_id = str(session["_id"])
+        ended_at = session.get("ended_at")
+        if not ended_at:
+            continue
+
+        # Review window: 24 hours after session ended
+        close_deadline = ended_at + timedelta(hours=24)
+        remaining = (close_deadline - now).total_seconds()
+        when = max(remaining, 5)
+
+        app.job_queue.run_once(
+            _close_review,
+            when=when,
+            data={"session_id": session_id},
+            name=f"close_review_{session_id}",
+        )
+        restored += 1
+        logger.info(f"Restored review-close job for {session_id} (fires in {when:.0f}s)")
+
+    if restored:
+        logger.info(f"🔄 Restored {restored} pending session job(s) after restart")
+    else:
+        logger.info("No pending sessions to restore after restart")
+
+
 # ═══════════════════════════════════════════════════════════════════════
 #  AI COACH
 # ═══════════════════════════════════════════════════════════════════════
