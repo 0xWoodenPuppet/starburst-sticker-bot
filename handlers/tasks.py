@@ -456,7 +456,16 @@ async def restore_pending_sessions(app):
         deadline = created_at + timedelta(minutes=SESSION_BUFFER_MINUTES + duration)
         remaining = (deadline - now).total_seconds()
 
-        # If deadline already passed, fire in 5 seconds (give startup time)
+        # If the session is overdue by more than 1 hour, auto-close it without DMing
+        if remaining < -3600:
+            await sessions.update_one(
+                {"_id": ObjectId(session_id)},
+                {"$set": {"phase": "ended"}}
+            )
+            logger.info(f"Auto-ended stale active session {session_id} (overdue by {abs(remaining)/3600:.1f} hours)")
+            continue
+
+        # If deadline already passed (by less than 1 hour), fire in 5 seconds (give startup time)
         when = max(remaining, 5)
 
         app.job_queue.run_once(
@@ -481,6 +490,16 @@ async def restore_pending_sessions(app):
         # Review window: 24 hours after session ended
         close_deadline = ended_at + timedelta(hours=24)
         remaining = (close_deadline - now).total_seconds()
+
+        # If the review window is already passed, auto-close it
+        if remaining < 0:
+            await sessions.update_one(
+                {"_id": ObjectId(session_id)},
+                {"$set": {"phase": "ended"}}
+            )
+            logger.info(f"Auto-closed expired review window for session {session_id}")
+            continue
+
         when = max(remaining, 5)
 
         app.job_queue.run_once(
