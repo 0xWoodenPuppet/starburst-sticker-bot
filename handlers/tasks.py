@@ -449,6 +449,9 @@ async def restore_pending_sessions(app):
         if not created_at:
             continue
 
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=timezone.utc)
+
         # Original deadline: created_at + (buffer + duration) minutes
         deadline = created_at + timedelta(minutes=SESSION_BUFFER_MINUTES + duration)
         remaining = (deadline - now).total_seconds()
@@ -471,6 +474,9 @@ async def restore_pending_sessions(app):
         ended_at = session.get("ended_at")
         if not ended_at:
             continue
+
+        if ended_at.tzinfo is None:
+            ended_at = ended_at.replace(tzinfo=timezone.utc)
 
         # Review window: 24 hours after session ended
         close_deadline = ended_at + timedelta(hours=24)
