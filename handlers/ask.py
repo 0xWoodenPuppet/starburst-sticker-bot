@@ -4,6 +4,7 @@ import httpx
 import asyncio
 from telegram import Update
 from telegram.ext import ContextTypes
+from telegram.error import BadRequest
 from config import GEMINI_API_KEY
 
 logger = logging.getLogger(__name__)
@@ -184,4 +185,8 @@ async def ask_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if answer:
         if len(answer) > 4090:
             answer = answer[:4090] + "..."
-        await update.message.reply_text(answer, parse_mode="Markdown")
+        try:
+            await update.message.reply_text(answer, parse_mode="Markdown")
+        except BadRequest as e:
+            logger.warning(f"Failed to send /ask response with Markdown formatting: {e}. Retrying without formatting.")
+            await update.message.reply_text(answer, parse_mode=None)
