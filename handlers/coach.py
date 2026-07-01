@@ -21,7 +21,7 @@ async def call_gemini(conversation_history: list[dict]) -> str | None:
         logger.error("GEMINI_API_KEY is not set.")
         return None
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
     
     payload = {
         "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},

@@ -540,7 +540,7 @@ async def _get_coach_feedback(planned_task: str, actual_outcome: str, duration: 
     if not GEMINI_API_KEY:
         return None
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
 
     prompt = (
         f"Session duration: {duration} minutes\n"
