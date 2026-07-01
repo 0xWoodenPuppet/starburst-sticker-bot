@@ -1,59 +1,21 @@
 import logging
 import base64
-import httpx
-import asyncio
 from telegram import Update
 from telegram.ext import ContextTypes
 from telegram.error import BadRequest
-from config import GEMINI_API_KEY
+from services.gemini import call_gemini
 
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = "You are a helpful, concise AI assistant integrated into a Telegram bot. Keep responses clear and well-structured."
 
 async def call_gemini_multimodal(parts: list) -> str | None:
-    """
-    Calls the Gemini API with multimodal parts (text, images, audio, video).
-    """
-    if not GEMINI_API_KEY:
-        logger.error("GEMINI_API_KEY is not set.")
-        return "I'm sorry, my AI features are currently disabled (missing API key)."
-
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
-    
-    payload = {
-        "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
-        "contents": [{"role": "user", "parts": parts}]
-    }
-
-    max_retries = 3
-    
-    for attempt in range(max_retries):
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(url, json=payload, timeout=60.0)
-                
-                if response.status_code in [500, 503, 529] and attempt < max_retries - 1:
-                    await asyncio.sleep(2)
-                    continue
-                    
-                response.raise_for_status()
-                
-                data = response.json()
-                if "candidates" in data and len(data["candidates"]) > 0:
-                    candidate_parts = data["candidates"][0].get("content", {}).get("parts", [])
-                    if candidate_parts:
-                        return candidate_parts[0].get("text", "")
-                
-                return "I couldn't generate a response."
-        except Exception as e:
-            if attempt < max_retries - 1 and "503" in str(e):
-                await asyncio.sleep(2)
-                continue
-            logger.error(f"Error calling Gemini API for /ask: {e}")
-            return "There was an error communicating with the AI. Please try again later."
-            
-    return "The AI service is currently unavailable."
+    """Calls the Gemini API with multimodal parts (text, images, audio, video)."""
+    contents = [{"role": "user", "parts": parts}]
+    return await call_gemini(
+        contents=contents,
+        system_prompt=SYSTEM_PROMPT
+    )
 
 
 async def _download_telegram_file(file_obj) -> bytes | None:
