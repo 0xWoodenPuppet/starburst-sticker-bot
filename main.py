@@ -14,7 +14,7 @@ from handlers.sleep import handle_sleep
 from handlers.study import handle_study
 from handlers.participants import handle_automatic_forward
 from handlers.screenshare import handle_screenshare
-from handlers.tictactoe import fight_command, game_callback_handler, cleanup_inactive_games
+from handlers.games import fight_command, game_callback_handler, cleanup_inactive_games
 from handlers.tasks import task_conversation, skip_review_handler, history_command, restore_pending_sessions
 from server import run_web
 
@@ -22,7 +22,7 @@ from server import run_web
 async def init_on_startup(app):
     """Run initialization tasks on startup before the bot starts polling."""
     await restore_pending_sessions(app)
-    from handlers.tictactoe import load_active_games
+    from handlers.games import load_active_games
     await load_active_games(app)
 
 
