@@ -115,8 +115,8 @@ def _extract_duration(text: str) -> int | None:
     for m in DURATION_PATTERN.finditer(text):
         try:
             val = int(m.group(1))
-            # Validate it's a reasonable Forest duration
-            if 10 <= val <= 120 and val % 5 == 0:
+            # Validate it's a reasonable Forest duration or a 1-minute test session
+            if val == 1 or (10 <= val <= 180 and val % 5 == 0):
                 dist = abs(m.start() - ref_idx)
                 if dist < min_dist:
                     min_dist = dist
