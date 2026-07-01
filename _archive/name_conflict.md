@@ -6,3 +6,4 @@ rainbow flower(38) and rainbow eucaplus(143)
     <string name="tree_type_38_title">زهرة قوس قزح</string>
     <string name="tree_type_143_title">زهرة قوس قزح</string>
 
+reported to support.
