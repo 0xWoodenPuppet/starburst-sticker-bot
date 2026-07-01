@@ -19,6 +19,13 @@ from handlers.tasks import task_conversation, skip_review_handler, history_comma
 from server import run_web
 
 
+async def init_on_startup(app):
+    """Run initialization tasks on startup before the bot starts polling."""
+    await restore_pending_sessions(app)
+    from handlers.tictactoe import load_active_games
+    await load_active_games(app)
+
+
 def main():
     threading.Thread(target=run_web, daemon=True).start()
 
@@ -30,7 +37,7 @@ def main():
         .write_timeout(30)
         .connect_timeout(30)
         .pool_timeout(30)
-        .post_init(restore_pending_sessions)
+        .post_init(init_on_startup)
         .build()
     )
 

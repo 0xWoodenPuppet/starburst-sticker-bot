@@ -20,7 +20,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.error import BadRequest, RetryAfter
 from telegram.ext import ContextTypes
 
-from db import games as games_collection
+from db import games as games_collection, games_active as active_games_collection
 
 logger = logging.getLogger(__name__)
 
@@ -168,6 +168,7 @@ async def _handle_setup(query):
             game = _create_game(game_type, query.from_user, vs_computer=False)
             game["chat_id"] = query.message.chat_id
             _games[key] = game
+            await save_active_game(key, game)
             await query.answer()
             await _safe_edit(query.edit_message_text,
                 text=f"<b>{name}</b>",
@@ -197,6 +198,7 @@ async def _handle_setup(query):
         game = _create_game(game_type, query.from_user, vs_computer=True, difficulty=difficulty)
         game["chat_id"] = query.message.chat_id
         _games[key] = game
+        await save_active_game(key, game)
         await query.answer()
         await _render_game(query, key, game)
 
@@ -220,6 +222,7 @@ async def _handle_join(query):
     game["player2_id"] = query.from_user.id
     game["player2_name"] = query.from_user.first_name
     game["last_activity"] = time.time()
+    await save_active_game(key, game)
     await query.answer(f"You joined! {game['player1_name']} goes first.")
     await _render_game(query, key, game)
 
@@ -517,6 +520,7 @@ async def _handle_ttt_move(query, context):
         await _render_game(query, key, game, game_over=True)
         await _save_game_history(game)
         _games.pop(key, None)
+        await delete_active_game(key)
         return
 
     _switch_turn(game)
@@ -543,9 +547,11 @@ async def _handle_ttt_move(query, context):
                 pass
             await _save_game_history(game)
             _games.pop(key, None)
+            await delete_active_game(key)
             return
 
         _switch_turn(game)
+        await save_active_game(key, game)
         try:
             await _safe_edit(query.edit_message_text,
                 text=_build_text(game, False), reply_markup=_build_markup(game), parse_mode="HTML")
@@ -553,6 +559,7 @@ async def _handle_ttt_move(query, context):
             pass
         return
 
+    await save_active_game(key, game)
     await query.answer()
     await _render_game(query, key, game)
 
@@ -837,6 +844,7 @@ async def _handle_c4_move(query, context):
         await _render_game(query, key, game, game_over=True)
         await _save_game_history(game)
         _games.pop(key, None)
+        await delete_active_game(key)
         return
 
     _switch_turn(game)
@@ -873,9 +881,11 @@ async def _handle_c4_move(query, context):
                 pass
             await _save_game_history(game)
             _games.pop(key, None)
+            await delete_active_game(key)
             return
 
         _switch_turn(game)
+        await save_active_game(key, game)
         try:
             await _safe_edit(query.edit_message_text,
                 text=_build_text(game, False), reply_markup=_build_markup(game), parse_mode="HTML")
@@ -883,6 +893,7 @@ async def _handle_c4_move(query, context):
             pass
         return
 
+    await save_active_game(key, game)
     await query.answer()
     await _render_game(query, key, game)
 
@@ -932,6 +943,7 @@ async def cleanup_inactive_games(context: ContextTypes.DEFAULT_TYPE):
     stale = [k for k, g in _games.items() if now - g["last_activity"] > INACTIVITY_TIMEOUT]
     for key in stale:
         _games.pop(key, None)
+        await delete_active_game(key)
         parts = key.split("_")
         chat_id, msg_id = int(parts[0]), int(parts[1])
         try:
@@ -955,3 +967,39 @@ async def cleanup_inactive_games(context: ContextTypes.DEFAULT_TYPE):
             )
         except Exception:
             pass
+
+
+# ── Database Persistence Helpers ──────────────────────────────────────
+
+async def save_active_game(key: str, game: dict):
+    """Upsert the active game state to MongoDB."""
+    try:
+        await active_games_collection.replace_one({"_id": key}, game, upsert=True)
+    except Exception as e:
+        logger.error(f"Failed to save active game {key} to MongoDB: {e}")
+
+
+async def delete_active_game(key: str):
+    """Delete the active game state from MongoDB."""
+    try:
+        await active_games_collection.delete_one({"_id": key})
+    except Exception as e:
+        logger.error(f"Failed to delete active game {key} from MongoDB: {e}")
+
+
+async def load_active_games(app):
+    """Load all in-progress active games from MongoDB on startup."""
+    global _games
+    try:
+        count = 0
+        async for doc in active_games_collection.find({}):
+            key = doc["_id"]
+            # Restore the raw dictionary without the MongoDB _id key
+            game = dict(doc)
+            del game["_id"]
+            _games[key] = game
+            count += 1
+        if count:
+            logger.info(f"🔄 Restored {count} active game(s) from MongoDB")
+    except Exception as e:
+        logger.error(f"Failed to load active games from MongoDB: {e}")
