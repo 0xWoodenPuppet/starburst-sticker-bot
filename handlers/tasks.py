@@ -13,9 +13,9 @@ History:
 
 import logging
 import asyncio
-import httpx
 from datetime import datetime, timezone, timedelta
 from bson import ObjectId
+from services.gemini import call_gemini
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -26,7 +26,7 @@ from telegram.ext import (
     CallbackQueryHandler,
     filters,
 )
-from config import GEMINI_API_KEY, BOT_USERNAME, SESSION_BUFFER_MINUTES
+from config import BOT_USERNAME, SESSION_BUFFER_MINUTES
 from db import sessions
 
 logger = logging.getLogger(__name__)
@@ -537,11 +537,6 @@ Rules:
 
 async def _get_coach_feedback(planned_task: str, actual_outcome: str, duration: int) -> str | None:
     """Call Gemini to compare planned vs actual and give feedback."""
-    if not GEMINI_API_KEY:
-        return None
-
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
-
     prompt = (
         f"Session duration: {duration} minutes\n"
         f"Planned task: \"{planned_task}\"\n"
@@ -549,36 +544,13 @@ async def _get_coach_feedback(planned_task: str, actual_outcome: str, duration: 
         f"Give your feedback."
     )
 
-    payload = {
-        "system_instruction": {"parts": [{"text": COACH_SYSTEM_PROMPT}]},
-        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-    }
+    contents = [{"role": "user", "parts": [{"text": prompt}]}]
 
-    for attempt in range(3):
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(url, json=payload, timeout=30.0)
-
-                if response.status_code in [500, 503, 529] and attempt < 2:
-                    await asyncio.sleep(2)
-                    continue
-
-                response.raise_for_status()
-                data = response.json()
-
-                if "candidates" in data and data["candidates"]:
-                    parts = data["candidates"][0].get("content", {}).get("parts", [])
-                    if parts:
-                        return parts[0].get("text", "")
-
-                return None
-        except Exception as e:
-            if attempt < 2:
-                await asyncio.sleep(2)
-                continue
-            logger.error(f"Coach AI error: {e}")
-            return None
-    return None
+    return await call_gemini(
+        contents=contents,
+        system_prompt=COACH_SYSTEM_PROMPT,
+        timeout=30.0
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════
