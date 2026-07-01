@@ -1,3 +1,11 @@
+# intructions: 
+# download latest forest apk
+# use this command: apktool d forest-stay-focused.apk -o decoded-apk
+# put the stickers_english.csv with the new trees in the decoded-apk 
+# use this command: python decoded-apk
+# A new csv will be created, copy and paste the output in stickers.csv
+
+
 import os
 import xml.etree.ElementTree as ET
 import csv
