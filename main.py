@@ -6,7 +6,6 @@ from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID, BOT_ADM
 
 from handlers.messages import check_text
 from handlers.daily import send_todo, send_forest, send_challenge
-from handlers.mentions import add_mention, remove_mention, remove_all_mentions, watch_forestapp
 # from handlers.moderator import handle_report
 from handlers.scoring import score_user, leaderboard, profile
 from handlers.ask import ask_command
@@ -49,10 +48,7 @@ def main():
     job_queue.run_repeating(cleanup_inactive_games, interval=60, first=60, name="game_cleanup")
 
     application.add_handler(task_conversation)  # catch /start deep links
-    application.add_handler(CommandHandler("addmention", add_mention))
-    application.add_handler(CommandHandler("removemention", remove_mention))
-    application.add_handler(CommandHandler("removeallmentions", remove_all_mentions))
-    
+
     async def test_challenge(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.effective_user.id in BOT_ADMIN_IDS:
             from handlers.daily import send_challenge
@@ -74,7 +70,7 @@ def main():
     application.add_handler(CallbackQueryHandler(game_callback_handler, pattern=r"^(g_|ttt_|c4_)"))
 
     application.add_handler(MessageHandler(filters.Chat(MENTION_CHAT_ID) & filters.IS_AUTOMATIC_FORWARD, handle_automatic_forward))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, watch_forestapp), group=1)
+
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.ChatType.PRIVATE, check_text), group=2)
     application.add_handler(skip_review_handler)  # standalone: Skip button on session-end DMs
 
