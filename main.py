@@ -7,7 +7,6 @@ from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID, BOT_ADM
 FOREST_CHAT_ID = -1001876174346
 from handlers.messages import check_text
 from handlers.daily import send_todo, send_forest, send_challenge
-# from handlers.session import session_handler  # disabled — clashes with new task tracking
 from handlers.mentions import add_mention, remove_mention, remove_all_mentions, watch_forestapp
 # from handlers.coach import handle_dm_reply  # disabled — clashes with new task tracking
 # from handlers.moderator import handle_report
@@ -51,7 +50,6 @@ def main():
 
     application.add_handler(task_conversation)  # must be before room_handler to catch /start deep links
     application.add_handler(room_handler)
-    # application.add_handler(session_handler)  # disabled — clashes with new task tracking
     application.add_handler(CommandHandler("addmention", add_mention))
     application.add_handler(CommandHandler("removemention", remove_mention))
     application.add_handler(CommandHandler("removeallmentions", remove_all_mentions))
