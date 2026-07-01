@@ -8,7 +8,6 @@ FOREST_CHAT_ID = -1001876174346
 from handlers.messages import check_text
 from handlers.daily import send_todo, send_forest, send_challenge
 from handlers.mentions import add_mention, remove_mention, remove_all_mentions, watch_forestapp
-# from handlers.coach import handle_dm_reply  # disabled — clashes with new task tracking
 # from handlers.moderator import handle_report
 from handlers.scoring import score_user, leaderboard, profile
 from handlers.ask import ask_command
@@ -88,7 +87,6 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, watch_forestapp), group=1)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.ChatType.PRIVATE, check_text), group=2)
     application.add_handler(skip_review_handler)  # standalone: Skip button on session-end DMs
-    # application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, handle_dm_reply), group=3)  # disabled — clashes with new task tracking
 
     application.add_handler(CommandHandler("history", history_command))
 
