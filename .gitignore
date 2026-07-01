@@ -1,3 +1,16 @@
 .env
 __pycache__/
 *.pyc
+
+# OS files
+.DS_Store
+
+# IDEs
+.vscode/
+
+# Local databases / user data
+challenge_scores.csv
+
+# Generated graphics
+*.png
+leaderboard.png
