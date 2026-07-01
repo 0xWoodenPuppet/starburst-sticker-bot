@@ -65,13 +65,6 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 last_trigger_time[key] = now
                 
-                if keyboard and duration:
-                    context.application.job_queue.run_once(
-                        remove_task_button,
-                        when=10 * 60,
-                        data={"chat_id": sent_msg.chat_id, "message_id": sent_msg.message_id},
-                        name=f"remove_btn_{sent_msg.message_id}"
-                    )
                 break
 
         # No tree matched, but Forest link is present — still offer task tracking
@@ -83,13 +76,6 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     reply_markup=keyboard,
                     disable_notification=True,
                 )
-                if duration:
-                    context.application.job_queue.run_once(
-                        remove_task_button,
-                        when=10 * 60,
-                        data={"chat_id": sent_msg.chat_id, "message_id": sent_msg.message_id},
-                        name=f"remove_btn_{sent_msg.message_id}"
-                    )
 
     # Group / private messages
     if update.message and update.message.text:
@@ -100,19 +86,6 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Channel posts
     if update.channel_post and update.channel_post.text:
         await process_message(update.channel_post)
-
-
-async def remove_task_button(context: ContextTypes.DEFAULT_TYPE):
-    """Job to remove the inline task button after 1/3 of the session duration."""
-    data = context.job.data
-    try:
-        await context.bot.edit_message_reply_markup(
-            chat_id=data["chat_id"],
-            message_id=data["message_id"],
-            reply_markup=None
-        )
-    except Exception:
-        pass
 
 
 def _extract_duration(text: str) -> int | None:
