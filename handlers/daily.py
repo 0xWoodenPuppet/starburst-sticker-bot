@@ -1,6 +1,16 @@
 from datetime import date, datetime
 from telegram.ext import ContextTypes
 from config import DAILY_CHAT_IDS, CHALLENGE_CHAT_IDS, TIMEZONE
+from db import bot_state
+
+async def get_pinned_msg(key: str) -> int | None:
+    doc = await bot_state.find_one({"_id": key})
+    if doc:
+        return doc.get("message_id")
+    return None
+
+async def set_pinned_msg(key: str, message_id: int):
+    await bot_state.replace_one({"_id": key}, {"_id": key, "message_id": message_id}, upsert=True)
 
 
 async def send_todo(context: ContextTypes.DEFAULT_TYPE):
@@ -9,7 +19,8 @@ async def send_todo(context: ContextTypes.DEFAULT_TYPE):
     text = f"📋 {today} — Todo List"
 
     for chat_id in DAILY_CHAT_IDS:
-        prev = context.bot_data.get(f"pinned_todo_{chat_id}")
+        db_key = f"pinned_todo_{chat_id}"
+        prev = await get_pinned_msg(db_key)
         if prev:
             try:
                 await context.bot.unpin_chat_message(chat_id=chat_id, message_id=prev)
@@ -28,7 +39,7 @@ async def send_todo(context: ContextTypes.DEFAULT_TYPE):
             disable_notification=True,
         )
 
-        context.bot_data[f"pinned_todo_{chat_id}"] = msg.message_id
+        await set_pinned_msg(db_key, msg.message_id)
         print(f"📌 Pinned todo message ({msg.message_id}) in {chat_id}")
 
 
@@ -38,8 +49,8 @@ async def send_forest(context: ContextTypes.DEFAULT_TYPE):
     text = f"🌲 Today's Forest ({today})"
 
     for chat_id in DAILY_CHAT_IDS:
-        # Unpin yesterday's forest message (only this bot's previous forest pin)
-        prev = context.bot_data.get(f"pinned_forest_{chat_id}")
+        db_key = f"pinned_forest_{chat_id}"
+        prev = await get_pinned_msg(db_key)
         if prev:
             try:
                 await context.bot.unpin_chat_message(chat_id=chat_id, message_id=prev)
@@ -58,7 +69,7 @@ async def send_forest(context: ContextTypes.DEFAULT_TYPE):
             disable_notification=True,
         )
 
-        context.bot_data[f"pinned_forest_{chat_id}"] = msg.message_id
+        await set_pinned_msg(db_key, msg.message_id)
         print(f"📌 Pinned forest message ({msg.message_id}) in {chat_id}")
 
 
@@ -94,7 +105,8 @@ Commands:
 /screenshare"""
 
     for chat_id in CHALLENGE_CHAT_IDS:
-        prev = context.bot_data.get(f"pinned_challenge_{chat_id}")
+        db_key = f"pinned_challenge_{chat_id}"
+        prev = await get_pinned_msg(db_key)
         if prev:
             try:
                 await context.bot.unpin_chat_message(chat_id=chat_id, message_id=prev)
@@ -115,6 +127,7 @@ Commands:
             disable_notification=True,
         )
 
-        context.bot_data[f"pinned_challenge_{chat_id}"] = msg.message_id
+        await set_pinned_msg(db_key, msg.message_id)
+        await set_pinned_msg("last_challenge_msg_id", msg.message_id)
         context.bot_data["last_challenge_msg_id"] = msg.message_id
         print(f"📌 Pinned challenge message ({msg.message_id}) in {chat_id}")
