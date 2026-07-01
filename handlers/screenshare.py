@@ -4,9 +4,10 @@ from datetime import datetime, timezone
 from telegram import Update
 from telegram.error import RetryAfter, TelegramError
 from telegram.ext import ContextTypes
+from config import DEKU_CHANNEL_ID, COOKED_GROUP_ID
 
-CHANNEL_ID = -1002511165129
-GROUP_ID = -1002606388153
+CHANNEL_ID = DEKU_CHANNEL_ID
+GROUP_ID = COOKED_GROUP_ID
 
 GRANT_DURATION = 120  # seconds
 

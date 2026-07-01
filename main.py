@@ -2,9 +2,8 @@ import threading
 from datetime import time as dt_time
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes, CommandHandler, CallbackQueryHandler
-from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID, BOT_ADMIN_IDS
+from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID, BOT_ADMIN_IDS, FOREST_CHAT_ID
 
-FOREST_CHAT_ID = -1001876174346
 from handlers.messages import check_text
 from handlers.daily import send_todo, send_forest, send_challenge
 from handlers.mentions import add_mention, remove_mention, remove_all_mentions, watch_forestapp

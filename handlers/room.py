@@ -18,13 +18,13 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-from config import BOT_ADMIN_IDS
+from config import BOT_ADMIN_IDS, DEKU_CHANNEL_ID, COOKED_GROUP_ID
 from triggers import TRIGGERS, TRIGGER_PATTERNS
 
 # ── Constants ──────────────────────────────────────────────────────────
 # Notebook of Deku > Academically Cooked Weapons Chat
-CHANNEL_ID = -1002511165129
-GROUP_ID = -1002606388153
+CHANNEL_ID = DEKU_CHANNEL_ID
+GROUP_ID = COOKED_GROUP_ID
 
 # Disappearing Notes > Test
 # CHANNEL_ID = -1002911938910
