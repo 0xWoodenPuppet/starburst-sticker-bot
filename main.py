@@ -15,11 +15,6 @@ from handlers.study import handle_study
 from handlers.participants import handle_automatic_forward
 from handlers.screenshare import handle_screenshare
 from handlers.tictactoe import fight_command, game_callback_handler, cleanup_inactive_games
-from handlers.room import (
-    room_handler, task_command, room_callback_handler,
-    track_forwarded_post, monitor_group_messages,
-    GROUP_ID as ROOM_GROUP_ID,
-)
 from handlers.tasks import task_conversation, skip_review_handler, history_command, restore_pending_sessions
 from server import run_web
 
@@ -46,8 +41,7 @@ def main():
     job_queue.run_daily(send_challenge, dt_time(hour=19, minute=0, tzinfo=TIMEZONE), name="daily_challenge")
     job_queue.run_repeating(cleanup_inactive_games, interval=60, first=60, name="game_cleanup")
 
-    application.add_handler(task_conversation)  # must be before room_handler to catch /start deep links
-    application.add_handler(room_handler)
+    application.add_handler(task_conversation)  # catch /start deep links
     application.add_handler(CommandHandler("addmention", add_mention))
     application.add_handler(CommandHandler("removemention", remove_mention))
     application.add_handler(CommandHandler("removeallmentions", remove_all_mentions))
@@ -70,19 +64,9 @@ def main():
     application.add_handler(CommandHandler("screenshare", handle_screenshare))
     application.add_handler(CommandHandler("fight", fight_command))
     
-    application.add_handler(CommandHandler("task", task_command))
-    application.add_handler(CallbackQueryHandler(room_callback_handler, pattern=r"^room_"))
     application.add_handler(CallbackQueryHandler(game_callback_handler, pattern=r"^(g_|ttt_|c4_)"))
 
     application.add_handler(MessageHandler(filters.Chat(MENTION_CHAT_ID) & filters.IS_AUTOMATIC_FORWARD, handle_automatic_forward))
-    application.add_handler(MessageHandler(
-        filters.Chat(ROOM_GROUP_ID) & filters.IS_AUTOMATIC_FORWARD,
-        track_forwarded_post
-    ), group=5)
-    application.add_handler(MessageHandler(
-        filters.Chat(ROOM_GROUP_ID) & ~filters.COMMAND & ~filters.StatusUpdate.ALL & ~filters.IS_AUTOMATIC_FORWARD,
-        monitor_group_messages
-    ), group=6)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, watch_forestapp), group=1)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.ChatType.PRIVATE, check_text), group=2)
     application.add_handler(skip_review_handler)  # standalone: Skip button on session-end DMs
