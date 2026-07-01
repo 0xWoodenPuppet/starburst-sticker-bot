@@ -35,8 +35,8 @@ def markdown_to_html(text: str) -> str:
         return f"__INLINE_CODE_{len(inline_codes)-1}__"
 
     # Match multiline code blocks (with or without language specifier)
-    temp = re.sub(r"```(?:\w+\n)?(.*??)```", save_code_block, escaped, flags=re.DOTALL)
-    temp = re.sub(r"`(.*??)`", save_inline_code, temp)
+    temp = re.sub(r"```(?:\w+\n)?(.*?)```", save_code_block, escaped, flags=re.DOTALL)
+    temp = re.sub(r"`(.*?)`", save_inline_code, temp)
     
     # 3. Convert Bold and Italic
     # Bold-Italic (***text*** or ___text___)
