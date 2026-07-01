@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, date
 from telegram import Update
 from telegram.ext import ContextTypes
 from config import BOT_ADMIN_IDS, TIMEZONE, DATABASE_CHAT_ID
+from db import challenge_scores
 
 CSV_FILE = "challenge_scores.csv"
 
@@ -18,22 +19,56 @@ def init_csv():
             writer = csv.writer(f)
             writer.writerow(["user_id", "username", "day_number", "points", "timestamp"])
 
-def read_scores():
-    """Read all scores from the CSV. Returns a list of dicts."""
-    init_csv()
+async def read_scores():
+    """Read all scores from MongoDB. Returns a list of dicts matching the CSV structure."""
     scores = []
-    with open(CSV_FILE, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            scores.append(row)
+    try:
+        cursor = challenge_scores.find({})
+        async for doc in cursor:
+            scores.append({
+                "user_id": str(doc.get("user_id")),
+                "username": doc.get("username", ""),
+                "day_number": str(doc.get("day_number")),
+                "points": str(doc.get("points")),
+                "timestamp": doc.get("timestamp", "")
+            })
+    except Exception as e:
+        print(f"⚠️ Failed to read scores from MongoDB: {e}")
+        # Fallback to local CSV if DB fails
+        init_csv()
+        with open(CSV_FILE, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                scores.append(row)
     return scores
 
 async def write_scores(scores, context: ContextTypes.DEFAULT_TYPE = None):
-    """Write the provided scores list back to the CSV, and optionally backup to Telegram."""
-    with open(CSV_FILE, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=["user_id", "username", "day_number", "points", "timestamp"])
-        writer.writeheader()
-        writer.writerows(scores)
+    """Write the provided scores list back to MongoDB, sync to CSV, and optionally backup to Telegram."""
+    # 1. Update MongoDB
+    try:
+        await challenge_scores.delete_many({})
+        if scores:
+            docs = []
+            for s in scores:
+                docs.append({
+                    "user_id": str(s["user_id"]),
+                    "username": s["username"],
+                    "day_number": int(s["day_number"]),
+                    "points": int(s["points"]),
+                    "timestamp": s["timestamp"]
+                })
+            await challenge_scores.insert_many(docs)
+    except Exception as e:
+        print(f"⚠️ Failed to update MongoDB scores: {e}")
+
+    # 2. Sync to local CSV
+    try:
+        with open(CSV_FILE, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=["user_id", "username", "day_number", "points", "timestamp"])
+            writer.writeheader()
+            writer.writerows(scores)
+    except Exception as e:
+        print(f"⚠️ Failed to write local CSV backup: {e}")
         
     if context and DATABASE_CHAT_ID:
         try:
@@ -116,7 +151,7 @@ async def score_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(target_user.id)
     username = target_user.username or target_user.first_name
 
-    scores = read_scores()
+    scores = await read_scores()
     
     # Check if a score already exists for this day to update it
     score_updated = False
@@ -144,7 +179,7 @@ async def score_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Public command: /leaderboard — dense-ranked leaderboard."""
-    scores = read_scores()
+    scores = await read_scores()
     if not scores:
         await update.message.reply_text("🏆 <b>21-Day Challenge Leaderboard</b>\n\nNo scores have been logged yet!", parse_mode="HTML")
         return
@@ -184,7 +219,7 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     query = context.args[0].lstrip("@")
-    scores = read_scores()
+    scores = await read_scores()
 
     # Find the target user (match by username, case-insensitive)
     user_scores = {}   # day_number -> points

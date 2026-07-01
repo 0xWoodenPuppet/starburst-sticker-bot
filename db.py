@@ -26,3 +26,4 @@ sessions = db.sessions              # focus session history (tasks, scores, part
 coach_sessions = db.coach_sessions  # active AI coaching conversations
 games = db.games                    # game history (tic tac toe, connect 4)
 games_active = db.games_active      # active/in-progress games (survives restarts)
+challenge_scores = db.challenge_scores  # daily challenge scores (points per day per user)

@@ -14,7 +14,7 @@ async def handle_automatic_forward(update: Update, context: ContextTypes.DEFAULT
     if not last_challenge_id or not origin or getattr(origin, 'message_id', None) != last_challenge_id:
         return
 
-    scores = read_scores()
+    scores = await read_scores()
     
     # Extract unique users from all scoring rows
     participants = {}
