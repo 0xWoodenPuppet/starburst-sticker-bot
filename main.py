@@ -2,7 +2,7 @@ import threading
 from datetime import time as dt_time
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes, CommandHandler, CallbackQueryHandler
-from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID, BOT_ADMIN_IDS, FOREST_CHAT_ID
+from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID, BOT_ADMIN_IDS, FOREST_CHAT_ID, READING_CHALLENGE_CHAT_IDS, READING_TEST_CHAT_ID
 
 from handlers.messages import check_text
 from handlers.daily import send_todo, send_forest, send_challenge
@@ -15,6 +15,7 @@ from handlers.participants import handle_automatic_forward
 from handlers.screenshare import handle_screenshare
 from handlers.games import fight_command, game_callback_handler, cleanup_inactive_games
 from handlers.tasks import task_conversation, skip_review_handler, history_command, restore_pending_sessions
+from handlers.reading import send_reading_checkin, handle_reading_checkin
 from server import run_web
 
 
@@ -45,6 +46,7 @@ def main():
     job_queue.run_daily(send_todo,   dt_time(hour=5,  minute=0,  tzinfo=TIMEZONE), name="daily_todo")
     job_queue.run_daily(send_forest, dt_time(hour=22, minute=30, tzinfo=TIMEZONE), name="daily_forest")
     job_queue.run_daily(send_challenge, dt_time(hour=19, minute=0, tzinfo=TIMEZONE), name="daily_challenge")
+    job_queue.run_daily(send_reading_checkin, dt_time(hour=5, minute=31, tzinfo=TIMEZONE), name="daily_reading")
     job_queue.run_repeating(cleanup_inactive_games, interval=60, first=60, name="game_cleanup")
 
     application.add_handler(task_conversation)  # catch /start deep links
@@ -55,7 +57,13 @@ def main():
             await update.message.reply_text("Triggering test challenge...")
             await send_challenge(context, force=True)
 
+    async def test_reading(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if update.effective_user.id in BOT_ADMIN_IDS and update.effective_chat.id == READING_TEST_CHAT_ID:
+            await update.message.reply_text("Triggering test reading check-in...")
+            await send_reading_checkin(context, force=True, target_chat_id=READING_TEST_CHAT_ID)
+
     application.add_handler(CommandHandler("test_challenge", test_challenge))
+    application.add_handler(CommandHandler("test_reading", test_reading))
 
     # application.add_handler(CommandHandler("report", handle_report))
     application.add_handler(CommandHandler("s", score_user))
@@ -67,6 +75,7 @@ def main():
     application.add_handler(CommandHandler("screenshare", handle_screenshare))
     application.add_handler(CommandHandler("fight", fight_command))
     
+    application.add_handler(CallbackQueryHandler(handle_reading_checkin, pattern=r"^reading_checkin$"))
     application.add_handler(CallbackQueryHandler(game_callback_handler, pattern=r"^(g_|ttt_|c4_)"))
 
     application.add_handler(MessageHandler(filters.Chat(MENTION_CHAT_ID) & filters.IS_AUTOMATIC_FORWARD, handle_automatic_forward))
@@ -82,7 +91,7 @@ def main():
             await msg.delete()
 
     application.add_handler(MessageHandler(
-        filters.StatusUpdate.PINNED_MESSAGE & filters.Chat(DAILY_CHAT_IDS + [FOREST_CHAT_ID]),
+        filters.StatusUpdate.PINNED_MESSAGE & filters.Chat(DAILY_CHAT_IDS + [FOREST_CHAT_ID] + READING_CHALLENGE_CHAT_IDS),
         delete_pin_service_message
     ))
 

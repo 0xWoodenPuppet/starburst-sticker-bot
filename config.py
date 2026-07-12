@@ -1,5 +1,6 @@
 import os
 import pytz
+from datetime import date
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -76,3 +77,8 @@ GROUP_RULES = """
 4. No off-topic chats or DMs.
 """
 
+# READING CHALLENGE
+READING_CHALLENGE_START_DATE = date(2026, 7, 13)
+READING_CHALLENGE_TOTAL_DAYS = 21
+READING_CHALLENGE_CHAT_IDS = [DEKU_CHANNEL_ID]
+READING_TEST_CHAT_ID = MOD_LOG_CHAT_ID  # /test_reading only works here
