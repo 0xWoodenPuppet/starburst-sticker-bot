@@ -62,6 +62,12 @@ async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     if payload.startswith("task_"):
         return await _start_task(update, context, payload[5:])
 
+    # ── Reading Recap deep link ──
+    if payload == "reading_recap":
+        from handlers.reading import send_personal_recap
+        await send_personal_recap(update, context)
+        return ConversationHandler.END
+
     await update.message.reply_text("👋 Hey! I'm the Starburst Bot.")
     return ConversationHandler.END
 

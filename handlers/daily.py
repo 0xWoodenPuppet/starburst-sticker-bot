@@ -16,7 +16,7 @@ async def set_pinned_msg(key: str, message_id: int):
 async def send_todo(context: ContextTypes.DEFAULT_TYPE):
     """Sends the daily todo list message at 5:00 AM IST and pins it."""
     today = datetime.now(TIMEZONE).strftime("%d/%m/%Y")
-    text = f"📋 {today} — Todo List"
+    text = f"📋 {today} — Todo List + Day's Forest 🌲"
 
     for chat_id in DAILY_CHAT_IDS:
         db_key = f"pinned_todo_{chat_id}"

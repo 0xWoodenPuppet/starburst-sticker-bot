@@ -2,10 +2,10 @@ import threading
 from datetime import time as dt_time
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes, CommandHandler, CallbackQueryHandler
-from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID, BOT_ADMIN_IDS, FOREST_CHAT_ID, READING_CHALLENGE_CHAT_IDS, READING_TEST_CHAT_ID
+from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID, BOT_ADMIN_IDS, FOREST_CHAT_ID, READING_CHALLENGE_CHAT_IDS, READING_TEST_CHAT_ID, EXPERIMENTAL_CHAT_ID
 
 from handlers.messages import check_text
-from handlers.daily import send_todo, send_forest, send_challenge
+from handlers.daily import send_todo, send_challenge
 # from handlers.moderator import handle_report
 from handlers.scoring import score_user, leaderboard, profile
 from handlers.ask import ask_command
@@ -44,7 +44,6 @@ def main():
     # Daily messages
     job_queue = application.job_queue
     job_queue.run_daily(send_todo,   dt_time(hour=5,  minute=0,  tzinfo=TIMEZONE), name="daily_todo")
-    job_queue.run_daily(send_forest, dt_time(hour=22, minute=30, tzinfo=TIMEZONE), name="daily_forest")
     job_queue.run_daily(send_challenge, dt_time(hour=19, minute=0, tzinfo=TIMEZONE), name="daily_challenge")
     job_queue.run_daily(send_reading_checkin, dt_time(hour=5, minute=31, tzinfo=TIMEZONE), name="daily_reading")
     job_queue.run_repeating(cleanup_inactive_games, interval=60, first=60, name="game_cleanup")
@@ -58,7 +57,7 @@ def main():
             await send_challenge(context, force=True)
 
     async def test_reading(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        if update.effective_user.id in BOT_ADMIN_IDS and update.effective_chat.id == READING_TEST_CHAT_ID:
+        if update.effective_user.id in BOT_ADMIN_IDS and update.effective_chat.id == EXPERIMENTAL_CHAT_ID:
             await update.message.reply_text("Triggering test reading check-in...")
             await send_reading_checkin(context, force=True, target_chat_id=READING_TEST_CHAT_ID)
 
@@ -75,7 +74,7 @@ def main():
     application.add_handler(CommandHandler("screenshare", handle_screenshare))
     application.add_handler(CommandHandler("fight", fight_command))
     
-    application.add_handler(CallbackQueryHandler(handle_reading_checkin, pattern=r"^reading_checkin$"))
+    application.add_handler(CallbackQueryHandler(handle_reading_checkin, pattern=r"^reading_checkin:"))
     application.add_handler(CallbackQueryHandler(game_callback_handler, pattern=r"^(g_|ttt_|c4_)"))
 
     application.add_handler(MessageHandler(filters.Chat(MENTION_CHAT_ID) & filters.IS_AUTOMATIC_FORWARD, handle_automatic_forward))
@@ -91,7 +90,7 @@ def main():
             await msg.delete()
 
     application.add_handler(MessageHandler(
-        filters.StatusUpdate.PINNED_MESSAGE & filters.Chat(DAILY_CHAT_IDS + [FOREST_CHAT_ID] + READING_CHALLENGE_CHAT_IDS),
+        filters.StatusUpdate.PINNED_MESSAGE & filters.Chat(DAILY_CHAT_IDS + [FOREST_CHAT_ID] + READING_CHALLENGE_CHAT_IDS + [READING_TEST_CHAT_ID]),
         delete_pin_service_message
     ))
 

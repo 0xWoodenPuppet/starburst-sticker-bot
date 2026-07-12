@@ -8,7 +8,7 @@ readers and their current streak.
 No leaderboard, no competition — purely habit-building.
 """
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from config import (
@@ -23,11 +23,11 @@ from db import reading_checkins, bot_state
 # ── Helpers ────────────────────────────────────────────────────────────
 
 def _current_day() -> int:
-    """Return the current challenge day number (1-indexed), or 0 if outside the window."""
-    today = date.today()
-    delta = (today - READING_CHALLENGE_START_DATE).days
-    if delta < 0 or delta >= READING_CHALLENGE_TOTAL_DAYS:
-        return 0
+    """Return the logical current challenge day number (1-indexed). The day rolls over at 5:31 AM IST."""
+    now = datetime.now(TIMEZONE)
+    # Subtract 5 hours and 31 minutes so that anything before 5:31 AM falls into the previous date.
+    logical_date = (now - timedelta(hours=5, minutes=31)).date()
+    delta = (logical_date - READING_CHALLENGE_START_DATE).days
     return delta + 1
 
 
@@ -88,9 +88,9 @@ def _build_message_text(day_number: int, readers: list[dict] | None = None) -> s
     return text
 
 
-def _build_keyboard() -> InlineKeyboardMarkup:
+def _build_keyboard(day_number: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("✅ I read for 30 minutes today", callback_data="reading_checkin")]
+        [InlineKeyboardButton("✅ I read for 30 minutes today", callback_data=f"reading_checkin:{day_number}")]
     ])
 
 
@@ -133,12 +133,106 @@ async def _refresh_checkin_list(context: ContextTypes.DEFAULT_TYPE, chat_id: int
             message_id=message_id,
             text=text,
             parse_mode="HTML",
-            reply_markup=_build_keyboard(),
+            reply_markup=_build_keyboard(day_number),
         )
     except Exception as e:
         # "Message is not modified" is harmless — Telegram rejects no-op edits
         if "Message is not modified" not in str(e):
             print(f"⚠️ Failed to update reading check-in message: {e}")
+
+
+# ── Summaries & Recaps ─────────────────────────────────────────────────
+
+async def send_reading_summary(context: ContextTypes.DEFAULT_TYPE, target_chat_id: int | None = None):
+    """Post the final end-of-challenge summary on Day 22."""
+    total_checkins = await reading_checkins.count_documents({})
+    # distinct isn't natively async in motor directly on the collection sometimes, but motor supports it:
+    user_ids = await reading_checkins.distinct("user_id")
+    readers_count = len(user_ids)
+
+    text = (
+        "📚 <b>21-Day Reading Challenge — Complete!</b> 🎉\n\n"
+        f"<b>{readers_count} readers</b> checked in a total of <b>{total_checkins} times</b>\n"
+        f"📖 That's <b>{total_checkins * 30} minutes</b> of reading combined!\n\n"
+        "Tap the button below to get your stats."
+    )
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("📊 Get My Recap", url=f"https://t.me/{context.bot.username}?start=reading_recap")]
+    ])
+    
+    chat_ids = [target_chat_id] if target_chat_id else READING_CHALLENGE_CHAT_IDS
+    for chat_id in chat_ids:
+        db_key = f"pinned_reading_{chat_id}"
+
+        # Unpin Day 21's reading message
+        prev_msg_id = await _get_state(db_key)
+        if prev_msg_id:
+            try:
+                await context.bot.unpin_chat_message(chat_id=chat_id, message_id=prev_msg_id)
+            except Exception as e:
+                print(f"⚠️ Could not unpin reading message in {chat_id}: {e}")
+
+        # Send & pin summary message
+        msg = await context.bot.send_message(
+            chat_id=chat_id,
+            text=text,
+            parse_mode="HTML",
+            reply_markup=keyboard,
+            disable_notification=True,
+        )
+
+        await context.bot.pin_chat_message(
+            chat_id=chat_id,
+            message_id=msg.message_id,
+            disable_notification=True,
+        )
+
+        await _set_state(db_key, msg.message_id)
+        await _set_state(f"reading_msg_{chat_id}", msg.message_id)
+        print(f"📌 Pinned reading challenge summary ({msg.message_id}) in {chat_id}")
+
+
+async def send_personal_recap(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Send the personal Option B reading recap DM."""
+    user = update.effective_user
+    user_id = str(user.id)
+    username = f"@{user.username}" if user.username else user.first_name
+
+    total_days = await _total_days_completed(user_id)
+    
+    # Calculate longest streak
+    cursor = reading_checkins.find(
+        {"user_id": user_id},
+        {"day_number": 1, "_id": 0},
+    ).sort("day_number", 1)
+    
+    checked_days = []
+    async for doc in cursor:
+        checked_days.append(doc["day_number"])
+        
+    longest_streak = 0
+    current_streak = 0
+    prev_day = -1
+    for day in checked_days:
+        if day == prev_day + 1:
+            current_streak += 1
+        else:
+            current_streak = 1
+        if current_streak > longest_streak:
+            longest_streak = current_streak
+        prev_day = day
+
+    total_time = total_days * 30
+
+    text = (
+        "🎓 <b>Reading Challenge Recap</b> 🎓\n\n"
+        f"👤 <b>Reader:</b> {username}\n\n"
+        f"📖 <b>Days Read:</b> {total_days} out of {READING_CHALLENGE_TOTAL_DAYS}\n"
+        f"🔥 <b>Longest Streak:</b> {longest_streak} days\n"
+        f"⏳ <b>Total Time:</b> {total_time} minutes"
+    )
+    
+    await update.message.reply_text(text, parse_mode="HTML")
 
 
 # ── Daily Scheduled Post ──────────────────────────────────────────────
@@ -151,15 +245,22 @@ async def send_reading_checkin(context: ContextTypes.DEFAULT_TYPE, force: bool =
     """
     day_number = _current_day()
 
-    if not force and day_number == 0:
-        return  # outside the challenge window
+    if force:
+        # If testing outside the valid window (1 to 22), default to Day 1
+        if day_number < 1 or day_number > READING_CHALLENGE_TOTAL_DAYS + 1:
+            day_number = 1
+    else:
+        # Normal schedule: abort if outside the valid window
+        if day_number < 1 or day_number > READING_CHALLENGE_TOTAL_DAYS + 1:
+            return  
 
-    # When forcing outside the window, pretend it's Day 1
-    if force and day_number == 0:
-        day_number = 1
+    # Trigger the end-of-challenge summary on Day 22 (works for both scheduled and forced tests)
+    if day_number == READING_CHALLENGE_TOTAL_DAYS + 1:
+        await send_reading_summary(context, target_chat_id)
+        return
 
     text = _build_message_text(day_number)
-    keyboard = _build_keyboard()
+    keyboard = _build_keyboard(day_number)
 
     chat_ids = [target_chat_id] if target_chat_id else READING_CHALLENGE_CHAT_IDS
     for chat_id in chat_ids:
@@ -202,8 +303,22 @@ async def handle_reading_checkin(update: Update, context: ContextTypes.DEFAULT_T
     user_id = str(user.id)
 
     day_number = _current_day()
-    if day_number == 0:
-        await query.answer("📚 The reading challenge isn't active right now!", show_alert=True)
+    if day_number < 1:
+        await query.answer("📚 The reading challenge hasn't started yet!", show_alert=True)
+        return
+    if day_number > READING_CHALLENGE_TOTAL_DAYS:
+        await query.answer("📚 The reading challenge has ended! Great job participating.", show_alert=True)
+        return
+
+    # Day number is encoded in the callback data: "reading_checkin:<day>"
+    try:
+        button_day = int(query.data.split(":")[1])
+    except (IndexError, ValueError):
+        await query.answer("❌ Something went wrong. Try again!", show_alert=True)
+        return
+
+    if button_day < day_number:
+        await query.answer("❌ This check-in button has expired! A new day has started.", show_alert=True)
         return
 
     # Duplicate prevention
