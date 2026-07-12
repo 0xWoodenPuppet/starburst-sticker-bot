@@ -20,6 +20,31 @@ from config import (
 from db import reading_checkins, bot_state
 
 
+OPTIONAL_PROMPTS = [
+    "(optional) Share a favorite quote or something you learned today!",
+    "(optional) Read anything interesting? Drop a reflection, quote, or takeaway below.",
+    "(optional) Share one thought or quote from today’s reading.",
+    "(optional) We'd love to hear what you're learning! Drop a quote or a quick thought.",
+    "(optional) Got any good quotes or reflections from today's reading? Feel free to drop them here!",
+    "(optional) Drop the most interesting sentence you read today.",
+    "(optional) Let's build a quote bank! Drop your favorite line from today's reading.",
+    "(optional) Did your reading today change your perspective on anything? Share if you'd like!",
+    "(optional) What's one word, phrase, or idea from today's reading that you want to remember?",
+    "(optional) Did you disagree with anything you read today? Or find something deeply inspiring? Let's hear it!",
+    "(optional) If you could sum up today's reading in one sentence or quote, what would it be?",
+    "(optional) Share a snippet from your reading that made you pause and reflect.",
+    "(optional) Share a \"lightbulb moment\" or a standout quote from today's session.",
+    "(optional) How does what you read today apply to your own life or work?",
+    "(optional) Let's learn from each other! Feel free to share a takeaway, a quote, or a question from your reading today.",
+    "(optional) Spark a discussion by sharing a thought, quote, or reflection from today's pages.",
+    "(optional) Read something that made you think? Share it with the group!",
+    "(optional) Did today's reading leave you with any unanswered questions? Share them!",
+    "(optional) Who are you reading right now, and what's one thing they taught you today?",
+    "(optional) Reply with one of the following from today's reading: A reflection, a favorite quote, or a new question you have.",
+    "(optional) What was your biggest takeaway today? Share a quote or a brief reflection if you'd like!"
+]
+
+
 # ── Helpers ────────────────────────────────────────────────────────────
 
 def _current_day() -> int:
@@ -292,6 +317,15 @@ async def send_reading_checkin(context: ContextTypes.DEFAULT_TYPE, force: bool =
         await _set_state(db_key, msg.message_id)
         await _set_state(f"reading_msg_{chat_id}", msg.message_id)
         print(f"📌 Pinned reading challenge Day {day_number} ({msg.message_id}) in {chat_id}")
+        
+        # Send the optional reflection prompt
+        prompt_idx = (day_number - 1) % len(OPTIONAL_PROMPTS)
+        prompt_text = OPTIONAL_PROMPTS[prompt_idx]
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=prompt_text,
+            disable_notification=True,
+        )
 
 
 # ── Callback Query Handler ────────────────────────────────────────────
