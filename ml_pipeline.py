@@ -5,14 +5,15 @@ Stage 1: K-Means Clustering — Groups user tasks into study categories
 Stage 2: Random Forest Classifier — Predicts whether a user will complete
          their session review (follow-through) or skip it.
 
-Dataset: 13,900+ real focus session records from MongoDB (Starburst Telegram Bot)
+Dataset: ~45,000 focus session records from MongoDB (Starburst Telegram Bot)
+Artifacts saved to ml_output/models/ for use by /insights command at runtime.
 """
 
 import asyncio
 import os
-import re
 import numpy as np
 import pandas as pd
+import joblib
 import matplotlib
 matplotlib.use("Agg")  # non-interactive backend so plots save to file
 import matplotlib.pyplot as plt
@@ -31,9 +32,12 @@ from sklearn.metrics import (
 from sklearn.preprocessing import LabelEncoder
 
 from db import sessions
+from services.tree_normalizer import normalize_tree
 
 OUTPUT_DIR = "ml_output"
+MODEL_DIR = os.path.join(OUTPUT_DIR, "models")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(MODEL_DIR, exist_ok=True)
 
 # ══════════════════════════════════════════════════════════════════════════
 #  STEP 1 — Extract & Clean Data from MongoDB
@@ -50,7 +54,7 @@ async def fetch_data() -> pd.DataFrame:
     async for s in cursor:
         session_id = str(s["_id"])
         duration = s.get("duration", 0)
-        tree = (s.get("tree") or "unknown").lower()
+        tree = normalize_tree(s.get("tree") or "unknown")
         created_at = s.get("created_at")
         participants = s.get("participants", {})
 
@@ -77,10 +81,38 @@ async def fetch_data() -> pd.DataFrame:
                 "task": task,
                 "task_word_count": len(task.split()),
                 "task_char_count": len(task),
+                "created_at": created_at, # Added for sorting
                 "completed_review": 1 if note else 0,  # TARGET
             })
 
     df = pd.DataFrame(rows)
+    
+    # ── Feature Engineering: User Behavioral History ──
+    # Sort by time to compute historical (past) behavior without data leakage
+    df = df.sort_values("created_at").reset_index(drop=True)
+    
+    # Expanding count of prior sessions for each user
+    df["user_prior_sessions"] = df.groupby("user_id").cumcount()
+    
+    # Expanding mean of past review completion (shift by 1 to exclude current session)
+    # If it's their first session, fill with the global average
+    global_mean = df["completed_review"].mean()
+    df["user_historical_review_rate"] = (
+        df.groupby("user_id")["completed_review"]
+        .transform(lambda x: x.shift(1).expanding().mean())
+        .fillna(global_mean)
+    )
+
+    # Days since last session (momentum/churn risk)
+    df["days_since_last_session"] = (
+        df.groupby("user_id")["created_at"]
+        .diff()
+        .dt.total_seconds() / (3600 * 24)
+    ).fillna(0)
+
+    # Weekend flag
+    df["is_weekend"] = (df["day_of_week"] >= 5).astype(int)
+
     print(f"✅ Fetched {len(df)} participant-session rows from MongoDB")
     print(f"   Completed review (1): {(df['completed_review'] == 1).sum()}")
     print(f"   Skipped review  (0): {(df['completed_review'] == 0).sum()}")
@@ -91,9 +123,10 @@ async def fetch_data() -> pd.DataFrame:
 #  STEP 2 — Stage 1: K-Means Clustering on Task Text
 # ══════════════════════════════════════════════════════════════════════════
 
-def cluster_tasks(df: pd.DataFrame, n_clusters: int = 5) -> pd.DataFrame:
+def cluster_tasks(df: pd.DataFrame, n_clusters: int = 5):
     """
     Use TF-IDF + K-Means to cluster task descriptions into study categories.
+    Returns (df_with_clusters, tfidf, kmeans).
     """
     print("\n" + "═" * 60)
     print("  STAGE 1: K-MEANS TASK CLUSTERING")
@@ -105,7 +138,7 @@ def cluster_tasks(df: pd.DataFrame, n_clusters: int = 5) -> pd.DataFrame:
     if len(task_texts) < n_clusters:
         print("⚠️  Not enough tasks to cluster. Assigning all to cluster 0.")
         df["task_cluster"] = 0
-        return df
+        return df, None, None
 
     # TF-IDF vectorization
     tfidf = TfidfVectorizer(max_features=500, stop_words="english")
@@ -155,14 +188,14 @@ def cluster_tasks(df: pd.DataFrame, n_clusters: int = 5) -> pd.DataFrame:
     plt.close(fig)
     print(f"\n📊 Cluster distribution chart saved → {path}")
 
-    return df
+    return df, tfidf, kmeans
 
 
 # ══════════════════════════════════════════════════════════════════════════
 #  STEP 3 — Stage 2: Random Forest Classifier
 # ══════════════════════════════════════════════════════════════════════════
 
-def train_classifier(df: pd.DataFrame):
+def train_classifier(df: pd.DataFrame) -> tuple:
     """
     Train a Random Forest to predict session review completion.
     Target: completed_review (1 = user wrote a note after session, 0 = skipped)
@@ -172,11 +205,16 @@ def train_classifier(df: pd.DataFrame):
     print("  STAGE 2: RANDOM FOREST CLASSIFICATION")
     print("═" * 60)
 
-    # Encode 'tree' as a numeric category
+    # Encode normalized tree name as a numeric category
     le = LabelEncoder()
     df["tree_encoded"] = le.fit_transform(df["tree"])
 
-    features = ["duration", "hour", "day_of_week", "tree_encoded", "task_word_count", "task_cluster"]
+    features = [
+        "duration", "hour", "day_of_week", "tree_encoded", 
+        "task_word_count", "task_char_count", "task_cluster",
+        "user_prior_sessions", "user_historical_review_rate",
+        "days_since_last_session", "is_weekend"
+    ]
     X = df[features].values
     y = df["completed_review"].values
 
@@ -191,8 +229,8 @@ def train_classifier(df: pd.DataFrame):
 
     # Train Random Forest
     clf = RandomForestClassifier(
-        n_estimators=200,
-        max_depth=12,
+        n_estimators=300,
+        max_depth=15,
         random_state=42,
         class_weight="balanced",
     )
@@ -227,7 +265,12 @@ def train_classifier(df: pd.DataFrame):
         "day_of_week": "Day of Week",
         "tree_encoded": "Tree Type",
         "task_word_count": "Task Word Count",
+        "task_char_count": "Task Char Count",
         "task_cluster": "Task Cluster (K-Means)",
+        "user_prior_sessions": "User Prior Sessions",
+        "user_historical_review_rate": "Historical Review Rate",
+        "days_since_last_session": "Days Since Last Session",
+        "is_weekend": "Is Weekend"
     }
 
     fig, ax = plt.subplots(figsize=(8, 5))
@@ -290,7 +333,7 @@ def train_classifier(df: pd.DataFrame):
     plt.close(fig)
     print(f"📊 Completion by day chart saved → {path}")
 
-    return clf, acc
+    return clf, le, acc
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -311,19 +354,31 @@ async def main():
         return
 
     # Step 2: Stage 1 — Cluster tasks
-    df = cluster_tasks(df, n_clusters=5)
+    df, tfidf, kmeans = cluster_tasks(df, n_clusters=5)
 
     # Step 3: Stage 2 — Train classifier
-    clf, accuracy = train_classifier(df)
+    clf, le, accuracy = train_classifier(df)
+
+    # ── Save model artifacts for /insights command ──────────────────────
+    print("\n" + "═" * 60)
+    print("  SAVING MODEL ARTIFACTS")
+    print("═" * 60)
+    if tfidf and kmeans:
+        joblib.dump(tfidf,   os.path.join(MODEL_DIR, "tfidf.joblib"))
+        joblib.dump(kmeans,  os.path.join(MODEL_DIR, "kmeans.joblib"))
+        print(f"💾 tfidf.joblib + kmeans.joblib saved → {MODEL_DIR}/")
+    joblib.dump(clf, os.path.join(MODEL_DIR, "random_forest.joblib"))
+    joblib.dump(le,  os.path.join(MODEL_DIR, "label_encoder.joblib"))
+    print(f"💾 random_forest.joblib + label_encoder.joblib saved → {MODEL_DIR}/")
 
     # Save processed dataset to CSV for reference
     csv_path = os.path.join(OUTPUT_DIR, "processed_sessions.csv")
     df.to_csv(csv_path, index=False)
-    print(f"\n💾 Processed dataset saved → {csv_path} ({len(df)} rows)")
+    print(f"💾 Processed dataset saved → {csv_path} ({len(df)} rows)")
 
     print("\n" + "=" * 60)
     print(f"✅ PIPELINE COMPLETE — Accuracy: {accuracy * 100:.1f}%")
-    print(f"   All charts and data saved to {OUTPUT_DIR}/")
+    print(f"   Charts + models saved to {OUTPUT_DIR}/")
     print("=" * 60)
 
 
