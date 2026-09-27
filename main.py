@@ -9,6 +9,7 @@ from handlers.daily import send_todo, send_challenge
 # from handlers.moderator import handle_report
 from handlers.scoring import score_user, leaderboard, profile
 from handlers.ask import ask_command
+from handlers.insights import insights_command
 from handlers.sleep import handle_sleep
 from handlers.study import handle_study
 from handlers.participants import handle_automatic_forward
@@ -69,6 +70,7 @@ def main():
     application.add_handler(CommandHandler("ask", ask_command))
     application.add_handler(CommandHandler("leaderboard", leaderboard))
     application.add_handler(CommandHandler("profile", profile))
+    application.add_handler(CommandHandler("insights", insights_command))
     application.add_handler(CommandHandler("sleep", handle_sleep))
     application.add_handler(CommandHandler("study", handle_study))
     application.add_handler(CommandHandler("screenshare", handle_screenshare))

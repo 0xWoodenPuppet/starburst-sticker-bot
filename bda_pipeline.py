@@ -150,7 +150,9 @@ def compute_user_metrics(df: pd.DataFrame) -> pd.DataFrame:
 
         # Most used duration and tree
         top_duration = group["duration"].mode().iloc[0] if not group["duration"].mode().empty else 0
-        top_tree = group["tree"].mode().iloc[0] if not group["tree"].mode().empty else "unknown"
+        
+        valid_trees = group[group["tree"] != "unknown"]["tree"]
+        top_tree = valid_trees.mode().iloc[0] if not valid_trees.mode().empty else "None"
 
         # Peak hour
         peak_hour = group["hour"].mode().iloc[0] if not group["hour"].mode().empty else 0
@@ -295,7 +297,7 @@ def compute_global_metrics(df: pd.DataFrame, user_metrics: pd.DataFrame, retenti
 
     # Top trees (all time, normalized)
     top_trees = (
-        df["tree"].value_counts().head(15)
+        df[df["tree"] != "unknown"]["tree"].value_counts().head(15)
         .reset_index()
         .rename(columns={"index": "tree", "tree": "name", "count": "sessions"})
         .to_dict("records")
