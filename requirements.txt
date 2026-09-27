@@ -4,3 +4,5 @@ pytz
 python-dotenv
 motor
 dnspython
+joblib
+scikit-learn
