@@ -29,3 +29,5 @@ games_active = db.games_active      # active/in-progress games (survives restart
 challenge_scores = db.challenge_scores  # daily challenge scores (points per day per user)
 reading_checkins = db.reading_checkins  # daily reading challenge check-ins
 bot_state = db.bot_state              # generic key-value storage for bot state (survives restarts)
+user_analytics = db.user_analytics    # per-user engagement metrics (BDA pipeline output)
+global_analytics = db.global_analytics  # global engagement metrics (BDA pipeline output)
