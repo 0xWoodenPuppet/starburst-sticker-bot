@@ -16,43 +16,40 @@ logger = logging.getLogger(__name__)
 
 
 async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handles the /report command when replied to an offending message."""
+    """Handles the /report command:
+    - Silently deletes the /report command message in all cases.
+    - If valid report: evaluates NLP toxicity and reporter credibility.
+    - If toxic: mutes the user and deletes their offending message.
+    - No public replies in the chat; all outcomes logged to MOD_LOG_CHAT_ID.
+    """
     if not update.message:
         return
 
-    if update.effective_chat.type == "private":
-        await update.message.reply_text("ℹ️ The <code>/report</code> command is designed for group chats.", parse_mode="HTML")
-        return
+    # Delete the /report command message whether the report is valid/false or not
+    try:
+        await update.message.delete()
+    except Exception as e:
+        logger.warning(f"Could not delete /report message: {e}")
 
-    if not update.message.reply_to_message:
-        await update.message.reply_text(
-            "ℹ️ To report a message, reply directly to it with <code>/report</code>.",
-            parse_mode="HTML"
-        )
+    # Moderation only operates on group messages
+    if update.effective_chat.type == "private":
         return
 
     reported_message = update.message.reply_to_message
-    if not reported_message.text:
-        await update.message.reply_text("ℹ️ Currently only text messages can be analyzed by the moderator.", parse_mode="HTML")
+    if not reported_message or not reported_message.text:
         return
 
     offending_user = reported_message.from_user
     reporter = update.effective_user
 
-    if not offending_user:
-        await update.message.reply_text("ℹ️ Cannot run automated moderation on anonymous channel posts.", parse_mode="HTML")
+    if not offending_user or offending_user.is_bot:
         return
 
-    if offending_user.is_bot:
-        await update.message.reply_text("ℹ️ Automated moderation cannot be run against bot accounts.", parse_mode="HTML")
-        return
-
+    # Ignore self-reports silently
     if offending_user.id == reporter.id:
-        await update.message.reply_text("⚠️ You cannot report your own messages.", parse_mode="HTML")
         return
 
-    # User acknowledgement
-    status_msg = await update.message.reply_text("🔍 Analyzing reported message...")
+    chat_id = update.effective_chat.id
 
     # 1. Local NLP Pipeline Inference
     nlp_result = await classify_toxicity(reported_message.text)
@@ -66,12 +63,13 @@ async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
     action = decision["action"]
     composite_score = decision["composite_score"]
 
-    # 4. Telegram Action Execution
-    chat_id = update.effective_chat.id
-    rule_broken = html.escape(nlp_result.get("rule_broken", "Group rule violation"))
-    offending_name = html.escape(offending_user.first_name or "User")
-
+    action_label = action
+    # 4. Telegram Action Execution (Silent in group, delete offending message + mute)
     if action == "MUTE":
+        mute_success = False
+        delete_success = False
+
+        # Mute offending user for 1 hour
         try:
             await context.bot.restrict_chat_member(
                 chat_id=chat_id,
@@ -79,33 +77,31 @@ async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 permissions=ChatPermissions(can_send_messages=False),
                 until_date=update.message.date + timedelta(hours=1)
             )
-            await status_msg.edit_text(
-                f"🛑 <b>Action Taken: MUTE (1 Hour)</b>\n\n"
-                f"<b>User:</b> {offending_name}\n"
-                f"<b>Reason:</b> {rule_broken}\n"
-                f"<b>NLP Toxicity Score:</b> <code>{toxicity_score:.2f}</code>\n\n"
-                f"<i>Message has been logged for moderator audit.</i>",
-                parse_mode="HTML"
-            )
+            mute_success = True
         except Exception as e:
-            logger.error(f"Moderation mute action failed: {e}")
-            await status_msg.edit_text(
-                f"⚠️ <b>Flagged as Toxic (<code>{toxicity_score:.2f}</code>)</b>\n\n"
-                f"The message violated community rules, but the bot lacks admin permissions in this chat to enforce the mute.",
-                parse_mode="HTML"
-            )
+            logger.error(f"Failed to restrict member {offending_user.id}: {e}")
+
+        # Delete the offending message
+        try:
+            await reported_message.delete()
+            delete_success = True
+        except Exception as e:
+            logger.error(f"Failed to delete offending message {reported_message.message_id}: {e}")
+
+        if mute_success and delete_success:
+            action_label = "MUTED (1 Hour) & DELETED"
+        elif mute_success:
+            action_label = "MUTED (Message Deletion Failed)"
+        else:
+            action_label = "FLAGGED (Lacks Admin Permission to Mute)"
+
     elif action == "FLAG":
-        await status_msg.edit_text(
-            f"⚠️ <b>Message Flagged for Admin Review</b>\n\n"
-            f"The NLP system detected borderline content (Composite Score: <code>{composite_score:.2f}</code>). Administrators have been alerted.",
-            parse_mode="HTML"
-        )
-    else:  # NONE
-        await status_msg.edit_text(
-            f"✅ <b>Report Evaluated</b>\n\n"
-            f"The automated NLP scan found insufficient evidence of a rule violation (Score: <code>{toxicity_score:.2f}</code>).",
-            parse_mode="HTML"
-        )
+        action_label = "FLAGGED FOR ADMIN REVIEW"
+    else:
+        action_label = "NONE (Report Logged)"
+
+    # Update decision dict with detailed action label for DB
+    decision["action"] = action_label
 
     # 5. Persist Report to MongoDB
     report_id = await save_mod_report(
@@ -124,6 +120,7 @@ async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # 6. Audit Logging to MOD_LOG_CHAT_ID with Interactive Admin Feedback
     if MOD_LOG_CHAT_ID and report_id:
         chat_title = html.escape(update.effective_chat.title or f"Chat {chat_id}")
+        offending_name = html.escape(offending_user.first_name or "User")
         reporter_name = html.escape(reporter.first_name or "Reporter")
         safe_message = html.escape(reported_message.text)
         category_str = html.escape(nlp_result.get("category", "unknown").upper())
@@ -140,7 +137,7 @@ async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"• Toxicity Score: <code>{toxicity_score:.2f}</code> ({category_str})\n"
             f"• Detected N-Grams: {ngrams_str}\n"
             f"• Composite Score: <code>{composite_score:.2f}</code>\n"
-            f"• Automated Action: <b>{action}</b>\n\n"
+            f"• Enforcement Action: <b>{action_label}</b>\n\n"
             f"Admin Verification:"
         )
 
