@@ -1,3 +1,4 @@
+import html
 import logging
 from datetime import timedelta
 from telegram import Update, ChatPermissions, InlineKeyboardButton, InlineKeyboardMarkup
@@ -16,30 +17,38 @@ logger = logging.getLogger(__name__)
 
 async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handles the /report command when replied to an offending message."""
-    if not update.message or not update.message.reply_to_message:
+    if not update.message:
+        return
+
+    if update.effective_chat.type == "private":
+        await update.message.reply_text("ℹ️ The <code>/report</code> command is designed for group chats.", parse_mode="HTML")
+        return
+
+    if not update.message.reply_to_message:
         await update.message.reply_text(
-            "ℹ️ To report a message, reply directly to it with `/report`.",
-            parse_mode="Markdown"
+            "ℹ️ To report a message, reply directly to it with <code>/report</code>.",
+            parse_mode="HTML"
         )
         return
 
     reported_message = update.message.reply_to_message
     if not reported_message.text:
-        await update.message.reply_text("ℹ️ Currently only text messages can be analyzed by the moderator.")
+        await update.message.reply_text("ℹ️ Currently only text messages can be analyzed by the moderator.", parse_mode="HTML")
         return
 
     offending_user = reported_message.from_user
     reporter = update.effective_user
 
-    if not offending_user or not reporter:
+    if not offending_user:
+        await update.message.reply_text("ℹ️ Cannot run automated moderation on anonymous channel posts.", parse_mode="HTML")
         return
 
     if offending_user.is_bot:
-        await update.message.reply_text("ℹ️ Automated moderation cannot be run against bot accounts.")
+        await update.message.reply_text("ℹ️ Automated moderation cannot be run against bot accounts.", parse_mode="HTML")
         return
 
     if offending_user.id == reporter.id:
-        await update.message.reply_text("⚠️ You cannot report your own messages.")
+        await update.message.reply_text("⚠️ You cannot report your own messages.", parse_mode="HTML")
         return
 
     # User acknowledgement
@@ -59,7 +68,8 @@ async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # 4. Telegram Action Execution
     chat_id = update.effective_chat.id
-    rule_broken = nlp_result.get("rule_broken", "Group rule violation")
+    rule_broken = html.escape(nlp_result.get("rule_broken", "Group rule violation"))
+    offending_name = html.escape(offending_user.first_name or "User")
 
     if action == "MUTE":
         try:
@@ -70,31 +80,31 @@ async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 until_date=update.message.date + timedelta(hours=1)
             )
             await status_msg.edit_text(
-                f"🛑 **Action Taken: MUTE (1 Hour)**\n\n"
-                f"**User:** {offending_user.first_name}\n"
-                f"**Reason:** {rule_broken}\n"
-                f"**NLP Toxicity Score:** `{toxicity_score:.2f}`\n\n"
-                f"_Message has been logged for moderator audit._",
-                parse_mode="Markdown"
+                f"🛑 <b>Action Taken: MUTE (1 Hour)</b>\n\n"
+                f"<b>User:</b> {offending_name}\n"
+                f"<b>Reason:</b> {rule_broken}\n"
+                f"<b>NLP Toxicity Score:</b> <code>{toxicity_score:.2f}</code>\n\n"
+                f"<i>Message has been logged for moderator audit.</i>",
+                parse_mode="HTML"
             )
         except Exception as e:
             logger.error(f"Moderation mute action failed: {e}")
             await status_msg.edit_text(
-                f"⚠️ **Flagged as Toxic (`{toxicity_score:.2f}`)**\n\n"
+                f"⚠️ <b>Flagged as Toxic (<code>{toxicity_score:.2f}</code>)</b>\n\n"
                 f"The message violated community rules, but the bot lacks admin permissions in this chat to enforce the mute.",
-                parse_mode="Markdown"
+                parse_mode="HTML"
             )
     elif action == "FLAG":
         await status_msg.edit_text(
-            f"⚠️ **Message Flagged for Admin Review**\n\n"
-            f"The NLP system detected borderline content (Composite Score: `{composite_score:.2f}`). Administrators have been alerted.",
-            parse_mode="Markdown"
+            f"⚠️ <b>Message Flagged for Admin Review</b>\n\n"
+            f"The NLP system detected borderline content (Composite Score: <code>{composite_score:.2f}</code>). Administrators have been alerted.",
+            parse_mode="HTML"
         )
     else:  # NONE
         await status_msg.edit_text(
-            f"✅ **Report Evaluated**\n\n"
-            f"The automated NLP scan found insufficient evidence of a rule violation (Score: `{toxicity_score:.2f}`).",
-            parse_mode="Markdown"
+            f"✅ <b>Report Evaluated</b>\n\n"
+            f"The automated NLP scan found insufficient evidence of a rule violation (Score: <code>{toxicity_score:.2f}</code>).",
+            parse_mode="HTML"
         )
 
     # 5. Persist Report to MongoDB
@@ -113,21 +123,24 @@ async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # 6. Audit Logging to MOD_LOG_CHAT_ID with Interactive Admin Feedback
     if MOD_LOG_CHAT_ID and report_id:
-        chat_title = update.effective_chat.title or f"Chat {chat_id}"
-        ngrams_str = ", ".join([f"`{g}`" for g in nlp_result.get("detected_ngrams", [])]) or "None"
+        chat_title = html.escape(update.effective_chat.title or f"Chat {chat_id}")
+        reporter_name = html.escape(reporter.first_name or "Reporter")
+        safe_message = html.escape(reported_message.text)
+        category_str = html.escape(nlp_result.get("category", "unknown").upper())
+        ngrams_str = ", ".join([f"<code>{html.escape(g)}</code>" for g in nlp_result.get("detected_ngrams", [])]) or "None"
 
         log_text = (
-            f"🛡️ **MODERATION AUDIT LOG**\n\n"
-            f"**Chat:** {chat_title}\n"
-            f"**Reported User:** {offending_user.first_name} (`{offending_user.id}`)\n"
-            f"**Reporter:** {reporter.first_name} (`{reporter.id}`)\n"
-            f"**Reporter Credibility:** `{reporter_credibility:.2f}`\n\n"
-            f"**Message:**\n\"{reported_message.text}\"\n\n"
-            f"**NLP Analysis:**\n"
-            f"• Toxicity Score: `{toxicity_score:.2f}` ({nlp_result.get('category', 'unknown').upper()})\n"
+            f"🛡️ <b>MODERATION AUDIT LOG</b>\n\n"
+            f"<b>Chat:</b> {chat_title}\n"
+            f"<b>Reported User:</b> {offending_name} (<code>{offending_user.id}</code>)\n"
+            f"<b>Reporter:</b> {reporter_name} (<code>{reporter.id}</code>)\n"
+            f"<b>Reporter Credibility:</b> <code>{reporter_credibility:.2f}</code>\n\n"
+            f"<b>Message:</b>\n\"{safe_message}\"\n\n"
+            f"<b>NLP Analysis:</b>\n"
+            f"• Toxicity Score: <code>{toxicity_score:.2f}</code> ({category_str})\n"
             f"• Detected N-Grams: {ngrams_str}\n"
-            f"• Composite Score: `{composite_score:.2f}`\n"
-            f"• Automated Action: **{action}**\n\n"
+            f"• Composite Score: <code>{composite_score:.2f}</code>\n"
+            f"• Automated Action: <b>{action}</b>\n\n"
             f"Admin Verification:"
         )
 
@@ -143,7 +156,7 @@ async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 chat_id=MOD_LOG_CHAT_ID,
                 text=log_text,
                 reply_markup=keyboard,
-                parse_mode="Markdown"
+                parse_mode="HTML"
             )
         except Exception as e:
             logger.error(f"Failed to post to MOD_LOG_CHAT_ID: {e}")
@@ -197,23 +210,26 @@ async def moderation_feedback_callback(update: Update, context: ContextTypes.DEF
     old_c = result["old_credibility"]
     new_c = result["new_credibility"]
     diff = f"+{new_c - old_c:.2f}" if new_c >= old_c else f"{new_c - old_c:.2f}"
+    admin_name = html.escape(admin_user.first_name or "Admin")
 
     original_text = query.message.text or ""
     # Strip the trailing prompt if present
     if "Admin Verification:" in original_text:
         original_text = original_text.split("Admin Verification:")[0].strip()
 
+    safe_original = html.escape(original_text)
+
     updated_text = (
-        f"{original_text}\n\n"
-        f"**Admin Verdict:** {verdict_emoji}\n"
-        f"**Verified By:** {admin_user.first_name}\n"
-        f"**Reporter Credibility Updated:** `{old_c:.2f}` → `{new_c:.2f}` ({diff})"
+        f"{safe_original}\n\n"
+        f"<b>Admin Verdict:</b> {verdict_emoji}\n"
+        f"<b>Verified By:</b> {admin_name}\n"
+        f"<b>Reporter Credibility Updated:</b> <code>{old_c:.2f}</code> → <code>{new_c:.2f}</code> ({diff})"
     )
 
     try:
         await query.edit_message_text(
             text=updated_text,
-            parse_mode="Markdown"
+            parse_mode="HTML"
         )
         await query.answer(f"Verdict recorded: {verdict_emoji}. Credibility updated to {new_c:.2f}.")
     except Exception as e:

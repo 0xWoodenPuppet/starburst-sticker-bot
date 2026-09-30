@@ -49,7 +49,7 @@ def clean_text(text: str) -> str:
 
 
 def _extract_active_ngrams(cleaned_text: str, pipeline) -> list[str]:
-    """Identifies the most influential active n-grams present in the text."""
+    """Identifies the most influential active n-grams present in the text, ranked by severity."""
     try:
         clf = pipeline.named_steps["clf"]
         feature_union = pipeline.named_steps["features"]
@@ -59,15 +59,27 @@ def _extract_active_ngrams(cleaned_text: str, pipeline) -> list[str]:
         coefs = clf.coef_[0]
 
         # Find positive (toxic) features that appear in the input string
-        matched = []
+        candidates = []
         for feat, coef in zip(all_features, coefs):
-            if coef > 0.4 and feat in cleaned_text:
+            if coef > 0.5 and feat in cleaned_text:
                 clean_feat = feat.strip()
-                if clean_feat and clean_feat not in matched and len(clean_feat) > 2:
-                    matched.append(clean_feat)
-        return matched[:5]
+                if clean_feat and len(clean_feat) > 2:
+                    candidates.append((clean_feat, float(coef)))
+
+        # Sort descending by coefficient and deduplicate
+        candidates.sort(key=lambda x: x[1], reverse=True)
+        seen = set()
+        matched = []
+        for feat, _ in candidates:
+            if feat not in seen:
+                seen.add(feat)
+                matched.append(feat)
+            if len(matched) >= 5:
+                break
+        return matched
     except Exception:
         return []
+
 
 
 async def classify_toxicity(text: str) -> dict:
