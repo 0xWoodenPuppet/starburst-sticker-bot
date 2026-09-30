@@ -6,7 +6,7 @@ from config import BOT_TOKEN, TIMEZONE, DAILY_CHAT_IDS, MENTION_CHAT_ID, BOT_ADM
 
 from handlers.messages import check_text
 from handlers.daily import send_todo, send_challenge
-# from handlers.moderator import handle_report
+from handlers.moderator import handle_report, moderation_feedback_callback
 from handlers.scoring import score_user, leaderboard, profile
 from handlers.ask import ask_command
 from handlers.insights import insights_command
@@ -71,11 +71,13 @@ def main():
     application.add_handler(CommandHandler("leaderboard", leaderboard))
     application.add_handler(CommandHandler("profile", profile))
     application.add_handler(CommandHandler("insights", insights_command))
+    application.add_handler(CommandHandler("report", handle_report))
     application.add_handler(CommandHandler("sleep", handle_sleep))
     application.add_handler(CommandHandler("study", handle_study))
     application.add_handler(CommandHandler("screenshare", handle_screenshare))
     application.add_handler(CommandHandler("fight", fight_command))
     
+    application.add_handler(CallbackQueryHandler(moderation_feedback_callback, pattern=r"^mod:(confirm|reject):"))
     application.add_handler(CallbackQueryHandler(handle_reading_checkin, pattern=r"^reading_checkin:"))
     application.add_handler(CallbackQueryHandler(game_callback_handler, pattern=r"^(g_|ttt_|c4_)"))
 

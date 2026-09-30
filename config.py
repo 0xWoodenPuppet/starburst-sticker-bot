@@ -67,8 +67,8 @@ EXPERIMENTAL_CHAT_ID = -1003644441864 # disappearing group
 MENTION_SOURCE_CHANNEL_ID = DEKU_CHANNEL_ID
 MENTION_CHAT_ID = COOKED_GROUP_ID
 
-# AI MODERATOR
-MOD_LOG_CHAT_ID = -1002911938910 # Using disappearing group as the admin log channel for testing
+# MODERATOR
+MOD_LOG_CHAT_ID = -1003977643305 # NLP Test Channel
 GROUP_RULES = """
 ❗️ Group Rules
 1. Please chat in English.
