@@ -22,7 +22,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1029278125,f_7761,1,90,90.0,90,golden trumpet tree,1,18,3,1,1.0,0,1,,insufficient_data,10,2026-09-17,2026-09-17
 1030263303,ivcsiii,13,2220,170.8,180,strawberry cupcake,7,22,2,11,1.52,0,2,,stable,18,2026-07-11,2026-09-09
 1030926475,iamkenda,4,720,180.0,180,golden wings,3,8,4,3,1.47,0,1,,stable,4,2026-09-04,2026-09-23
-1032309002,rawiixh,15,1425,95.0,90,unknown,11,19,2,10,1.03,0,5,,increasing,4,2026-06-13,2026-09-23
+1032309002,rawiixh,15,1425,95.0,90,planet guardian,11,19,2,10,1.03,0,5,,increasing,4,2026-06-13,2026-09-23
 1034481122,andrymary_s,1,60,60.0,60,maple,1,10,3,1,1.0,0,1,,insufficient_data,10,2026-09-17,2026-09-17
 1034968790,Sha_958,178,14250,80.1,60,epiphyllum,34,21,2,42,15.97,16,25,,stable,0,2026-07-11,2026-09-27
 1035942155,,8,380,47.5,45,celestial tree,5,13,0,6,4.0,0,3,,decreasing,7,2026-09-06,2026-09-20
@@ -50,7 +50,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1058505897,user615227820,1,120,120.0,120,cuckoo clock,1,23,4,1,1.0,0,1,,insufficient_data,79,2026-07-10,2026-07-10
 1059158982,sana_issa0,6,410,68.3,60,cosmos,3,16,4,4,1.91,0,1,,increasing,1,2026-09-04,2026-09-26
 1059322418,kimsabuu,14,1060,75.7,60,blueberry cupcake,8,9,1,11,4.67,0,4,,decreasing,4,2026-09-02,2026-09-23
-1062467803,Agust_d_55,13,1170,90.0,90,juliet,11,14,5,3,13.0,3,3,,stable,0,2026-09-25,2026-09-27
+1062467803,Agust_d_55,14,1260,90.0,90,juliet,12,14,5,3,14.0,3,3,,stable,0,2026-09-25,2026-09-27
 1062809281,besha_26,22,2670,121.4,120,starburst tree,4,11,0,5,22.0,0,2,,increasing,99,2026-06-13,2026-06-20
 1063948219,exissttt,3,300,100.0,90,cosmos,3,10,3,2,3.0,0,1,,insufficient_data,3,2026-09-18,2026-09-24
 1064800328,,40,1960,49.0,50,tulip,16,9,5,9,31.11,0,8,,stable,2,2026-09-16,2026-09-25
@@ -64,7 +64,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1070732250,afnan8880,11,1410,128.2,120,moon tree,6,6,4,6,3.35,0,3,,decreasing,7,2026-08-28,2026-09-20
 1071616600,EE55908,6,470,78.3,65,carnation,3,2,6,5,4.2,1,4,,stable,0,2026-09-17,2026-09-27
 1072074433,Drkp98,5,570,114.0,120,blueberry cupcake,3,21,5,1,5.0,0,1,,increasing,78,2026-07-11,2026-07-11
-1073767180,bee_77,26,1440,55.4,30,unknown,8,7,6,10,1.73,1,2,,increasing,0,2026-06-14,2026-09-27
+1073767180,bee_77,26,1440,55.4,30,citrus macaron,8,7,6,10,1.73,1,2,,increasing,0,2026-06-14,2026-09-27
 1073840792,fatimh323,43,1265,29.4,25,sunflower,12,19,6,10,2.98,0,4,,increasing,5,2026-06-13,2026-09-22
 1074685816,curlyheadren,36,2195,61.0,60,cosmos,16,12,1,14,2.68,0,6,,stable,12,2026-06-13,2026-09-15
 1074933079,Naya8_8,2,180,90.0,90,sunflower,1,9,3,1,2.0,0,1,,insufficient_data,3,2026-09-24,2026-09-24
@@ -83,7 +83,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1083384391,iighq1,36,5040,140.0,120,jacaranda,13,9,4,10,10.96,0,5,,stable,2,2026-09-02,2026-09-25
 1083395183,,1,60,60.0,60,maple,1,7,3,1,1.0,0,1,,insufficient_data,101,2026-06-18,2026-06-18
 1083746781,refaauh,1,90,90.0,90,carnation,1,8,4,1,1.0,0,1,,insufficient_data,30,2026-08-28,2026-08-28
-1083761419,salghunaim,11,1090,99.1,120,unknown,6,0,2,8,3.35,0,2,,stable,25,2026-08-10,2026-09-02
+1083761419,salghunaim,11,1090,99.1,120,rose,6,0,2,8,3.35,0,2,,stable,25,2026-08-10,2026-09-02
 1085954258,f_mxs,3,360,120.0,90,allium,2,15,2,3,1.17,1,1,,insufficient_data,0,2026-09-09,2026-09-27
 1086075609,happy_lliifee,3,330,110.0,120,pink rose,2,12,5,1,3.0,0,1,,insufficient_data,1,2026-09-26,2026-09-26
 1086182923,z3ma77,2,150,75.0,75,balloon flower,2,22,3,1,2.0,0,1,,insufficient_data,80,2026-07-09,2026-07-09
@@ -96,7 +96,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1088639129,Shahadrt1,2,120,60.0,60,cherry cheese cake,1,16,0,1,2.0,0,1,,insufficient_data,13,2026-09-14,2026-09-14
 1090014922,Mk5Kh1,1,90,90.0,90,cuckoo clock,1,21,6,1,1.0,0,1,,insufficient_data,7,2026-09-20,2026-09-20
 1090625668,amasmoh,6,400,66.7,60,jacaranda,5,6,4,6,2.21,0,2,,increasing,15,2026-08-24,2026-09-12
-1093324015,,4,360,90.0,90,unknown,2,23,4,1,4.0,0,1,,stable,79,2026-07-10,2026-07-10
+1093324015,,4,360,90.0,90,wisteria,2,23,4,1,4.0,0,1,,stable,79,2026-07-10,2026-07-10
 1094468297,jnoQu1,4,510,127.5,120,twilight guardian,2,5,1,4,1.12,0,2,,increasing,9,2026-08-24,2026-09-18
 1095088219,liy13j,120,9925,82.7,60,red spider lily,51,4,3,33,8.32,6,6,0.0,stable,0,2026-06-18,2026-09-27
 1095597340,saketsonakiya,40,2040,51.0,50,starburst tree,7,6,1,19,5.49,0,4,,stable,52,2026-06-16,2026-08-06
@@ -105,7 +105,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1097063434,uyaw1,1,60,60.0,60,cherry blossom,1,13,2,1,1.0,0,1,,insufficient_data,18,2026-09-09,2026-09-09
 1098128580,amenaha7med,4,300,75.0,60,golden wings,4,6,2,3,4.0,0,3,,decreasing,11,2026-09-14,2026-09-16
 1098754478,liea1,4,310,77.5,65,confederate rose,4,6,4,3,2.8,0,1,,increasing,7,2026-09-10,2026-09-20
-1099283481,F_91is,43,2610,60.7,60,unknown,31,19,5,9,3.01,0,4,0.0,stable,6,2026-06-13,2026-09-21
+1099283481,F_91is,43,2610,60.7,60,pink rose,31,19,5,9,3.01,0,4,0.0,stable,6,2026-06-13,2026-09-21
 1100257624,Joon429,10,750,75.0,60,royal poinciana,5,17,5,7,3.18,0,2,,decreasing,1,2026-09-04,2026-09-26
 1101095805,,1,60,60.0,60,carnation,1,19,4,1,1.0,0,1,,insufficient_data,79,2026-07-10,2026-07-10
 1103484652,iseba7,1,90,90.0,90,golden trumpet tree,1,19,4,1,1.0,0,1,,insufficient_data,16,2026-09-11,2026-09-11
@@ -229,7 +229,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1211505722,Liliun1,9,870,96.7,90,narcissus,8,2,0,6,7.88,0,3,,increasing,98,2026-06-13,2026-06-21
 1212597037,,1,90,90.0,90,blueberry cake,1,1,0,1,1.0,0,1,,insufficient_data,13,2026-09-14,2026-09-14
 1212826528,usjjj25,1,180,180.0,180,celestial tree,1,12,4,1,1.0,0,1,,insufficient_data,58,2026-07-31,2026-07-31
-1214159632,iiiiio02,7,620,88.6,120,unknown,6,6,0,2,7.0,0,1,,decreasing,95,2026-06-22,2026-06-24
+1214159632,iiiiio02,7,620,88.6,120,epiphyllum,6,6,0,2,7.0,0,1,,decreasing,95,2026-06-22,2026-06-24
 1215171944,charlorvi,14,1440,102.9,90,wishing tree,10,14,3,7,3.16,0,2,,increasing,4,2026-08-23,2026-09-23
 1215291864,Clairdelune_66,23,1980,86.1,90,geraniums fairy,8,9,5,17,2.09,0,3,,stable,1,2026-07-11,2026-09-26
 1216533830,wonnies8,1,60,60.0,60,maple,1,14,5,1,1.0,0,1,,insufficient_data,8,2026-09-19,2026-09-19
@@ -242,7 +242,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1223734327,dr2sr,7,420,60.0,60,strawberry cupcake,2,16,4,3,2.45,0,1,,stable,15,2026-08-23,2026-09-12
 1226648817,yaf28,8,660,82.5,90,lily flower,3,16,4,4,6.22,0,3,,increasing,7,2026-09-11,2026-09-20
 1228307167,,6,525,87.5,90,jacaranda,2,23,4,2,6.0,0,2,,increasing,1,2026-09-25,2026-09-26
-1229037605,nibn8,12,1620,135.0,180,unknown,9,20,5,4,12.0,0,2,0.0,decreasing,99,2026-06-13,2026-06-20
+1229037605,nibn8,12,1620,135.0,180,epiphyllum,9,20,5,4,12.0,0,2,0.0,decreasing,99,2026-06-13,2026-06-20
 1229713561,lama8s,3,180,60.0,60,moth orchid,3,19,6,1,3.0,0,1,,insufficient_data,14,2026-09-13,2026-09-13
 1230983759,midLife8,6,375,62.5,60,wishing tree,4,14,0,5,4.2,0,1,,stable,14,2026-09-03,2026-09-13
 1230992433,Just12ah,3,300,100.0,60,bellflower,3,2,0,3,3.0,0,2,,insufficient_data,6,2026-09-18,2026-09-21
@@ -286,7 +286,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1260143426,ftta16,1,90,90.0,90,mushroom,1,20,3,1,1.0,0,1,,insufficient_data,10,2026-09-17,2026-09-17
 1261072883,llcop3,3,210,70.0,70,moon tree,1,7,5,1,3.0,0,1,,insufficient_data,71,2026-07-18,2026-07-18
 1261866840,,6,600,100.0,60,cherry blossom,4,18,0,5,3.0,0,2,,increasing,6,2026-09-07,2026-09-21
-1262473189,cno_8,2,120,60.0,60,juliet,2,20,2,2,2.0,0,1,,insufficient_data,1,2026-09-23,2026-09-26
+1262473189,cno_8,3,180,60.0,60,twilight guardian,2,20,2,3,3.0,2,2,,insufficient_data,0,2026-09-23,2026-09-27
 1263487712,xvxvxvwer,1,90,90.0,90,wishing tree,1,5,4,1,1.0,0,1,,insufficient_data,2,2026-09-25,2026-09-25
 1265009902,Salah_Alhrbi,4,290,72.5,90,cosmos,4,0,0,2,1.08,0,1,,decreasing,78,2026-06-15,2026-07-11
 1266953196,Rnshody,4,380,95.0,90,blueberry cake,3,13,0,4,2.8,0,3,,stable,24,2026-08-24,2026-09-03
@@ -334,7 +334,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1304389117,il6uo,6,645,107.5,95,coconut tree,2,11,4,1,6.0,0,1,,increasing,9,2026-09-18,2026-09-18
 1308476710,jx_n4,79,6455,81.7,60,jacaranda,25,9,2,29,15.8,1,11,,decreasing,0,2026-08-23,2026-09-27
 1309137515,svveeq,2,180,90.0,60,cloud moon tree,2,9,6,1,2.0,0,1,,insufficient_data,70,2026-07-19,2026-07-19
-1310089935,ghala_a7med,36,3150,87.5,90,sunflower,12,13,5,14,2.4,1,7,,stable,0,2026-06-14,2026-09-27
+1310089935,ghala_a7med,37,3240,87.6,90,sunflower,12,13,5,14,2.47,1,7,,stable,0,2026-06-14,2026-09-27
 1311691721,i4so0,3,300,100.0,90,bamboo,3,0,5,2,3.0,0,2,,insufficient_data,78,2026-07-10,2026-07-11
 1311784478,lqkad,71,6300,88.7,90,juliet,12,19,6,26,6.37,1,4,0.0,stable,0,2026-07-11,2026-09-27
 1312767113,ueimr,3,300,100.0,60,bush,1,18,0,3,3.0,0,2,,insufficient_data,1,2026-09-20,2026-09-26
@@ -368,7 +368,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1334004196,llirn11,4,320,80.0,90,mooncake tree,2,1,5,2,4.0,0,1,,increasing,1,2026-09-24,2026-09-26
 1335233199,yaramu44,2,120,60.0,60,star coral,2,1,5,2,1.75,0,1,0.0,insufficient_data,49,2026-08-01,2026-08-09
 1337220677,Dan_99k,2,120,60.0,60,azalea,2,13,1,2,1.56,0,1,,insufficient_data,10,2026-09-08,2026-09-17
-1338354308,ttavir,48,4140,86.2,60,unknown,26,19,3,28,3.2,0,5,,decreasing,1,2026-06-13,2026-09-26
+1338354308,ttavir,48,4140,86.2,60,celestial tree,26,19,3,28,3.2,0,5,,decreasing,1,2026-06-13,2026-09-26
 1338382408,cxullt,2,240,120.0,60,confederate rose,2,9,5,1,2.0,0,1,,insufficient_data,78,2026-07-11,2026-07-11
 1338773188,areena1,7,810,115.7,120,aqua pearl,7,18,0,4,6.12,0,2,,stable,1,2026-09-18,2026-09-26
 1339700303,r4xe1,6,340,56.7,60,wishing tree,1,12,6,3,6.0,0,2,,decreasing,10,2026-09-13,2026-09-17
@@ -418,9 +418,9 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1381452691,Somerandom82guy,2,180,90.0,90,plum blossom,1,14,4,1,2.0,0,1,1.0,insufficient_data,72,2026-07-17,2026-07-17
 1381512935,eeslac,6,450,75.0,60,maple,4,0,1,4,6.0,0,3,,increasing,5,2026-09-15,2026-09-22
 1381761389,ji_322,6,440,73.3,90,osmanthus,5,15,5,5,0.41,0,2,,stable,1,2026-06-15,2026-09-26
-1382116841,mochinekomd,199,15930,80.1,60,unknown,63,10,0,41,13.27,1,8,0.955,increasing,0,2026-06-14,2026-09-27
+1382116841,mochinekomd,199,15930,80.1,60,epiphyllum,63,10,0,41,13.27,1,8,0.955,increasing,0,2026-06-14,2026-09-27
 1382536608,,3,210,70.0,60,carnation,1,4,5,2,0.44,0,1,,insufficient_data,30,2026-07-11,2026-08-28
-1384475412,rhoaiii,4,460,115.0,70,bald cypress,3,13,6,4,4.0,1,2,,increasing,0,2026-09-20,2026-09-27
+1384475412,rhoaiii,5,580,116.0,120,bald cypress,3,13,6,4,5.0,1,2,,increasing,0,2026-09-20,2026-09-27
 1384812185,Ja80q,2,210,105.0,90,moth orchid,1,9,5,1,2.0,0,1,,insufficient_data,8,2026-09-19,2026-09-19
 1385651225,d6ply,2,210,105.0,90,cherry blossom,2,6,1,2,2.0,0,1,,insufficient_data,12,2026-09-11,2026-09-15
 1385755682,,1,90,90.0,90,plum blossom,1,12,4,1,1.0,0,1,,insufficient_data,2,2026-09-25,2026-09-25
@@ -505,11 +505,11 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1471162340,,1,120,120.0,120,candy tree,1,11,2,1,1.0,0,1,,insufficient_data,4,2026-09-23,2026-09-23
 1474658764,geryanias,1,40,40.0,40,cedar,1,15,0,1,1.0,0,1,,insufficient_data,6,2026-09-21,2026-09-21
 1474682899,lxlxlxl59,2,120,60.0,60,snowflake bush,1,19,5,1,2.0,0,1,,insufficient_data,1,2026-09-26,2026-09-26
-1476022676,jocx9,1,120,120.0,120,unknown,1,7,0,1,1.0,0,1,,insufficient_data,104,2026-06-15,2026-06-15
+1476022676,jocx9,1,120,120.0,120,None,1,7,0,1,1.0,0,1,,insufficient_data,104,2026-06-15,2026-06-15
 1476726478,qxy625,2,105,52.5,45,jacaranda fairy,2,3,4,2,2.0,0,2,,insufficient_data,1,2026-09-25,2026-09-26
 1478074403,,6,450,75.0,60,allium,3,4,0,4,6.0,0,2,,increasing,2,2026-09-18,2026-09-25
 1479297963,monkeybigoted,10,990,99.0,90,forest spirit,8,7,4,7,3.33,0,3,,decreasing,2,2026-09-04,2026-09-25
-1479456417,drNad00d4,23,1929,83.9,90,unknown,7,5,3,7,1.61,0,5,0.333,stable,5,2026-06-14,2026-09-22
+1479456417,drNad00d4,23,1929,83.9,90,carnation,7,5,3,7,1.61,0,5,0.333,stable,5,2026-06-14,2026-09-22
 1481987650,rag3456,1,60,60.0,60,pumpkin,1,0,6,1,1.0,1,1,,insufficient_data,0,2026-09-27,2026-09-27
 1482235947,solocoldlonely,108,8100,75.0,60,lily flower,6,21,5,37,7.41,0,7,,decreasing,1,2026-06-16,2026-09-26
 1483837942,rlx7j,12,1220,101.7,120,cloud moon tree,5,10,1,7,0.85,0,3,,decreasing,7,2026-06-13,2026-09-20
@@ -618,7 +618,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1707433744,,1,30,30.0,30,wishing tree,1,17,2,1,1.0,0,1,,insufficient_data,18,2026-09-09,2026-09-09
 1708033782,,12,820,68.3,90,purple oak tree,9,3,5,9,1.83,0,2,0.5,increasing,48,2026-06-25,2026-08-10
 1712620771,WR966,1,30,30.0,30,citrus macaron,1,11,4,1,1.0,0,1,,insufficient_data,16,2026-09-11,2026-09-11
-1713104119,princess1Lia,10,1065,106.5,100,lotus,2,22,5,5,2.26,0,1,,decreasing,1,2026-08-26,2026-09-26
+1713104119,princess1Lia,12,1305,108.8,100,lotus,2,17,5,6,2.62,2,2,,stable,0,2026-08-26,2026-09-27
 1715063078,,2,150,75.0,60,lavender,2,20,3,1,2.0,0,1,,insufficient_data,3,2026-09-24,2026-09-24
 1715932982,iliuivz,26,2475,95.2,90,celestial tree,9,16,6,14,5.87,0,6,,stable,11,2026-08-16,2026-09-16
 1716360838,mroswc,10,910,91.0,60,cloud moon tree,7,3,4,7,3.33,0,2,,decreasing,5,2026-09-01,2026-09-22
@@ -631,7 +631,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1725453325,J00Dm,3,180,60.0,60,mock orange,2,3,1,3,1.0,0,1,,insufficient_data,12,2026-08-25,2026-09-15
 1729594040,,1,120,120.0,120,cherry blossom,1,22,4,1,1.0,0,1,,insufficient_data,2,2026-09-25,2026-09-25
 1729989894,,1,60,60.0,60,cherry cheese cake,1,14,5,1,1.0,0,1,,insufficient_data,15,2026-09-12,2026-09-12
-1731004296,xii_0llx,55,4270,77.6,90,confederate rose,22,9,4,12,3.81,3,3,,increasing,0,2026-06-18,2026-09-27
+1731004296,xii_0llx,56,4330,77.3,90,confederate rose,23,9,4,12,3.88,3,3,,increasing,0,2026-06-18,2026-09-27
 1731358025,sqe44,43,3615,84.1,90,blueberry cake,19,19,3,15,3.86,0,4,0.0,stable,1,2026-07-10,2026-09-26
 1733161690,lix26,3,380,126.7,80,jacaranda,3,11,5,3,0.55,0,1,,insufficient_data,1,2026-08-19,2026-09-26
 1735426831,o7ii6,9,730,81.1,90,lavender,7,10,5,7,0.82,2,2,,increasing,0,2026-07-12,2026-09-27
@@ -640,12 +640,12 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1739966726,solourme,1,120,120.0,120,osmanthus,1,21,5,1,1.0,0,1,,insufficient_data,8,2026-09-19,2026-09-19
 1740351246,theluster1,58,5810,100.2,120,pink rose,13,18,0,19,4.37,0,8,,decreasing,3,2026-06-23,2026-09-24
 1742219206,,3,300,100.0,90,unicorn tree,2,17,4,1,3.0,0,1,,insufficient_data,2,2026-09-25,2026-09-25
-1744906032,Meshari445,8,790,98.8,60,unknown,1,21,5,3,8.0,0,3,,stable,104,2026-06-13,2026-06-15
+1744906032,Meshari445,8,790,98.8,60,None,1,21,5,3,8.0,0,3,,stable,104,2026-06-13,2026-06-15
 1746291732,champcoast,2,110,55.0,50,jacaranda,2,16,0,2,1.0,0,1,,insufficient_data,6,2026-09-07,2026-09-21
 1746569462,Bipasha_37,41,1805,44.0,60,ginkgo,15,4,5,19,3.3,0,4,1.0,increasing,5,2026-06-27,2026-09-22
 174955604,Kosari_G,1,60,60.0,60,jacaranda,1,4,6,1,1.0,0,1,,insufficient_data,77,2026-07-12,2026-07-12
 1749712842,x1zi6,3,260,86.7,100,tangerine tree,2,10,5,2,3.0,0,2,,insufficient_data,8,2026-09-18,2026-09-19
-1750143203,fatimah_mu,1,60,60.0,60,unknown,1,21,5,1,1.0,0,1,,insufficient_data,106,2026-06-13,2026-06-13
+1750143203,fatimah_mu,1,60,60.0,60,None,1,21,5,1,1.0,0,1,,insufficient_data,106,2026-06-13,2026-06-13
 1750414460,rinasoo,1,90,90.0,90,carnation,1,21,5,1,1.0,0,1,,insufficient_data,1,2026-09-26,2026-09-26
 1751255177,VQ7cn,4,360,90.0,90,water spirit,1,6,3,2,0.4,0,1,,stable,31,2026-06-18,2026-08-27
 1753221008,sarakasjk,4,540,135.0,120,wisteria,3,1,4,4,1.22,0,1,,increasing,77,2026-06-19,2026-07-12
@@ -663,7 +663,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1775546547,Kim_YeOnA_7,7,660,94.3,90,golden trumpet tree,5,18,4,2,7.0,0,2,,stable,78,2026-07-10,2026-07-11
 177693456,voxiiii,2,140,70.0,50,dancing lady orchid,2,2,3,2,2.0,0,1,,insufficient_data,8,2026-09-17,2026-09-19
 1781034107,,1,90,90.0,90,cedar,1,17,2,1,1.0,0,1,,insufficient_data,18,2026-09-09,2026-09-09
-1781452958,ahav7,3,330,110.0,125,unknown,2,22,0,2,3.0,0,1,,insufficient_data,1,2026-09-21,2026-09-26
+1781452958,ahav7,3,330,110.0,125,osmanthus,2,22,0,2,3.0,0,1,,insufficient_data,1,2026-09-21,2026-09-26
 1782119748,F_14499,56,6760,120.7,180,jacaranda,29,13,1,20,9.8,3,14,,decreasing,0,2026-08-18,2026-09-27
 1786242661,blllll6,128,11430,89.3,90,mooncake tree,26,21,5,29,8.87,0,6,,stable,1,2026-06-17,2026-09-26
 1791276073,bxa_554,4,480,120.0,120,golden trumpet tree,2,5,6,2,2.8,0,1,,stable,7,2026-09-10,2026-09-20
@@ -703,7 +703,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1848516193,mincghost,7,1260,180.0,180,cyclamen,1,17,0,4,7.0,0,3,,stable,17,2026-09-06,2026-09-10
 1848672212,l0329l,1,60,60.0,60,starry tree,1,7,1,1,1.0,0,1,,insufficient_data,33,2026-08-25,2026-08-25
 1849662466,eiiilrl,1,90,90.0,90,moth orchid,1,15,4,1,1.0,0,1,,insufficient_data,30,2026-08-28,2026-08-28
-1851312175,Rory_357,62,6535,105.4,60,unknown,13,22,5,17,25.53,15,15,,increasing,0,2026-09-10,2026-09-27
+1851312175,Rory_357,62,6535,105.4,60,golden wings,13,22,5,17,25.53,15,15,,increasing,0,2026-09-10,2026-09-27
 185374049,Ddcbqo,11,370,33.6,30,nightshade tree,7,3,5,10,2.33,0,4,,increasing,8,2026-08-17,2026-09-19
 1856403660,itz_exone_019,2,85,42.5,35,lotus,1,1,3,1,2.0,0,1,,insufficient_data,10,2026-09-17,2026-09-17
 1859608290,tr9_r,10,810,81.0,90,cherry blossom,2,16,0,4,7.78,0,2,,decreasing,4,2026-09-14,2026-09-23
@@ -713,7 +713,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1870700551,sho_vx,1,90,90.0,90,royal poinciana,1,7,2,1,1.0,0,1,,insufficient_data,25,2026-09-02,2026-09-02
 1870745647,cwviu,34,4185,123.1,120,lily flower,7,10,3,10,23.8,0,7,,increasing,1,2026-09-16,2026-09-26
 1872292362,xxiqq7,6,660,110.0,120,ice crystal bloom,3,6,1,5,3.0,0,2,,decreasing,26,2026-08-18,2026-09-01
-1875130751,rswq71,8,1050,131.2,180,unknown,5,19,5,4,8.0,0,3,1.0,decreasing,36,2026-08-16,2026-08-22
+1875130751,rswq71,8,1050,131.2,180,apple tree,5,19,5,4,8.0,0,3,1.0,decreasing,36,2026-08-16,2026-08-22
 1875157735,koyaanisqatsi_R,54,6150,113.9,120,confederate rose,28,4,5,29,4.34,0,11,,stable,12,2026-06-20,2026-09-15
 187670991,DoctorPedA,1,120,120.0,120,cedar,1,14,6,1,1.0,0,1,,insufficient_data,63,2026-07-26,2026-07-26
 1878327450,,1,180,180.0,180,maple,1,0,3,1,1.0,0,1,,insufficient_data,59,2026-07-30,2026-07-30
@@ -736,7 +736,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 1909245782,Lavdeep,1,60,60.0,60,bald cypress,1,12,5,1,1.0,0,1,,insufficient_data,78,2026-07-11,2026-07-11
 1910698619,x2oct,56,4110,73.4,60,royal poinciana,23,12,5,14,18.67,0,5,,decreasing,1,2026-09-05,2026-09-26
 1910822990,,2,180,90.0,90,cactus,2,9,1,2,1.56,0,1,,insufficient_data,17,2026-09-01,2026-09-10
-1911619475,JORIS7S,102,7520,73.7,60,blueberry cupcake,36,14,4,26,6.74,7,7,,increasing,0,2026-06-13,2026-09-27
+1911619475,JORIS7S,104,7640,73.5,60,blueberry cupcake,36,14,4,26,6.87,7,7,,increasing,0,2026-06-13,2026-09-27
 1913239823,,1,120,120.0,120,azalea,1,7,5,1,1.0,0,1,,insufficient_data,78,2026-07-11,2026-07-11
 1913654932,sarahibra00,1,120,120.0,120,cedar,1,15,5,1,1.0,0,1,,insufficient_data,1,2026-09-26,2026-09-26
 1913827435,Dr_Rafeef,1,60,60.0,60,candy tree,1,16,0,1,1.0,0,1,,insufficient_data,6,2026-09-21,2026-09-21
@@ -852,7 +852,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 2042654204,,2,320,160.0,160,monstera,1,1,0,1,2.0,0,1,,insufficient_data,34,2026-08-24,2026-08-24
 2045265214,Aljoodi_84,1,120,120.0,120,wisteria,1,20,5,1,1.0,0,1,,insufficient_data,8,2026-09-19,2026-09-19
 2046162068,,2,130,65.0,60,cosmos,1,20,4,1,2.0,0,1,,insufficient_data,79,2026-07-10,2026-07-10
-2046265371,FFxoAA,298,35420,118.9,120,epiphyllum,32,17,6,68,20.65,0,42,0.0,stable,1,2026-06-17,2026-09-26
+2046265371,FFxoAA,299,35540,118.9,120,epiphyllum,32,17,6,69,20.52,2,42,0.0,stable,0,2026-06-17,2026-09-27
 2047364793,lylee12,4,450,112.5,120,epiphyllum,4,3,3,2,4.0,0,1,,decreasing,24,2026-08-27,2026-09-03
 2048963130,Ringsofbeauty,11,1270,115.5,120,azalea,5,12,3,8,1.33,1,2,,stable,0,2026-07-31,2026-09-27
 2049999300,crvinw,1,120,120.0,120,star coral,1,9,5,1,1.0,0,1,,insufficient_data,8,2026-09-19,2026-09-19
@@ -883,7 +883,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 2111907422,UOUODE,1,45,45.0,45,iris,1,2,5,1,1.0,0,1,,insufficient_data,43,2026-08-15,2026-08-15
 2112527079,mii_122,1,90,90.0,90,carnation,1,18,5,1,1.0,0,1,,insufficient_data,1,2026-09-26,2026-09-26
 2114339313,x7mzl,79,6705,84.9,90,sunflower,16,17,6,38,7.68,0,7,,stable,33,2026-06-14,2026-08-25
-2115792948,jetF2,3,180,60.0,60,unknown,2,2,6,2,3.0,0,2,,insufficient_data,105,2026-06-13,2026-06-14
+2115792948,jetF2,3,180,60.0,60,cherry cheese cake,2,2,6,2,3.0,0,2,,insufficient_data,105,2026-06-13,2026-06-14
 2118078181,AKIKKHAN,8,385,48.1,35,jacaranda,6,5,6,3,8.0,0,3,,decreasing,77,2026-07-10,2026-07-12
 2119755371,n006_15,2,120,60.0,60,monstera,1,17,2,1,2.0,0,1,,insufficient_data,11,2026-09-16,2026-09-16
 2125136209,,5,295,59.0,60,wisteria,1,15,5,2,5.0,0,2,,stable,78,2026-07-10,2026-07-11
@@ -892,7 +892,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 2141687485,CyberCuittea,34,4360,128.2,180,jacaranda,8,17,5,16,7.93,0,7,,increasing,36,2026-07-23,2026-08-22
 2144706531,shh55lii,1,80,80.0,80,plum blossom,1,23,4,1,1.0,0,1,,insufficient_data,79,2026-07-10,2026-07-10
 217759909,acesthetic,4,250,62.5,50,lemon cupcake,4,15,3,4,0.28,0,1,,decreasing,1,2026-06-18,2026-09-26
-222328230,alessandra1501,17,650,38.2,35,unknown,16,12,2,8,13.22,1,6,,stable,0,2026-09-18,2026-09-27
+222328230,alessandra1501,17,650,38.2,35,choco chip cupcake,16,12,2,8,13.22,1,6,,stable,0,2026-09-18,2026-09-27
 232166719,WaadCS,1,180,180.0,180,12th anniversary cake tree,1,12,3,1,1.0,0,1,,insufficient_data,24,2026-09-03,2026-09-03
 245561349,Ereelyn,5,150,30.0,30,golden trumpet tree,4,16,4,4,0.66,0,2,,stable,30,2026-07-06,2026-08-28
 261939997,daily_liz,21,1470,70.0,60,ice crystal bloom,19,12,1,15,1.56,0,3,0.5,stable,6,2026-06-19,2026-09-21
@@ -902,13 +902,13 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 313159348,Azoz_oth,7,600,85.7,90,planet guardian,2,20,1,4,0.53,0,3,,increasing,12,2026-06-14,2026-09-15
 322244983,,1,120,120.0,120,royal poinciana,1,0,6,1,1.0,0,1,,insufficient_data,77,2026-07-12,2026-07-12
 344025863,nglbrcht,29,1430,49.3,50,royal poinciana,24,13,1,4,10.68,0,2,,stable,84,2026-06-16,2026-07-05
-359171373,,180,12900,71.7,60,unknown,94,14,1,61,12.35,0,10,,increasing,4,2026-06-13,2026-09-23
+359171373,,180,12900,71.7,60,four-leaf clover,94,14,1,61,12.35,0,10,,increasing,4,2026-06-13,2026-09-23
 366170334,Malak_jawish,3,180,60.0,60,osmanthus,2,11,2,2,1.11,0,1,,insufficient_data,39,2026-07-31,2026-08-19
 368595316,,1,30,30.0,30,lemon cupcake,1,14,5,1,1.0,0,1,,insufficient_data,15,2026-09-12,2026-09-12
 372124002,iinq98,5,480,96.0,90,sacred light tree,4,0,4,3,5.0,0,3,,increasing,77,2026-07-10,2026-07-12
 375660067,itwillbemetheone,1,90,90.0,90,carnation,1,19,4,1,1.0,0,1,,insufficient_data,65,2026-07-24,2026-07-24
 385673774,xmajeed1,4,420,105.0,90,water spirit,2,13,2,4,0.85,0,2,,stable,2,2026-08-23,2026-09-25
-3978557,sulxr0,6,360,60.0,60,corn poppy,6,12,6,2,6.0,1,1,,stable,0,2026-09-20,2026-09-27
+3978557,sulxr0,7,420,60.0,60,corn poppy,7,12,6,2,7.0,1,1,,stable,0,2026-09-20,2026-09-27
 404214686,Danavii,1,120,120.0,120,star coral,1,16,5,1,1.0,0,1,,insufficient_data,78,2026-07-11,2026-07-11
 407433334,Rraahf,11,990,90.0,90,wishing tree,8,5,5,3,11.0,0,3,,stable,77,2026-07-10,2026-07-12
 408306947,Rax_147,2,90,45.0,30,cuckoo clock,2,10,4,2,2.0,0,1,,insufficient_data,2,2026-09-19,2026-09-25
@@ -925,7 +925,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 460597168,Niloofartashak,1,60,60.0,60,carnation,1,16,5,1,1.0,0,1,0.0,insufficient_data,85,2026-07-04,2026-07-04
 466123989,D_2ie,3,330,110.0,60,cherry blossom,3,8,0,3,2.62,0,1,,insufficient_data,26,2026-08-24,2026-09-01
 468967623,AL0027s,4,220,55.0,45,twilight guardian,3,16,1,2,4.0,0,1,,decreasing,5,2026-09-15,2026-09-22
-476184907,teiui,70,5520,78.9,90,epiphyllum,23,18,4,21,14.85,0,9,0.0,stable,1,2026-08-24,2026-09-26
+476184907,teiui,71,5610,79.0,90,epiphyllum,23,18,4,22,14.62,7,9,0.0,stable,0,2026-08-24,2026-09-27
 484054927,Zooz829,5,210,42.0,30,snowflake bush,2,20,0,2,5.0,0,1,0.0,increasing,97,2026-06-15,2026-06-22
 485647920,xcin1,2,150,75.0,60,sundae tree,2,11,1,2,0.5,0,1,,insufficient_data,75,2026-06-16,2026-07-14
 490271714,Layanxoxo,1,60,60.0,60,moth orchid,1,11,3,1,1.0,0,1,,insufficient_data,10,2026-09-17,2026-09-17
@@ -1026,7 +1026,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 5374868070,eil07,43,2385,55.5,50,cyclamen,28,15,4,12,25.08,0,11,,stable,21,2026-08-25,2026-09-06
 5380148515,nothingheree0,1,65,65.0,65,doggo tree,1,20,4,1,1.0,0,1,,insufficient_data,9,2026-09-18,2026-09-18
 538171643,NWF97,2,150,75.0,60,geraniums fairy,2,20,0,2,2.0,0,1,,insufficient_data,9,2026-09-14,2026-09-18
-5381730427,ram18_10,20,1080,54.0,60,wishing tree,14,19,5,11,9.33,10,10,,increasing,0,2026-09-12,2026-09-27
+5381730427,ram18_10,21,1140,54.3,60,wishing tree,14,19,5,11,9.8,10,10,,increasing,0,2026-09-12,2026-09-27
 5381755627,rooffu8,6,540,90.0,90,carnation,3,20,0,2,6.0,0,2,,stable,33,2026-08-24,2026-08-25
 5383861245,,6,390,65.0,60,aqua pearl,6,3,5,3,6.0,0,3,,decreasing,77,2026-07-10,2026-07-12
 5384914713,jiji_m6,2,300,150.0,120,celestial tree,2,2,0,2,2.0,0,1,,insufficient_data,39,2026-08-17,2026-08-19
@@ -1051,6 +1051,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 543046970,spawev,1,90,90.0,90,osmanthus,1,8,2,1,1.0,0,1,,insufficient_data,18,2026-09-09,2026-09-09
 5440597251,tszzainab,1,120,120.0,120,lavender,1,9,5,1,1.0,0,1,,insufficient_data,78,2026-07-11,2026-07-11
 5444346005,orchiidaa,1,60,60.0,60,geraniums,1,20,4,1,1.0,0,1,,insufficient_data,9,2026-09-18,2026-09-18
+5446929304,lilruei,1,90,90.0,90,confederate rose,1,17,6,1,1.0,1,1,,insufficient_data,0,2026-09-27,2026-09-27
 5447027187,omar1222222,1,180,180.0,180,geraniums fairy,1,21,4,1,1.0,0,1,,insufficient_data,2,2026-09-25,2026-09-25
 5447396665,dxim1,12,840,70.0,60,jacaranda,6,17,5,9,3.11,0,3,,increasing,1,2026-08-30,2026-09-26
 5447786108,,3,480,160.0,180,carnation,1,15,1,3,2.33,0,1,,insufficient_data,50,2026-07-30,2026-08-08
@@ -1155,7 +1156,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 5744460777,afhjnku,2,180,90.0,90,apple tree,2,7,4,2,0.67,0,1,,insufficient_data,2,2026-09-04,2026-09-25
 5745418331,uclsf,12,675,56.2,60,winter starlight,3,12,1,5,12.0,0,3,0.0,decreasing,97,2026-06-15,2026-06-22
 5753317416,,4,295,73.8,25,cherry blossom,4,14,2,3,3.5,0,1,,increasing,24,2026-08-26,2026-09-03
-5756382579,T1925I,9,840,93.3,60,unknown,4,7,3,5,7.0,1,2,,increasing,0,2026-09-18,2026-09-27
+5756382579,T1925I,9,840,93.3,60,allium,4,7,3,5,7.0,1,2,,increasing,0,2026-09-18,2026-09-27
 5756490491,ellxur,1,90,90.0,90,narcissus,1,6,6,1,1.0,0,1,,insufficient_data,21,2026-09-06,2026-09-06
 575788998,A27gx,1,60,60.0,60,white rose,1,13,6,1,1.0,0,1,,insufficient_data,77,2026-07-12,2026-07-12
 5759187121,docaef,1,60,60.0,60,lily flower,1,14,4,1,1.0,0,1,,insufficient_data,16,2026-09-11,2026-09-11
@@ -1167,7 +1168,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 5774536035,Dr_RRRRRY,2,210,105.0,90,balloon flower,2,16,3,2,1.75,0,1,,insufficient_data,16,2026-09-03,2026-09-11
 5780138315,sgav0,1,120,120.0,120,weeping willow,1,2,6,1,1.0,0,1,,insufficient_data,77,2026-07-12,2026-07-12
 5780381071,Itswly,6,540,90.0,60,cherry blossom,6,11,6,2,6.0,0,2,,decreasing,77,2026-07-11,2026-07-12
-578322658,ru_qh3,1,45,45.0,45,unknown,1,12,5,1,1.0,0,1,,insufficient_data,36,2026-08-22,2026-08-22
+578322658,ru_qh3,1,45,45.0,45,None,1,12,5,1,1.0,0,1,,insufficient_data,36,2026-08-22,2026-08-22
 5788699064,,4,450,112.5,60,rose,1,0,2,3,4.0,0,2,,decreasing,1,2026-09-23,2026-09-26
 5791584631,Memoaw,282,24030,85.2,90,cloud moon tree,54,13,3,45,19.17,0,9,,stable,2,2026-06-14,2026-09-25
 579407257,cewmf,13,810,62.3,60,allium,7,4,6,9,5.69,1,3,,stable,0,2026-09-11,2026-09-27
@@ -1222,7 +1223,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 5971680814,frucl,4,420,105.0,90,snowflake bush,3,7,3,3,2.0,1,1,,stable,0,2026-09-13,2026-09-27
 5983431729,,2,180,90.0,60,cherry blossom,2,12,4,2,2.0,0,1,,insufficient_data,14,2026-09-11,2026-09-13
 5984260608,muaire_1987,1,120,120.0,120,witch mushroom,1,21,1,1,1.0,0,1,,insufficient_data,103,2026-06-16,2026-06-16
-5988074497,Mmaaeemmn,31,3030,97.7,120,unknown,9,16,3,9,2.58,0,2,,stable,22,2026-06-13,2026-09-05
+5988074497,Mmaaeemmn,31,3030,97.7,120,black forest cake,9,16,3,9,2.58,0,2,,stable,22,2026-06-13,2026-09-05
 5988185400,seniorrrr27,3,180,60.0,60,blueberry cupcake,1,9,5,1,3.0,0,1,,insufficient_data,36,2026-08-22,2026-08-22
 5992720454,layanii08,1,90,90.0,90,wishing tree,1,14,2,1,1.0,0,1,,insufficient_data,102,2026-06-17,2026-06-17
 5998149055,,38,4270,112.4,90,lily flower,11,14,6,12,7.0,0,3,,increasing,40,2026-07-11,2026-08-18
@@ -1250,7 +1251,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 6066649586,,1,60,60.0,60,celestial tree,1,13,2,1,1.0,0,1,,insufficient_data,11,2026-09-16,2026-09-16
 606914943,JllIIX,1,180,180.0,180,azalea,1,15,5,1,1.0,0,1,,insufficient_data,8,2026-09-19,2026-09-19
 6069962890,c6lio,3,295,98.3,60,cherry blossom,2,14,6,2,3.0,0,2,,insufficient_data,14,2026-09-12,2026-09-13
-6072029920,zMAFX,4,240,60.0,60,wishing tree,1,19,0,4,4.0,0,4,,stable,18,2026-09-06,2026-09-09
+6072029920,zMAFX,5,300,60.0,60,wishing tree,2,17,6,5,1.67,1,4,,stable,0,2026-09-06,2026-09-27
 6075175105,iwzxy,1,60,60.0,60,carnation,1,20,1,1,1.0,0,1,,insufficient_data,40,2026-08-18,2026-08-18
 6075191386,ffawaf,1,65,65.0,65,bush,1,8,3,1,1.0,0,1,,insufficient_data,10,2026-09-17,2026-09-17
 6076678580,Ahmed_7b2,14,1180,84.3,120,star coral,3,7,6,9,1.85,0,3,,decreasing,33,2026-07-03,2026-08-25
@@ -1290,7 +1291,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 6190158690,,1,180,180.0,180,lavender,1,8,5,1,1.0,0,1,,insufficient_data,22,2026-09-05,2026-09-05
 6190890879,amany1amany,14,1380,98.6,60,ginkgo,7,5,3,6,1.01,0,2,,increasing,4,2026-06-18,2026-09-23
 6200086526,aryam656,2,300,150.0,120,cherry blossom,2,22,1,2,2.0,0,2,,insufficient_data,18,2026-09-08,2026-09-09
-620060421,iioeu4,1,120,120.0,120,unknown,1,0,6,1,1.0,0,1,1.0,insufficient_data,105,2026-06-14,2026-06-14
+620060421,iioeu4,1,120,120.0,120,None,1,0,6,1,1.0,0,1,1.0,insufficient_data,105,2026-06-14,2026-06-14
 6218044622,a9rvle,1,60,60.0,60,wishing tree,1,11,0,1,1.0,0,1,,insufficient_data,34,2026-08-24,2026-08-24
 6218191841,seeera202,1,50,50.0,50,dancing lady orchid,1,5,6,1,1.0,0,1,,insufficient_data,77,2026-07-12,2026-07-12
 6219461367,cvnv0,14,1220,87.1,90,strawberry macaron,7,18,0,11,5.76,0,3,,stable,5,2026-09-05,2026-09-22
@@ -1363,7 +1364,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 6398902096,noon_0i,4,300,75.0,60,lavender,3,6,3,4,2.0,0,2,,decreasing,3,2026-09-10,2026-09-24
 6399007609,jutcl,2,270,135.0,90,celestial tree,2,12,0,2,2.0,0,1,,insufficient_data,1,2026-09-21,2026-09-26
 6400464927,mire1llen,3,210,70.0,60,carnation,3,14,0,3,1.62,0,1,,insufficient_data,7,2026-09-07,2026-09-20
-6402306233,Sa1mA3,11,1240,112.7,120,unknown,9,10,5,4,11.0,0,4,,stable,34,2026-08-21,2026-08-24
+6402306233,Sa1mA3,11,1240,112.7,120,12th anniversary cake tree,9,10,5,4,11.0,0,4,,stable,34,2026-08-21,2026-08-24
 6402464568,leimo2o,3,255,85.0,45,azalea,3,8,5,3,1.4,0,2,,insufficient_data,77,2026-06-27,2026-07-12
 6403482730,Jjujoi,1,60,60.0,60,rose,1,15,6,1,1.0,0,1,,insufficient_data,14,2026-09-13,2026-09-13
 6405635769,omxtp,155,22650,146.1,180,money fortune tree,27,7,5,43,13.73,1,12,0.0,stable,0,2026-07-10,2026-09-27
@@ -1392,7 +1393,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 6480786412,joy_7a,2,160,80.0,80,cosmos,1,14,3,1,2.0,0,1,,insufficient_data,3,2026-09-24,2026-09-24
 6487968307,rvl5i,2,340,170.0,160,carnation,2,4,1,2,0.7,0,1,,insufficient_data,19,2026-08-19,2026-09-08
 6490780477,,2,180,90.0,90,moon tree,2,2,4,2,0.93,0,1,,insufficient_data,8,2026-09-04,2026-09-19
-6491043177,reverf,14,1260,90.0,60,unknown,8,7,4,9,3.16,1,3,,decreasing,0,2026-08-27,2026-09-27
+6491043177,reverf,14,1260,90.0,60,plum blossom,8,7,4,9,3.16,1,3,,decreasing,0,2026-08-27,2026-09-27
 6491837815,Ebrahemrade2341,2,130,65.0,10,candy tree,1,6,3,2,2.0,0,2,,insufficient_data,93,2026-06-25,2026-06-26
 6501042290,Aq7_p,2,300,150.0,120,dusty miller,2,18,0,2,2.0,0,1,,insufficient_data,13,2026-09-11,2026-09-14
 650208855,plii3e,2,130,65.0,60,blueberry cake,2,17,5,2,2.0,0,2,,insufficient_data,7,2026-09-19,2026-09-20
@@ -1400,7 +1401,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 651279933,i92ie,7,410,58.6,60,coffee macaron,4,0,1,2,4.45,0,1,,increasing,12,2026-09-04,2026-09-15
 6515512537,ib6241,8,480,60.0,60,cosmos,4,8,1,4,1.24,0,1,,stable,19,2026-07-25,2026-09-08
 6518657664,pxlzl4,2,240,120.0,60,sundae tree,1,4,0,2,0.88,0,1,,insufficient_data,13,2026-08-29,2026-09-14
-6525878643,ddl0o,54,4155,76.9,45,unknown,19,10,1,22,6.2,1,7,,increasing,0,2026-07-28,2026-09-27
+6525878643,ddl0o,54,4155,76.9,45,lemon cupcake,19,10,1,22,6.2,1,7,,increasing,0,2026-07-28,2026-09-27
 6529714913,ran6789_3,2,260,130.0,130,lavender,1,12,4,1,2.0,0,1,,insufficient_data,65,2026-07-24,2026-07-24
 6530477248,laxd_2,1,50,50.0,50,matcha cupcake,1,14,3,1,1.0,0,1,,insufficient_data,3,2026-09-24,2026-09-24
 6534425567,vv77_00,18,2125,118.1,120,forest spirit,14,13,5,6,14.0,0,3,,decreasing,1,2026-09-17,2026-09-26
@@ -1421,7 +1422,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 6575377604,r0ania,4,315,78.8,60,lily flower,1,14,1,3,1.75,0,1,,increasing,3,2026-09-08,2026-09-24
 6577452414,ghgh_26,9,580,64.4,90,cherry cheese cake,4,15,6,2,9.0,0,1,,decreasing,7,2026-09-18,2026-09-20
 6578122319,R_23am,4,370,92.5,120,cedar,2,11,6,4,0.29,0,2,,decreasing,7,2026-06-14,2026-09-20
-6579102737,,100,9790,97.9,60,unknown,19,14,5,21,21.21,0,5,,stable,1,2026-08-24,2026-09-26
+6579102737,,100,9790,97.9,60,blue flower,19,14,5,21,21.21,0,5,,stable,1,2026-08-24,2026-09-26
 6580604263,lconic_A,37,4200,113.5,120,golden wings,15,23,6,17,9.25,1,7,,stable,0,2026-08-30,2026-09-27
 6582285079,e_ju0,2,210,105.0,90,candy tree,2,20,0,1,2.0,0,1,,insufficient_data,104,2026-06-15,2026-06-15
 6583458927,irunry,8,470,58.8,60,ginkgo,2,11,4,6,2.95,0,2,,stable,3,2026-09-05,2026-09-24
@@ -1474,7 +1475,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 6799509379,zz_ori,3,480,160.0,180,jacaranda,2,22,0,2,3.0,0,1,,insufficient_data,6,2026-09-16,2026-09-21
 6800170397,Yusufalii,1,60,60.0,60,cedar,1,14,1,1,1.0,0,1,,insufficient_data,19,2026-09-08,2026-09-08
 6800846468,Vnrrk,110,6595,60.0,60,jacaranda,37,10,0,14,38.5,0,10,0.0,stable,30,2026-08-08,2026-08-28
-6800980732,tlrlv,13,1240,95.4,50,confederate rose,8,18,4,9,1.15,3,4,,decreasing,0,2026-07-10,2026-09-27
+6800980732,tlrlv,14,1300,92.9,50,confederate rose,9,18,4,9,1.24,3,4,,decreasing,0,2026-07-10,2026-09-27
 6808594118,spetaly,3,330,110.0,120,jacaranda,3,0,0,3,0.47,0,1,,insufficient_data,24,2026-07-20,2026-09-03
 6815785167,engRahaf11,1,60,60.0,60,lily flower,1,9,2,1,1.0,0,1,,insufficient_data,95,2026-06-24,2026-06-24
 6828021445,DrHalimahs,25,3630,145.2,180,dahlia,16,14,0,21,1.68,2,4,,decreasing,0,2026-06-15,2026-09-27
@@ -1486,7 +1487,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 6862118705,ndoblackfyre,5,460,92.0,100,balloon flower,5,20,4,4,0.5,0,1,,increasing,9,2026-07-10,2026-09-18
 6872045189,aryam808,1,45,45.0,45,strawberry chiffon cake,1,11,0,1,1.0,0,1,,insufficient_data,20,2026-09-07,2026-09-07
 687462090,aaa_11x,3,360,120.0,120,forest spirit,3,3,4,3,0.75,0,1,,insufficient_data,9,2026-08-21,2026-09-18
-6876693435,alljudy,2,120,60.0,60,coconut tree,2,0,3,2,0.61,0,1,,insufficient_data,1,2026-09-03,2026-09-26
+6876693435,alljudy,3,240,80.0,60,coconut tree,2,0,3,3,0.88,2,2,,insufficient_data,0,2026-09-03,2026-09-27
 6885667776,nawaf0070,9,730,81.1,90,four-leaf clover,5,18,1,6,4.2,0,3,,decreasing,19,2026-08-24,2026-09-08
 6896025094,ir9k2,23,2505,108.9,90,dusty miller,14,6,3,16,4.88,1,3,,increasing,0,2026-08-25,2026-09-27
 6896784036,jm_9090,4,480,120.0,60,cherry blossom,3,5,0,4,1.87,0,2,,stable,19,2026-08-24,2026-09-08
@@ -1533,7 +1534,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 7087077982,ievid2,9,960,106.7,120,aqua pearl,7,17,5,5,9.0,0,3,,stable,11,2026-09-10,2026-09-16
 7091968424,,2,270,135.0,90,12th anniversary cake tree,2,3,3,2,2.0,0,1,,insufficient_data,98,2026-06-18,2026-06-21
 7096119944,wikikipedia,571,36530,64.0,60,white rose,60,17,0,50,37.71,1,13,0.517,increasing,0,2026-06-13,2026-09-27
-7096587636,puq_9,8,705,88.1,75,cherry blossom,5,12,4,5,2.95,0,2,,decreasing,2,2026-09-06,2026-09-25
+7096587636,puq_9,9,780,86.7,75,cherry blossom,6,12,4,6,3.0,1,2,,decreasing,0,2026-09-06,2026-09-27
 7101284919,mhz2m,3,180,60.0,60,cloud moon tree,3,6,2,3,3.0,0,2,,insufficient_data,66,2026-07-19,2026-07-23
 7101306021,iknfc,13,1530,117.7,120,cosmos,6,13,4,7,7.0,0,4,,stable,16,2026-08-29,2026-09-11
 7106461769,,7,510,72.9,90,12th anniversary cake tree,6,1,2,2,7.0,0,1,,decreasing,28,2026-08-26,2026-08-30
@@ -1583,7 +1584,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 729578191,,2,130,65.0,65,blueberry macaron,1,23,5,1,2.0,0,1,,insufficient_data,78,2026-07-11,2026-07-11
 7295903709,rem7er5,1,60,60.0,60,statue of tada,1,11,5,1,1.0,0,1,,insufficient_data,8,2026-09-19,2026-09-19
 730149753,om_qahat,6,480,80.0,60,ice crystal bloom,5,14,3,4,2.33,0,2,,increasing,1,2026-09-08,2026-09-26
-7302706392,lirco8,1,70,70.0,70,unknown,1,12,0,1,1.0,0,1,0.0,insufficient_data,104,2026-06-15,2026-06-15
+7302706392,lirco8,1,70,70.0,70,None,1,12,0,1,1.0,0,1,0.0,insufficient_data,104,2026-06-15,2026-06-15
 7303238563,,1,180,180.0,180,cyclamen,1,12,5,1,1.0,0,1,,insufficient_data,29,2026-08-29,2026-08-29
 7308463419,iimrudi,25,1630,65.2,60,10th anniversary cake tree,10,14,4,6,9.72,0,4,,stable,1,2026-09-08,2026-09-26
 7308542050,lat33n,2,180,90.0,60,azalea,2,16,4,2,2.0,0,2,,insufficient_data,78,2026-07-10,2026-07-11
@@ -1633,7 +1634,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 742426806,just_dina2,2,150,75.0,60,sunflower,2,6,4,2,2.0,0,1,,insufficient_data,77,2026-07-10,2026-07-12
 743103639,ahadf9,6,930,155.0,180,celestial tree,5,7,0,2,6.0,0,2,,decreasing,6,2026-09-20,2026-09-21
 7434171836,M_eng100,34,2505,73.7,60,juliet,19,18,6,18,11.33,2,9,,decreasing,0,2026-09-06,2026-09-27
-7435780477,IlUll3,12,1200,100.0,120,unknown,8,23,0,3,12.0,0,3,,stable,102,2026-06-15,2026-06-17
+7435780477,IlUll3,12,1200,100.0,120,wishing tree,8,23,0,3,12.0,0,3,,stable,102,2026-06-15,2026-06-17
 7441793409,M544k,1085,85905,79.2,60,wishing tree,111,17,5,94,71.65,5,24,0.59,stable,0,2026-06-13,2026-09-27
 7441973454,j2cr1,47,3100,66.0,60,royal poinciana,22,9,2,20,8.44,0,11,,stable,6,2026-08-13,2026-09-21
 7444192695,,32,2150,67.2,60,cosmos,12,20,3,15,10.67,0,5,,stable,44,2026-07-24,2026-08-14
@@ -1670,8 +1671,8 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 7521765707,,1,60,60.0,60,lavender,1,21,6,1,1.0,0,1,,insufficient_data,56,2026-08-02,2026-08-02
 7522142071,IE_ie08,6,565,94.2,60,black forest cake,6,14,1,5,1.24,0,2,,decreasing,72,2026-06-13,2026-07-17
 7525332075,Rrrrmmz,6,695,115.8,120,rose,5,9,1,6,1.08,0,1,,increasing,2,2026-08-17,2026-09-25
-7527035608,Has_xc8,53,5495,103.7,120,snowflake bush,10,17,5,20,9.05,4,5,,increasing,0,2026-08-17,2026-09-27
-7530374529,ll1vx_0,266,24235,91.1,90,wishing tree,32,17,6,58,17.9,3,16,0.5,increasing,0,2026-06-15,2026-09-27
+7527035608,Has_xc8,54,5675,105.1,120,snowflake bush,10,17,5,20,9.22,4,5,,increasing,0,2026-08-17,2026-09-27
+7530374529,ll1vx_0,269,24505,91.1,90,wishing tree,33,17,6,58,18.11,3,16,0.5,increasing,0,2026-06-15,2026-09-27
 7534597755,l_mleo793,1,90,90.0,90,plum blossom,1,22,1,1,1.0,0,1,,insufficient_data,75,2026-07-14,2026-07-14
 7535177114,jinoiiii,16,1125,70.3,60,royal poinciana,10,19,3,10,1.24,0,3,,increasing,5,2026-06-24,2026-09-22
 7536894050,luvercite,5,900,180.0,180,sunflower,2,23,4,3,3.18,0,1,,stable,26,2026-08-21,2026-09-01
@@ -1724,7 +1725,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 7692012664,hardtoolove,17,1110,65.3,60,epiphyllum,14,22,1,8,2.09,0,3,,stable,47,2026-06-15,2026-08-11
 7694463635,Dangtan050,5,330,66.0,60,blueberry cupcake,5,3,4,4,5.0,0,4,,increasing,97,2026-06-19,2026-06-22
 7711831283,wznit,3,360,120.0,60,dahlia,3,0,1,3,0.72,0,1,,insufficient_data,4,2026-08-25,2026-09-23
-7714608905,luwz7,3,240,80.0,60,strawberry chiffon cake,3,17,5,1,3.0,0,1,,insufficient_data,1,2026-09-26,2026-09-26
+7714608905,luwz7,4,360,90.0,60,plum blossom,4,17,5,2,4.0,2,2,,stable,0,2026-09-26,2026-09-27
 7716436324,kyrozaa,4,300,75.0,60,forest spirit,4,10,4,2,2.15,0,1,,increasing,72,2026-07-04,2026-07-17
 7716515534,mari2020am,2,210,105.0,90,citrus macaron,2,5,1,2,0.54,1,1,,insufficient_data,0,2026-09-01,2026-09-27
 7720668683,xj5II,14,1140,81.4,60,balloon flower,12,21,2,6,2.33,0,2,,increasing,32,2026-07-15,2026-08-26
@@ -1797,7 +1798,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 7906252713,Lab621,22,1905,86.6,60,cherry cheese cake,16,14,3,15,2.48,0,3,,stable,1,2026-07-26,2026-09-26
 790625940,eri7v1,11,710,64.5,60,confederate rose,9,15,4,6,3.35,0,2,,increasing,15,2026-08-20,2026-09-12
 7910549668,ileriu,1,60,60.0,60,cosmos,1,10,5,1,1.0,0,1,,insufficient_data,29,2026-08-29,2026-08-29
-7914471492,leatrisetestbot,12,902,75.2,60,unknown,8,8,2,4,1.4,0,1,,decreasing,40,2026-06-19,2026-08-18
+7914471492,leatrisetestbot,12,902,75.2,60,venus flytrap,8,8,2,4,1.4,0,1,,decreasing,40,2026-06-19,2026-08-18
 7915109034,Bella_208,3,180,60.0,60,strawberry macaron,2,20,1,1,3.0,0,1,,insufficient_data,12,2026-09-15,2026-09-15
 7916144573,wa20ll,1,60,60.0,60,wishing tree,1,6,0,1,1.0,0,1,,insufficient_data,104,2026-06-15,2026-06-15
 7917022852,q_18nj,2,240,120.0,120,monstera,1,15,6,1,2.0,0,1,0.0,insufficient_data,91,2026-06-28,2026-06-28
@@ -1854,7 +1855,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 807395262,Fperson7,3,360,120.0,60,purple oak tree,2,13,1,3,1.4,0,2,,insufficient_data,26,2026-08-17,2026-09-01
 8075148238,wvcca,19,1470,77.4,60,apricot tree,11,12,3,12,4.43,1,3,,increasing,0,2026-08-28,2026-09-27
 807933160,ttdr7,3,250,83.3,90,cherry blossom,1,0,5,2,0.88,0,1,,insufficient_data,12,2026-08-22,2026-09-15
-8079527207,mwl088,31,2160,69.7,60,water spirit,8,16,1,6,31.0,6,6,,increasing,0,2026-09-22,2026-09-27
+8079527207,mwl088,32,2250,70.3,60,water spirit,8,17,1,6,32.0,6,6,,increasing,0,2026-09-22,2026-09-27
 8079913751,Joyy_iu,3,240,80.0,90,lotus,3,16,4,2,2.33,1,1,,insufficient_data,0,2026-09-18,2026-09-27
 8084892367,Jori786,1,60,60.0,60,candy tree,1,12,4,1,1.0,0,1,,insufficient_data,37,2026-08-21,2026-08-21
 8087913749,llioppy,11,1490,135.5,180,strawberry cupcake,7,18,4,8,1.0,0,3,,increasing,9,2026-07-03,2026-09-18
@@ -1962,7 +1963,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 8327805259,lno11q,8,750,93.8,90,mock orange,5,9,2,5,8.0,0,3,,decreasing,12,2026-09-09,2026-09-15
 8328792904,barca_201,3,180,60.0,60,jacaranda,3,0,1,1,3.0,0,1,,insufficient_data,54,2026-08-04,2026-08-04
 8329659722,,1,60,60.0,60,star coral,1,7,4,1,1.0,0,1,,insufficient_data,9,2026-09-18,2026-09-18
-8329692455,seba_3n,34,1820,53.5,10,unknown,9,16,2,14,7.93,0,8,,increasing,5,2026-08-23,2026-09-22
+8329692455,seba_3n,34,1820,53.5,10,allium,9,16,2,14,7.93,0,8,,increasing,5,2026-08-23,2026-09-22
 8336263190,DR_A008,2,150,75.0,60,weeping willow,2,11,0,2,0.23,0,1,,insufficient_data,13,2026-07-16,2026-09-14
 834529884,anarchy1923,12,1100,91.7,90,wishing tree,7,9,5,9,3.65,0,5,,increasing,57,2026-07-09,2026-08-01
 834583252,had0h,6,345,57.5,30,celestial tree,6,13,0,4,6.0,0,3,,decreasing,6,2026-09-17,2026-09-21
@@ -1997,7 +1998,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 8422310447,vnilxi,4,360,90.0,60,celestial tree,4,2,5,4,1.04,0,2,,decreasing,43,2026-07-19,2026-08-15
 8423798202,Lolll501,9,535,59.4,60,cherry cheese cake,8,12,0,2,9.0,0,1,,stable,27,2026-08-27,2026-08-31
 8425161215,ru_xw4,1,50,50.0,50,forest spirit,1,17,1,1,1.0,0,1,,insufficient_data,19,2026-09-08,2026-09-08
-8425498254,NerdDhai,55,4890,88.9,120,unknown,20,7,6,24,11.0,4,8,,decreasing,0,2026-08-23,2026-09-27
+8425498254,NerdDhai,55,4890,88.9,120,confederate rose,20,7,6,24,11.0,4,8,,decreasing,0,2026-08-23,2026-09-27
 8425968166,rv8nv,9,540,60.0,60,cherry blossom,6,11,5,2,9.0,0,2,,stable,77,2026-07-11,2026-07-12
 8426414259,mari_mo2,1,60,60.0,60,allium,1,13,5,1,1.0,0,1,,insufficient_data,15,2026-09-12,2026-09-12
 8429129234,AdamFrst26,8,585,73.1,45,twilight guardian,4,14,6,5,1.44,0,3,0.0,decreasing,63,2026-06-17,2026-07-26
@@ -2012,7 +2013,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 8448514008,,14,990,70.7,60,golden trumpet tree,7,15,4,6,10.89,0,2,,stable,1,2026-09-17,2026-09-26
 8450459475,xc0c0c0x,3,175,58.3,60,cedar,3,5,0,3,1.4,0,1,,insufficient_data,83,2026-06-21,2026-07-06
 8453336742,,4,360,90.0,60,9th anniversary cake tree,4,3,4,2,4.0,0,2,,increasing,78,2026-07-10,2026-07-11
-8456081087,maryya229,62,4230,68.2,60,lantern flower,27,19,4,16,4.17,3,6,,decreasing,0,2026-06-15,2026-09-27
+8456081087,maryya229,65,4410,67.8,60,lantern flower,27,19,4,16,4.38,3,6,,decreasing,0,2026-06-15,2026-09-27
 845988478,BshayerOla,2,120,60.0,60,strawberry cupcake,1,10,3,1,2.0,0,1,,insufficient_data,17,2026-09-10,2026-09-10
 8462055022,amaldoctkr20,1,90,90.0,90,space tree,1,18,4,1,1.0,0,1,,insufficient_data,100,2026-06-19,2026-06-19
 846237279,l0tues,6,360,60.0,60,golden trumpet tree,6,5,0,5,6.0,0,2,,stable,2,2026-09-18,2026-09-25
@@ -2021,12 +2022,12 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 847264709,nizxl,2,120,60.0,60,golden wings,1,18,5,1,2.0,0,1,,insufficient_data,106,2026-06-13,2026-06-13
 8475000412,LLut0s,54,5340,98.9,180,twilight guardian,25,20,4,27,4.78,4,12,,increasing,0,2026-07-10,2026-09-27
 8476577781,kio_k0l,2,240,120.0,120,jacaranda,2,13,6,1,2.0,0,1,,insufficient_data,7,2026-09-20,2026-09-20
-847840756,bymoojbrahim,4,240,60.0,60,jacaranda,3,15,0,3,4.0,0,2,,stable,3,2026-09-20,2026-09-24
+847840756,bymoojbrahim,5,300,60.0,60,jacaranda,4,15,0,4,5.0,1,2,,stable,0,2026-09-20,2026-09-27
 8479732286,Reeeeeefg,20,1830,91.5,60,wishing tree,14,21,0,6,20.0,0,5,,increasing,65,2026-07-18,2026-07-24
 8482694036,Irll19,6,780,130.0,120,forest spirit,4,10,4,4,5.25,0,2,,decreasing,43,2026-08-07,2026-08-15
 8483536693,dr012345,40,1470,36.8,30,celestial tree,17,17,1,7,40.0,0,5,,decreasing,97,2026-06-15,2026-06-22
 8488023108,eiilil0,2,240,120.0,60,candy tree,1,2,4,2,2.0,0,1,,insufficient_data,58,2026-07-25,2026-07-31
-8493950066,,27,1625,60.2,60,candy tree,15,0,4,14,10.5,4,4,,increasing,0,2026-09-09,2026-09-27
+8493950066,,28,1685,60.2,60,candy tree,16,0,4,14,10.89,4,4,,increasing,0,2026-09-09,2026-09-27
 8496118314,Ninja_SHOYO_0X,57,4120,72.3,30,starburst tree,10,3,5,23,6.44,0,6,0.5,decreasing,44,2026-06-13,2026-08-14
 8497927418,xirllilll,53,5030,94.9,120,sundae tree,23,23,5,22,10.91,0,4,,increasing,1,2026-08-23,2026-09-26
 8507138720,J_owa,6,450,75.0,60,lily flower,3,18,1,4,5.25,0,2,,increasing,61,2026-07-20,2026-07-28
@@ -2079,7 +2080,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 8627324417,Qvt_n,2,105,52.5,45,cherry blossom,2,10,1,2,2.0,0,1,,insufficient_data,40,2026-08-13,2026-08-18
 8627833401,dd_xZ3,8,960,120.0,120,juliet,6,7,2,3,5.09,1,1,,decreasing,0,2026-09-16,2026-09-27
 8632774992,rody008,24,2425,101.0,90,plum blossom,10,10,1,13,3.82,0,4,,stable,1,2026-08-13,2026-09-26
-8633424530,,1,60,60.0,60,unknown,1,3,6,1,1.0,1,1,,insufficient_data,0,2026-09-27,2026-09-27
+8633424530,,1,60,60.0,60,None,1,3,6,1,1.0,1,1,,insufficient_data,0,2026-09-27,2026-09-27
 8640812877,shakii71,45,4320,96.0,120,ghost mushroom,16,17,6,22,3.84,0,4,,stable,19,2026-06-18,2026-09-08
 8642675630,qwer0706,72,5345,74.2,60,confederate rose,18,13,3,14,8.26,0,4,,increasing,19,2026-07-09,2026-09-08
 8645588652,i4nxe,26,2780,106.9,100,cloud moon tree,15,15,5,11,4.23,0,2,,decreasing,1,2026-08-14,2026-09-26
@@ -2087,7 +2088,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 8655107639,l9i_u,4,240,60.0,60,golden trumpet tree,4,13,1,1,4.0,0,1,,stable,5,2026-09-22,2026-09-22
 8655791121,AERO3TB27,2,120,60.0,60,chili pepper,1,17,1,2,1.56,0,1,,insufficient_data,5,2026-09-13,2026-09-22
 8656211041,blake9909,3,500,166.7,180,earth day tree,3,13,5,2,3.0,0,2,,insufficient_data,78,2026-07-10,2026-07-11
-865851610,Allaa_32,9,1110,123.3,120,unknown,3,18,6,7,7.88,0,6,,stable,62,2026-07-19,2026-07-27
+865851610,Allaa_32,9,1110,123.3,120,carnation,3,18,6,7,7.88,0,6,,stable,62,2026-07-19,2026-07-27
 8663336141,M55id,60,5880,98.0,90,confederate rose,34,16,4,18,11.05,14,14,,stable,0,2026-08-20,2026-09-27
 8664739616,,5,270,54.0,30,cloud moon tree,2,20,0,2,5.0,0,2,,decreasing,41,2026-08-16,2026-08-17
 8667317609,iAxAq,1,75,75.0,75,celestial tree,1,12,1,1,1.0,0,1,,insufficient_data,19,2026-09-08,2026-09-08
@@ -2121,7 +2122,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 8729585652,,3,240,80.0,90,celestial tree,3,11,2,1,3.0,0,1,,insufficient_data,18,2026-09-09,2026-09-09
 8731882805,I_555li,10,790,79.0,90,monstera,5,2,3,9,0.96,0,2,,increasing,31,2026-06-15,2026-08-27
 8732598541,Blaaaa9,29,2040,70.3,60,strawberry cupcake,13,9,6,6,2.09,0,2,1.0,increasing,8,2026-06-14,2026-09-19
-8733368068,uvri7,17,1860,109.4,120,unknown,6,0,3,10,7.0,0,4,,stable,25,2026-08-16,2026-09-02
+8733368068,uvri7,17,1860,109.4,120,bellflower,6,0,3,10,7.0,0,4,,stable,25,2026-08-16,2026-09-02
 8733816555,Ro_1on,5,540,108.0,60,bamboo,3,5,3,2,5.0,0,1,,increasing,15,2026-09-10,2026-09-12
 8733821777,,1,60,60.0,60,azalea,1,14,1,1,1.0,0,1,,insufficient_data,47,2026-08-11,2026-08-11
 873388445,DrJkb18,5,540,108.0,120,confederate rose,3,4,2,3,1.75,0,1,1.0,decreasing,85,2026-06-14,2026-07-04
@@ -2188,8 +2189,8 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 8906535265,IE_ie8,17,1740,102.4,90,cyclamen,12,11,5,11,1.92,0,3,,stable,2,2026-07-25,2026-09-25
 8912248585,r_engTR,2,240,120.0,60,plum blossom,2,19,2,2,0.82,0,1,,insufficient_data,39,2026-08-02,2026-08-19
 891505481,Phoenix_Rising777,13,585,45.0,30,6th anniversary cake tree,8,18,4,3,13.0,0,3,,increasing,77,2026-07-10,2026-07-12
-8915738929,M_2enn,10,710,71.0,30,unknown,4,4,3,2,10.0,0,2,,increasing,45,2026-08-12,2026-08-13
-8919334544,,9,755,83.9,90,unknown,6,4,5,6,1.62,0,2,,increasing,14,2026-08-05,2026-09-13
+8915738929,M_2enn,10,710,71.0,30,juniper,4,4,3,2,10.0,0,2,,increasing,45,2026-08-12,2026-08-13
+8919334544,,9,755,83.9,90,calendula,6,4,5,6,1.62,0,2,,increasing,14,2026-08-05,2026-09-13
 8919451306,ililggh,7,335,47.9,50,cherry blossom,2,6,2,4,6.12,0,2,,stable,11,2026-09-08,2026-09-16
 8920494504,Liilyy_67,3,390,130.0,90,blueberry macaron,3,16,1,3,2.1,0,2,,insufficient_data,86,2026-06-23,2026-07-03
 893151058,Noorj09,1,60,60.0,60,bald cypress,1,6,6,1,1.0,0,1,,insufficient_data,77,2026-07-12,2026-07-12
@@ -2218,7 +2219,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 8986668326,mcr10000,3,290,96.7,100,starry tree,2,18,2,2,2.33,0,1,,insufficient_data,18,2026-08-31,2026-09-09
 8987730188,rootSerb,9,690,76.7,60,epiphyllum,6,1,5,4,9.0,3,3,,decreasing,0,2026-09-21,2026-09-27
 8988133524,ss_jop,4,490,122.5,120,forest spirit,4,1,1,3,4.0,0,1,,stable,10,2026-09-13,2026-09-17
-8988985872,qvirr2,31,3390,109.4,90,snowflake bush,12,12,5,19,5.56,0,4,,stable,1,2026-08-18,2026-09-26
+8988985872,qvirr2,32,3480,108.8,90,snowflake bush,13,12,5,20,5.6,3,4,,decreasing,0,2026-08-18,2026-09-27
 8992405473,FIORY_711,42,5950,141.7,120,jacaranda,15,16,5,22,4.2,0,3,,decreasing,7,2026-07-12,2026-09-20
 8994689161,,3,210,70.0,60,blueberry cupcake,2,11,0,3,3.0,0,2,,insufficient_data,1,2026-09-20,2026-09-26
 8995902611,cupcake17,2,120,60.0,60,balloon flower,1,17,2,2,2.0,0,1,,insufficient_data,65,2026-07-22,2026-07-24
@@ -2268,7 +2269,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 953932038,rr777707,1,90,90.0,90,jacaranda,1,16,4,1,1.0,0,1,,insufficient_data,23,2026-09-04,2026-09-04
 954135961,itsELNsa,4,285,71.2,60,allium,4,3,1,2,4.0,0,1,,stable,5,2026-09-19,2026-09-22
 954679652,ieiilc,2,300,150.0,120,matcha cupcake,2,4,1,2,1.17,0,1,,insufficient_data,28,2026-08-18,2026-08-30
-955066347,etiii0,9,680,75.6,90,unknown,4,19,0,5,6.3,0,2,,stable,96,2026-06-13,2026-06-23
+955066347,etiii0,9,680,75.6,90,strawberry macaron,4,19,0,5,6.3,0,2,,stable,96,2026-06-13,2026-06-23
 957096063,,1,30,30.0,30,rose,1,14,5,1,1.0,0,1,,insufficient_data,8,2026-09-19,2026-09-19
 957452799,fiw78,9,1060,117.8,120,watermelon,8,11,5,3,9.0,0,2,,decreasing,5,2026-09-19,2026-09-22
 958197064,wxnuu,1,60,60.0,60,golden trumpet tree,1,14,0,1,1.0,0,1,,insufficient_data,20,2026-09-07,2026-09-07
@@ -2279,7 +2280,7 @@ user_id,username,total_sessions,total_focus_minutes,avg_duration,top_duration,to
 967482025,venush1,1,90,90.0,90,lily flower,1,17,4,1,1.0,0,1,,insufficient_data,79,2026-07-10,2026-07-10
 968291456,yonaisamathg,1,120,120.0,120,cuckoo clock,1,16,3,1,1.0,0,1,,insufficient_data,101,2026-06-18,2026-06-18
 970808393,xs7is,22,1590,72.3,60,lover tree,7,11,1,11,4.97,0,6,,decreasing,2,2026-08-25,2026-09-25
-970809141,gghaderha,85,5200,61.2,60,cherry blossom,9,5,6,32,5.67,3,11,,decreasing,0,2026-06-14,2026-09-27
+970809141,gghaderha,86,5260,61.2,60,cherry blossom,9,5,6,32,5.73,3,11,,decreasing,0,2026-06-14,2026-09-27
 971016863,tanbunnyy,18,2260,125.6,120,wisteria,6,13,5,9,7.41,0,7,0.0,stable,33,2026-08-08,2026-08-25
 972219470,eliss4336,193,6425,33.3,30,epiphyllum,72,13,5,39,12.75,2,4,1.0,stable,0,2026-06-13,2026-09-27
 973323080,yrln9,1,40,40.0,40,four-leaf clover,1,22,4,1,1.0,0,1,,insufficient_data,79,2026-07-10,2026-07-10
