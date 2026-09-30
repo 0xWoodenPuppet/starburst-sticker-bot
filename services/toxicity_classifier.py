@@ -31,6 +31,14 @@ def get_pipeline():
     return _cached_pipeline
 
 
+def reload_pipeline():
+    """Hot-reloads the cached pipeline artifact from disk."""
+    global _cached_pipeline
+    _cached_pipeline = None
+    logger.info("Hot-reloading NLP toxicity pipeline from disk...")
+    return get_pipeline()
+
+
 def clean_text(text: str) -> str:
     """Canonical text preprocessor matching nlp_pipeline.py:
     - Normalizes URLs, mentions, and currency/numbers

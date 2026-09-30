@@ -19,9 +19,12 @@ import os
 import re
 import json
 import random
+import asyncio
 import numpy as np
 import pandas as pd
 import joblib
+
+from db import mod_reports
 
 import matplotlib
 matplotlib.use("Agg")
@@ -53,7 +56,7 @@ os.makedirs(MODEL_DIR, exist_ok=True)
 #  STEP 1 — Corpus Construction (Safe vs. Toxic)
 # ══════════════════════════════════════════════════════════════════════════
 
-def build_dataset() -> pd.DataFrame:
+async def build_dataset() -> pd.DataFrame:
     """Builds a curated, balanced dataset of online community chat messages.
 
     Classes:
@@ -171,16 +174,35 @@ def build_dataset() -> pd.DataFrame:
             msg = base
         toxic_samples.append((msg, 1))
 
-    # Combine and shuffle
-    all_data = safe_samples + toxic_samples
+    # Combine synthetic baseline with real-world Telegram mod reports (Active Learning)
+    real_samples = await fetch_real_reports_from_db()
+    all_data = safe_samples + toxic_samples + real_samples
     random.shuffle(all_data)
 
     df = pd.DataFrame(all_data, columns=["text", "label"])
     dataset_path = os.path.join(OUTPUT_DIR, "moderation_dataset.csv")
     df.to_csv(dataset_path, index=False)
-    print(f"Dataset generated: {len(df)} samples ({sum(df['label'] == 0)} safe, {sum(df['label'] == 1)} toxic)")
+    print(f"Dataset generated: {len(df)} total samples ({sum(df['label'] == 0)} safe, {sum(df['label'] == 1)} toxic)")
+    if real_samples:
+        print(f"  Includes {len(real_samples)} human-verified samples from live Telegram moderation.")
     print(f"Saved to: {dataset_path}")
     return df
+
+
+async def fetch_real_reports_from_db() -> list[tuple[str, int]]:
+    """Pulls human-verified moderation reports from MongoDB mod_reports (Active Learning loop)."""
+    real_samples = []
+    try:
+        cursor = mod_reports.find({"admin_verdict": {"$in": ["CONFIRMED", "REJECTED"]}})
+        async for doc in cursor:
+            text = doc.get("message_text", "").strip()
+            verdict = doc.get("admin_verdict")
+            if text:
+                label = 1 if verdict == "CONFIRMED" else 0
+                real_samples.append((text, label))
+    except Exception as e:
+        print(f"Notice: Could not query MongoDB mod_reports ({e}). Proceeding with baseline corpus.")
+    return real_samples
 
 # ══════════════════════════════════════════════════════════════════════════
 #  STEP 2 — NLP Text Preprocessing
@@ -384,14 +406,19 @@ def train_and_evaluate(df: pd.DataFrame):
     return selected_pipeline
 
 
-def main():
+async def train_nlp_pipeline():
+    """Runs the training pipeline, fits on latest data, and exports updated artifacts to disk."""
+    df = await build_dataset()
+    return train_and_evaluate(df)
+
+
+async def main():
     print("=" * 60)
     print("  STARBURST BOT — NLP MODERATION & TOXICITY PIPELINE")
     print("=" * 60)
-    df = build_dataset()
-    train_and_evaluate(df)
+    await train_nlp_pipeline()
     print("\n✅ NLP Pipeline complete. All artifacts and figures exported.")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

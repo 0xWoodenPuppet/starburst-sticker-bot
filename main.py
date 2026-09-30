@@ -26,6 +26,16 @@ async def init_on_startup(app):
     from handlers.games import load_active_games
     await load_active_games(app)
 
+    # Sync and retrain NLP model on historical human-verified reports in MongoDB
+    try:
+        from nlp_pipeline import train_nlp_pipeline
+        from services.toxicity_classifier import reload_pipeline
+        await train_nlp_pipeline()
+        reload_pipeline()
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Startup NLP model sync skipped, using baseline artifact: {e}")
+
 
 def main():
     threading.Thread(target=run_web, daemon=True).start()

@@ -1,10 +1,11 @@
 import html
 import logging
+import asyncio
 from datetime import timedelta
 from telegram import Update, ChatPermissions, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from config import MOD_LOG_CHAT_ID, BOT_ADMIN_IDS
-from services.toxicity_classifier import classify_toxicity
+from services.toxicity_classifier import classify_toxicity, reload_pipeline
 from services.credibility import (
     get_user_credibility,
     compute_composite_score,
@@ -13,6 +14,25 @@ from services.credibility import (
 )
 
 logger = logging.getLogger(__name__)
+
+_retrain_lock = asyncio.Lock()
+
+
+async def _trigger_background_retrain():
+    """Retrains the NLP model in the background and hot-reloads it without blocking Telegram."""
+    if _retrain_lock.locked():
+        logger.info("NLP retraining already in progress. Skipping redundant trigger.")
+        return
+
+    async with _retrain_lock:
+        try:
+            logger.info("Starting background NLP retraining with newly verified sample...")
+            from nlp_pipeline import train_nlp_pipeline
+            await train_nlp_pipeline()
+            reload_pipeline()
+            logger.info("Background NLP retraining complete. Updated model active.")
+        except Exception as e:
+            logger.error(f"Background NLP retraining failed: {e}")
 
 
 async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -160,7 +180,12 @@ async def handle_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def moderation_feedback_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handles admin feedback clicks ([✅ Confirm Violation] / [❌ False Report])."""
+    """Handles admin feedback clicks:
+    - [✅ Confirm Violation]: Marks confirmed, boosts reporter credibility (+0.10).
+    - [❌ False Report]: Marks false, reduces reporter credibility (-0.15).
+      If the user was muted by mistake, immediately un-mutes them!
+    - Triggers non-blocking background active learning retraining.
+    """
     query = update.callback_query
     if not query or not query.data:
         return
@@ -202,6 +227,23 @@ async def moderation_feedback_callback(update: Update, context: ContextTypes.DEF
         await query.answer(f"ℹ️ Report already resolved as {result.get('current_verdict')}.", show_alert=True)
         return
 
+    # Unmute falsely muted user if report was rejected
+    unmuted_note = ""
+    if not is_correct and result.get("chat_id") and result.get("offending_user_id"):
+        action_taken = result.get("action_taken", "")
+        if "MUTE" in action_taken:
+            try:
+                await context.bot.restrict_chat_member(
+                    chat_id=result["chat_id"],
+                    user_id=result["offending_user_id"],
+                    permissions=ChatPermissions.all_permissions()
+                )
+                offending_display = html.escape(result.get("offending_user_name", "User"))
+                unmuted_note = f"\n\n🔓 <b>Offending user ({offending_display}) has been unmuted.</b>"
+            except Exception as e:
+                logger.error(f"Failed to unmute user {result['offending_user_id']}: {e}")
+                unmuted_note = "\n\n⚠️ Failed to automatically unmute user (bot lacks permission)."
+
     # Update log message with verdict and updated credibility
     verdict_emoji = "✅ CONFIRMED" if is_correct else "❌ REJECTED (FALSE REPORT)"
     old_c = result["old_credibility"]
@@ -221,6 +263,7 @@ async def moderation_feedback_callback(update: Update, context: ContextTypes.DEF
         f"<b>Admin Verdict:</b> {verdict_emoji}\n"
         f"<b>Verified By:</b> {admin_name}\n"
         f"<b>Reporter Credibility Updated:</b> <code>{old_c:.2f}</code> → <code>{new_c:.2f}</code> ({diff})"
+        f"{unmuted_note}"
     )
 
     try:
@@ -228,7 +271,13 @@ async def moderation_feedback_callback(update: Update, context: ContextTypes.DEF
             text=updated_text,
             parse_mode="HTML"
         )
-        await query.answer(f"Verdict recorded: {verdict_emoji}. Credibility updated to {new_c:.2f}.")
+        toast_msg = f"Verdict: {verdict_emoji}. Credibility: {new_c:.2f}."
+        if unmuted_note and "unmuted" in unmuted_note:
+            toast_msg += " User unmuted."
+        await query.answer(toast_msg)
     except Exception as e:
         logger.error(f"Failed to update audit log message: {e}")
         await query.answer("Verdict recorded in database.")
+
+    # Trigger background continuous learning retraining
+    asyncio.create_task(_trigger_background_retrain())
