@@ -188,6 +188,7 @@ async def record_admin_verdict(report_id: str, admin_id: int, is_correct: bool) 
             "report_id": report_id,
             "verdict": verdict_str,
             "chat_id": report.get("chat_id"),
+            "message_id": report.get("message_id"),
             "offending_user_id": report.get("offending_user_id"),
             "offending_user_name": report.get("offending_user_name", "User"),
             "reporter_id": reporter_id,

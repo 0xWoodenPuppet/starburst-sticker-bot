@@ -1,7 +1,7 @@
 import html
 import logging
 import asyncio
-from datetime import timedelta
+from datetime import datetime, timezone, timedelta
 from telegram import Update, ChatPermissions, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from config import MOD_LOG_CHAT_ID, BOT_ADMIN_IDS
@@ -227,25 +227,64 @@ async def moderation_feedback_callback(update: Update, context: ContextTypes.DEF
         await query.answer(f"ℹ️ Report already resolved as {result.get('current_verdict')}.", show_alert=True)
         return
 
-    # Unmute falsely muted user if report was rejected
-    unmuted_note = ""
-    if not is_correct and result.get("chat_id") and result.get("offending_user_id"):
-        action_taken = result.get("action_taken", "")
-        if "MUTE" in action_taken:
+    # Enforcement action based on admin verdict
+    action_note = ""
+    offending_display = html.escape(result.get("offending_user_name", "User"))
+    chat_id = result.get("chat_id")
+    offending_uid = result.get("offending_user_id")
+    message_id = result.get("message_id")
+    action_taken = result.get("action_taken", "")
+
+    if is_correct:
+        # If the user was NOT already muted initially, enforce the mute and delete the message now
+        if "MUTED" not in action_taken and chat_id and offending_uid:
+            mute_done = False
+            del_done = False
             try:
                 await context.bot.restrict_chat_member(
-                    chat_id=result["chat_id"],
-                    user_id=result["offending_user_id"],
+                    chat_id=chat_id,
+                    user_id=offending_uid,
+                    permissions=ChatPermissions(can_send_messages=False),
+                    until_date=datetime.now(timezone.utc) + timedelta(hours=1)
+                )
+                mute_done = True
+            except Exception as e:
+                logger.error(f"Failed to mute user on admin confirmation: {e}")
+
+            if message_id:
+                try:
+                    await context.bot.delete_message(
+                        chat_id=chat_id,
+                        message_id=message_id
+                    )
+                    del_done = True
+                except Exception as e:
+                    logger.error(f"Failed to delete message on admin confirmation: {e}")
+
+            if mute_done and del_done:
+                action_note = f"\n\n🛑 <b>Offending user ({offending_display}) was muted (1 Hour) & message deleted.</b>"
+            elif mute_done:
+                action_note = f"\n\n🛑 <b>Offending user ({offending_display}) was muted (1 Hour).</b>"
+            else:
+                action_note = f"\n\n⚠️ <b>Could not mute user (bot lacks admin rights in group).</b>"
+        else:
+            action_note = f"\n\n🛑 <b>Offending user ({offending_display}) was already muted & message deleted.</b>"
+    else:
+        # If report was false and user was previously muted, unmute them!
+        if "MUTED" in action_taken and chat_id and offending_uid:
+            try:
+                await context.bot.restrict_chat_member(
+                    chat_id=chat_id,
+                    user_id=offending_uid,
                     permissions=ChatPermissions.all_permissions()
                 )
-                offending_display = html.escape(result.get("offending_user_name", "User"))
-                unmuted_note = f"\n\n🔓 <b>Offending user ({offending_display}) has been unmuted.</b>"
+                action_note = f"\n\n🔓 <b>Offending user ({offending_display}) has been unmuted.</b>"
             except Exception as e:
-                logger.error(f"Failed to unmute user {result['offending_user_id']}: {e}")
-                unmuted_note = "\n\n⚠️ Failed to automatically unmute user (bot lacks permission)."
+                logger.error(f"Failed to unmute user {offending_uid}: {e}")
+                action_note = "\n\n⚠️ Failed to automatically unmute user (bot lacks permission)."
 
     # Update log message with verdict and updated credibility
-    verdict_emoji = "✅ CONFIRMED" if is_correct else "❌ REJECTED (FALSE REPORT)"
+    verdict_emoji = "✅ CONFIRMED VIOLATION" if is_correct else "❌ REJECTED (FALSE REPORT)"
     old_c = result["old_credibility"]
     new_c = result["new_credibility"]
     diff = f"+{new_c - old_c:.2f}" if new_c >= old_c else f"{new_c - old_c:.2f}"
@@ -263,7 +302,7 @@ async def moderation_feedback_callback(update: Update, context: ContextTypes.DEF
         f"<b>Admin Verdict:</b> {verdict_emoji}\n"
         f"<b>Verified By:</b> {admin_name}\n"
         f"<b>Reporter Credibility Updated:</b> <code>{old_c:.2f}</code> → <code>{new_c:.2f}</code> ({diff})"
-        f"{unmuted_note}"
+        f"{action_note}"
     )
 
     try:
@@ -272,8 +311,6 @@ async def moderation_feedback_callback(update: Update, context: ContextTypes.DEF
             parse_mode="HTML"
         )
         toast_msg = f"Verdict: {verdict_emoji}. Credibility: {new_c:.2f}."
-        if unmuted_note and "unmuted" in unmuted_note:
-            toast_msg += " User unmuted."
         await query.answer(toast_msg)
     except Exception as e:
         logger.error(f"Failed to update audit log message: {e}")
