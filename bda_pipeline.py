@@ -239,9 +239,14 @@ def compute_user_metrics(df: pd.DataFrame, label: str = "USER") -> pd.DataFrame:
         # Churn risk: days since last session (in GMT+3)
         days_since_last = (today - last_session).days
 
+        # Most recent username / title
+        names = group.sort_values("created_at")["host_username"].dropna()
+        names = names[names.astype(str).str.strip() != ""]
+        latest_username = str(names.iloc[-1]) if not names.empty else ""
+
         user_metrics.append({
             "user_id": str(host_id),
-            "username": group["host_username"].iloc[0],
+            "username": latest_username,
             "total_sessions": len(group),
             "total_focus_minutes": int(group["duration"].sum()),
             "avg_duration": round(group["duration"].mean(), 1),

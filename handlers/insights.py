@@ -44,6 +44,15 @@ async def sync_channel_admins(bot):
                 return
             async with sem:
                 try:
+                    chat = await bot.get_chat(chat_id=int(cid))
+                    live_title = chat.title or title
+                    # Keep channel_analytics title updated in real time
+                    if chat.title and chat.title != title:
+                        await channel_analytics.update_one(
+                            {"channel_id": str(cid)},
+                            {"$set": {"username": live_title}}
+                        )
+
                     admins = await bot.get_chat_administrators(chat_id=int(cid))
                     for a in admins:
                         if not a.user.is_bot:
@@ -52,7 +61,7 @@ async def sync_channel_admins(bot):
                                 {
                                     "$set": {
                                         "channel_id": str(cid),
-                                        "channel_title": title,
+                                        "channel_title": live_title,
                                         "admin_user_id": a.user.id,
                                         "admin_name": a.user.first_name,
                                         "status": a.status,
