@@ -24,7 +24,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from db import sessions, user_analytics, global_analytics
+from db import sessions, user_analytics, channel_analytics, global_analytics
 from services.tree_normalizer import normalize_tree
 
 OUTPUT_DIR = "bda_output"
@@ -36,11 +36,11 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 # ══════════════════════════════════════════════════════════════════════════
 
 async def extract_sessions() -> pd.DataFrame:
-    """Pull all ended sessions and flatten into a per-host-session DataFrame.
+    """Pull all ended sessions and flatten into a per-session DataFrame.
 
-    Every session has a host (the person who shared the Forest link).
-    We use host_id as the primary user identifier since most users
-    don't use the task button (only ~1,087 of 45K sessions have participants).
+    Extracts both user-hosted and channel-hosted sessions.
+    Deduplicates cross-group multi-shares (identical tree and duration within 3 minutes by same host).
+    Converts timestamps to GMT+3.
     """
     rows = []
     cursor = sessions.find(
@@ -52,43 +52,95 @@ async def extract_sessions() -> pd.DataFrame:
         if not created_at:
             continue
 
-        # Ensure timezone-aware
+        # Ensure timezone-aware UTC
         if created_at.tzinfo is None:
             created_at = created_at.replace(tzinfo=timezone.utc)
 
+        # Standardize to GMT+3 (AST)
+        created_at_gmt3 = created_at + timedelta(hours=3)
+
         host_id = s.get("host_id")
-        # Skip channel-hosted sessions (negative IDs) that aren't mapped to users
-        if isinstance(host_id, int) and host_id < 0:
+        try:
+            hid_int = int(host_id)
+            if hid_int < 0:
+                entity_type = "channel"
+            elif hid_int > 0:
+                entity_type = "user"
+            else:
+                continue
+        except (ValueError, TypeError):
             continue
 
         duration = s.get("duration", 0)
         tree_raw = (s.get("tree") or "unknown").strip()
         tree_normalized = normalize_tree(tree_raw)
         participants = s.get("participants", {})
+        if not isinstance(participants, dict):
+            participants = {}
 
         rows.append({
             "session_id": str(s["_id"]),
             "host_id": str(host_id),
             "host_username": s.get("host_username", ""),
+            "entity_type": entity_type,
             "tree": tree_normalized,
             "duration": duration,
-            "created_at": created_at,
-            "date": created_at.date(),
-            "hour": created_at.hour,
-            "day_of_week": created_at.weekday(),  # 0=Mon, 6=Sun
+            "chat_id": str(s.get("chat_id", "")),
+            "created_at": created_at_gmt3,
+            "date": created_at_gmt3.date(),
+            "hour": created_at_gmt3.hour,
+            "day_of_week": created_at_gmt3.weekday(),  # 0=Mon, 6=Sun
+            "participants": participants,
             "participant_count": len(participants),
-            "has_task": any(p.get("task") for p in participants.values()),
-            "has_review": any(p.get("note") for p in participants.values()),
+            "has_task": any(p.get("task") for p in participants.values()) if participants else False,
+            "has_review": any(p.get("note") for p in participants.values()) if participants else False,
         })
 
-    df = pd.DataFrame(rows)
-    if not df.empty:
-        df["created_at"] = pd.to_datetime(df["created_at"], utc=True)
-        df["date"] = pd.to_datetime(df["date"])
+    raw_df = pd.DataFrame(rows)
+    if raw_df.empty:
+        return raw_df
 
-    print(f"✅ Extracted {len(df)} valid sessions")
-    print(f"   Unique hosts: {df['host_id'].nunique()}")
-    print(f"   Date range: {df['date'].min().date()} → {df['date'].max().date()}")
+    raw_df["created_at"] = pd.to_datetime(raw_df["created_at"])
+    raw_df["date"] = pd.to_datetime(raw_df["date"])
+
+    # Sort chronologically per host
+    raw_df = raw_df.sort_values(by=["host_id", "created_at"]).reset_index(drop=True)
+
+    # Detect duplicate cross-group shares: same host, same duration, same tree within 3 minutes
+    time_diff = raw_df.groupby("host_id")["created_at"].diff()
+    same_dur = raw_df["duration"] == raw_df.groupby("host_id")["duration"].shift(1)
+    same_tree = raw_df["tree"] == raw_df.groupby("host_id")["tree"].shift(1)
+    is_dup = (time_diff <= timedelta(minutes=3)) & same_dur & same_tree
+
+    # Group into duplicate clusters
+    raw_df["cluster_id"] = (~is_dup).cumsum()
+
+    # Collapse clusters by unioning participants
+    def _merge_cluster(g):
+        first = g.iloc[0].to_dict()
+        if len(g) > 1:
+            merged_parts = {}
+            for p in g["participants"]:
+                if isinstance(p, dict):
+                    merged_parts.update(p)
+            first["participants"] = merged_parts
+            first["participant_count"] = len(merged_parts)
+            first["has_task"] = any(p.get("task") for p in merged_parts.values()) if merged_parts else False
+            first["has_review"] = any(p.get("note") for p in merged_parts.values()) if merged_parts else False
+            first["shared_groups_count"] = len(g)
+        else:
+            first["shared_groups_count"] = 1
+        return pd.Series(first)
+
+    df = raw_df.groupby("cluster_id", as_index=False, group_keys=False).apply(_merge_cluster)
+    df["created_at"] = pd.to_datetime(df["created_at"])
+    df["date"] = pd.to_datetime(df["date"])
+
+    print(f"✅ Extracted {len(raw_df)} total raw sessions")
+    print(f"   Deduplicated to {len(df)} unique sessions ({len(raw_df) - len(df)} cross-group shares merged)")
+    print(f"   Unique personal users: {df[df['entity_type'] == 'user']['host_id'].nunique()}")
+    print(f"   Unique study channels: {df[df['entity_type'] == 'channel']['host_id'].nunique()}")
+    print(f"   Date range (GMT+3): {df['date'].min().date()} → {df['date'].max().date()}")
     return df
 
 
@@ -102,7 +154,7 @@ def _compute_streaks(dates: list) -> tuple[int, int]:
         return 0, 0
 
     unique_dates = sorted(set(dates))
-    today = datetime.now(timezone.utc).date()
+    today = (datetime.now(timezone.utc) + timedelta(hours=3)).date()
 
     # Best streak
     best = 1
@@ -127,12 +179,16 @@ def _compute_streaks(dates: list) -> tuple[int, int]:
     return current_streak, best
 
 
-def compute_user_metrics(df: pd.DataFrame) -> pd.DataFrame:
-    """Compute per-user engagement metrics."""
+def compute_user_metrics(df: pd.DataFrame, label: str = "USER") -> pd.DataFrame:
+    """Compute per-entity engagement metrics (users or channels)."""
     print("\n" + "═" * 60)
-    print("  STAGE 2: PER-USER ENGAGEMENT METRICS")
+    print(f"  STAGE 2: PER-{label} ENGAGEMENT METRICS")
     print("═" * 60)
 
+    if df.empty:
+        return pd.DataFrame()
+
+    today = (datetime.now(timezone.utc) + timedelta(hours=3)).date()
     user_metrics = []
 
     for host_id, group in df.groupby("host_id"):
@@ -180,8 +236,8 @@ def compute_user_metrics(df: pd.DataFrame) -> pd.DataFrame:
         else:
             duration_trend = "insufficient_data"
 
-        # Churn risk: days since last session
-        days_since_last = (datetime.now(timezone.utc).date() - last_session).days
+        # Churn risk: days since last session (in GMT+3)
+        days_since_last = (today - last_session).days
 
         user_metrics.append({
             "user_id": str(host_id),
@@ -206,9 +262,9 @@ def compute_user_metrics(df: pd.DataFrame) -> pd.DataFrame:
         })
 
     metrics_df = pd.DataFrame(user_metrics)
-    print(f"📊 Computed metrics for {len(metrics_df)} users")
-    print(f"   Avg sessions/user: {metrics_df['total_sessions'].mean():.1f}")
-    print(f"   Avg focus time/user: {metrics_df['total_focus_minutes'].mean():.0f} min")
+    print(f"📊 Computed metrics for {len(metrics_df)} {label.lower()} entities")
+    print(f"   Avg sessions: {metrics_df['total_sessions'].mean():.1f}")
+    print(f"   Avg focus time: {metrics_df['total_focus_minutes'].mean():.0f} min")
     print(f"   Avg streak (best): {metrics_df['best_streak'].mean():.1f} days")
     return metrics_df
 
@@ -281,14 +337,14 @@ def compute_retention_cohorts(df: pd.DataFrame) -> dict:
 #  STAGE 4 — GLOBAL METRICS
 # ══════════════════════════════════════════════════════════════════════════
 
-def compute_global_metrics(df: pd.DataFrame, user_metrics: pd.DataFrame, retention: dict) -> dict:
-    """Compute global engagement metrics."""
+def compute_global_metrics(df: pd.DataFrame, user_metrics: pd.DataFrame, retention: dict, channel_metrics: pd.DataFrame = None) -> dict:
+    """Compute global engagement metrics across all community sessions."""
     print("\n" + "═" * 60)
     print("  STAGE 4: GLOBAL METRICS")
     print("═" * 60)
 
     now = datetime.now(timezone.utc)
-    today = now.date()
+    today = (now + timedelta(hours=3)).date()
 
     # DAU / WAU / MAU
     last_1d = df[df["date"].dt.date >= today - timedelta(days=1)]["host_id"].nunique()
@@ -311,7 +367,7 @@ def compute_global_metrics(df: pd.DataFrame, user_metrics: pd.DataFrame, retenti
         .to_dict("records")
     )
 
-    # Hourly distribution
+    # Hourly distribution (GMT+3)
     hourly_dist = (
         df["hour"].value_counts().sort_index()
         .reset_index()
@@ -341,18 +397,33 @@ def compute_global_metrics(df: pd.DataFrame, user_metrics: pd.DataFrame, retenti
         if rates:
             retention_summary[f"week_{week_n}"] = round(sum(rates) / len(rates), 1)
 
+    # Top study channels
+    top_channels = []
+    if channel_metrics is not None and not channel_metrics.empty:
+        top_channels = (
+            channel_metrics.sort_values(by="total_sessions", ascending=False)
+            .head(10)[["user_id", "username", "total_sessions", "total_focus_minutes", "top_tree"]]
+            .rename(columns={"user_id": "channel_id", "username": "channel_title"})
+            .to_dict("records")
+        )
+
+    user_count = df[df["entity_type"] == "user"]["host_id"].nunique()
+    channel_count = df[df["entity_type"] == "channel"]["host_id"].nunique()
+
     global_doc = {
         "computed_at": now,
         "total_sessions": len(df),
-        "total_users": df["host_id"].nunique(),
+        "total_users": user_count,
+        "total_channels": channel_count,
         "total_focus_minutes": int(df["duration"].sum()),
         "total_focus_hours": round(df["duration"].sum() / 60, 1),
         "dau": last_1d,
         "wau": last_7d,
         "mau": last_30d,
-        "avg_sessions_per_user": round(len(df) / max(df["host_id"].nunique(), 1), 1),
+        "avg_sessions_per_user": round(len(df[df["entity_type"] == "user"]) / max(user_count, 1), 1),
         "avg_duration": round(df["duration"].mean(), 1),
         "top_trees": top_trees,
+        "top_channels": top_channels,
         "duration_distribution": duration_dist,
         "hourly_distribution": hourly_dist,
         "weekly_trend": weekly_trend,
@@ -360,8 +431,8 @@ def compute_global_metrics(df: pd.DataFrame, user_metrics: pd.DataFrame, retenti
     }
 
     print(f"📊 Global metrics computed")
-    print(f"   Total sessions: {global_doc['total_sessions']}")
-    print(f"   Total users: {global_doc['total_users']}")
+    print(f"   Total sessions (all entities): {global_doc['total_sessions']}")
+    print(f"   Total users: {global_doc['total_users']} | Total channels: {global_doc['total_channels']}")
     print(f"   Total focus time: {global_doc['total_focus_hours']} hours")
     print(f"   DAU: {last_1d} | WAU: {last_7d} | MAU: {last_30d}")
 
@@ -392,13 +463,13 @@ def generate_charts(df: pd.DataFrame, user_metrics: pd.DataFrame, global_doc: di
     plt.close(fig)
     print("📊 top_trees.png saved")
 
-    # 2. Sessions by Hour of Day
+    # 2. Sessions by Hour of Day (GMT+3)
     fig, ax = plt.subplots(figsize=(10, 5))
     hourly = df["hour"].value_counts().sort_index()
     ax.bar(hourly.index, hourly.values, color=sns.color_palette("coolwarm", 24), edgecolor="white")
-    ax.set_xlabel("Hour of Day (UTC)", fontsize=12)
+    ax.set_xlabel("Hour of Day (GMT+3)", fontsize=12)
     ax.set_ylabel("Sessions", fontsize=12)
-    ax.set_title("Focus Sessions by Hour of Day", fontsize=14, fontweight="bold")
+    ax.set_title("Focus Sessions by Hour of Day (GMT+3)", fontsize=14, fontweight="bold")
     ax.set_xticks(range(24))
     plt.tight_layout()
     fig.savefig(os.path.join(OUTPUT_DIR, "sessions_by_hour.png"), dpi=150)
@@ -474,22 +545,35 @@ def generate_charts(df: pd.DataFrame, user_metrics: pd.DataFrame, global_doc: di
 #  STAGE 6 — LOAD (Write to MongoDB)
 # ══════════════════════════════════════════════════════════════════════════
 
-async def load_to_mongodb(user_metrics_df: pd.DataFrame, global_doc: dict, retention: dict):
+async def load_to_mongodb(user_metrics_df: pd.DataFrame, global_doc: dict, retention: dict, channel_metrics_df: pd.DataFrame = None):
     """Write aggregated results to MongoDB."""
     print("\n" + "═" * 60)
     print("  STAGE 6: LOAD TO MONGODB")
     print("═" * 60)
 
     # User analytics — upsert each user
-    for _, row in user_metrics_df.iterrows():
-        doc = row.to_dict()
-        doc["updated_at"] = datetime.now(timezone.utc)
-        await user_analytics.update_one(
-            {"user_id": doc["user_id"]},
-            {"$set": doc},
-            upsert=True,
-        )
-    print(f"✅ Upserted {len(user_metrics_df)} user analytics documents")
+    if not user_metrics_df.empty:
+        for _, row in user_metrics_df.iterrows():
+            doc = row.to_dict()
+            doc["updated_at"] = datetime.now(timezone.utc)
+            await user_analytics.update_one(
+                {"user_id": doc["user_id"]},
+                {"$set": doc},
+                upsert=True,
+            )
+        print(f"✅ Upserted {len(user_metrics_df)} user analytics documents")
+
+    # Channel analytics — upsert each channel
+    if channel_metrics_df is not None and not channel_metrics_df.empty:
+        for _, row in channel_metrics_df.iterrows():
+            doc = row.to_dict()
+            doc["updated_at"] = datetime.now(timezone.utc)
+            await channel_analytics.update_one(
+                {"channel_id": doc["user_id"]},
+                {"$set": doc},
+                upsert=True,
+            )
+        print(f"✅ Upserted {len(channel_metrics_df)} channel analytics documents")
 
     # Global analytics — single document (replace)
     global_doc["retention_cohorts"] = retention
@@ -516,27 +600,33 @@ async def main():
         print("❌ No data found. Exiting.")
         return
 
-    # Stage 2: Per-user metrics
-    user_metrics_df = compute_user_metrics(df)
+    user_df = df[df["entity_type"] == "user"].copy()
+    channel_df = df[df["entity_type"] == "channel"].copy()
 
-    # Stage 3: Retention cohorts
-    retention = compute_retention_cohorts(df)
+    # Stage 2: Per-user & per-channel metrics
+    user_metrics_df = compute_user_metrics(user_df, label="USER")
+    channel_metrics_df = compute_user_metrics(channel_df, label="CHANNEL")
 
-    # Stage 4: Global metrics
-    global_doc = compute_global_metrics(df, user_metrics_df, retention)
+    # Stage 3: Retention cohorts (evaluated on genuine user accounts)
+    retention = compute_retention_cohorts(user_df)
 
-    # Stage 5: Visualizations
+    # Stage 4: Global metrics (evaluated on complete community dataset)
+    global_doc = compute_global_metrics(df, user_metrics_df, retention, channel_metrics=channel_metrics_df)
+
+    # Stage 5: Visualizations (generated on complete community dataset)
     generate_charts(df, user_metrics_df, global_doc)
 
     # Stage 6: Load to MongoDB
     if not args.dry:
-        await load_to_mongodb(user_metrics_df, global_doc, retention)
+        await load_to_mongodb(user_metrics_df, global_doc, retention, channel_metrics_df)
     else:
         print("\n⏭ Dry run — skipping MongoDB write")
 
     # Save CSVs for reference
     user_metrics_df.to_csv(os.path.join(OUTPUT_DIR, "user_metrics.csv"), index=False)
+    channel_metrics_df.to_csv(os.path.join(OUTPUT_DIR, "channel_metrics.csv"), index=False)
     print(f"\n💾 User metrics CSV saved → {OUTPUT_DIR}/user_metrics.csv")
+    print(f"💾 Channel metrics CSV saved → {OUTPUT_DIR}/channel_metrics.csv")
 
     print("\n" + "=" * 60)
     print(f"✅ BDA PIPELINE COMPLETE")
