@@ -31,6 +31,7 @@ reading_checkins = db.reading_checkins  # daily reading challenge check-ins
 bot_state = db.bot_state              # generic key-value storage for bot state (survives restarts)
 user_analytics = db.user_analytics    # per-user engagement metrics (BDA pipeline output)
 channel_analytics = db.channel_analytics  # per-channel engagement metrics (BDA pipeline output)
+channel_admins = db.channel_admins        # mapped channel administrators (automated BDA linking)
 global_analytics = db.global_analytics  # global engagement metrics (BDA pipeline output)
 user_credibility = db.user_credibility  # per-user reporting reliability scores (NLP Phase 3)
 mod_reports = db.mod_reports            # moderation reports and audit feedback history (NLP Phase 3)

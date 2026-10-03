@@ -1,3 +1,4 @@
+import asyncio
 import threading
 from datetime import time as dt_time
 from telegram import Update
@@ -9,7 +10,7 @@ from handlers.daily import send_todo, send_challenge
 from handlers.moderator import handle_report, moderation_feedback_callback
 from handlers.scoring import score_user, leaderboard, profile
 from handlers.ask import ask_command
-from handlers.insights import insights_command
+from handlers.insights import insights_command, insights_callback, sync_channel_admins
 from handlers.sleep import handle_sleep
 from handlers.study import handle_study
 from handlers.participants import handle_automatic_forward
@@ -35,6 +36,9 @@ async def init_on_startup(app):
     except Exception as e:
         import logging
         logging.getLogger(__name__).warning(f"Startup NLP model sync skipped, using baseline artifact: {e}")
+
+    # Discover and cache channel administrators in background for /insights
+    asyncio.create_task(sync_channel_admins(app.bot))
 
 
 def main():
@@ -90,6 +94,7 @@ def main():
     application.add_handler(CallbackQueryHandler(moderation_feedback_callback, pattern=r"^mod:(confirm|reject):"))
     application.add_handler(CallbackQueryHandler(handle_reading_checkin, pattern=r"^reading_checkin:"))
     application.add_handler(CallbackQueryHandler(game_callback_handler, pattern=r"^(g_|ttt_|c4_)"))
+    application.add_handler(CallbackQueryHandler(insights_callback, pattern=r"^ins:"))
 
     application.add_handler(MessageHandler(filters.Chat(MENTION_CHAT_ID) & filters.IS_AUTOMATIC_FORWARD, handle_automatic_forward))
 
