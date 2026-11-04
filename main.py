@@ -76,8 +76,15 @@ def main():
             await update.message.reply_text("Triggering test reading check-in...")
             await send_reading_checkin(context, force=True, target_chat_id=READING_TEST_CHAT_ID)
 
+    async def test_todo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if update.effective_user.id in BOT_ADMIN_IDS and update.effective_chat.id == EXPERIMENTAL_CHAT_ID:
+            from handlers.daily import send_todo
+            await update.message.reply_text("Triggering test todo with daily quote...")
+            await send_todo(context, force_chat_id=EXPERIMENTAL_CHAT_ID, advance_quote=False)
+
     application.add_handler(CommandHandler("test_challenge", test_challenge))
     application.add_handler(CommandHandler("test_reading", test_reading))
+    application.add_handler(CommandHandler("test_todo", test_todo))
 
     # application.add_handler(CommandHandler("report", handle_report))
     application.add_handler(CommandHandler("s", score_user))

@@ -2,6 +2,7 @@ from datetime import date, datetime
 from telegram.ext import ContextTypes
 from config import DAILY_CHAT_IDS, CHALLENGE_CHAT_IDS, TIMEZONE
 from db import bot_state
+from services.quotes import get_current_quote, format_quote_block
 
 async def get_pinned_msg(key: str) -> int | None:
     doc = await bot_state.find_one({"_id": key})
@@ -13,12 +14,19 @@ async def set_pinned_msg(key: str, message_id: int):
     await bot_state.replace_one({"_id": key}, {"_id": key, "message_id": message_id}, upsert=True)
 
 
-async def send_todo(context: ContextTypes.DEFAULT_TYPE):
+async def send_todo(context: ContextTypes.DEFAULT_TYPE, force_chat_id: int | None = None, advance_quote: bool = True):
     """Sends the daily todo list message at 5:00 AM IST and pins it."""
     today = datetime.now(TIMEZONE).strftime("%d/%m/%Y")
-    text = f"📋 {today} — Todo List + Day's Forest 🌲"
 
-    for chat_id in DAILY_CHAT_IDS:
+    # Fetch daily quote (advance pointer only for scheduled production posts)
+    quote, _idx, _total = await get_current_quote(advance=advance_quote)
+    quote_text = format_quote_block(quote)
+
+    text = f"<b>• <u>{today} Todo List & Forest</u></b>{quote_text}"
+
+    target_chats = [force_chat_id] if force_chat_id else DAILY_CHAT_IDS
+
+    for chat_id in target_chats:
         db_key = f"pinned_todo_{chat_id}"
         prev = await get_pinned_msg(db_key)
         if prev:
@@ -30,6 +38,7 @@ async def send_todo(context: ContextTypes.DEFAULT_TYPE):
         msg = await context.bot.send_message(
             chat_id=chat_id,
             text=text,
+            parse_mode="HTML",
             disable_notification=True,
         )
 
